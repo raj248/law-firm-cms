@@ -1,5 +1,5 @@
 import { NavigationMenu, NavigationMenuList } from "@/components/ui/navigation-menu"
-import { Home, Users, Briefcase } from "lucide-react"
+import { Home, Users, Briefcase, KeySquare, UserRoundPlus } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 
@@ -7,6 +7,8 @@ const navItems = [
   { name: "Dashboard", icon: <Home size={18} />, path: "/" },
   { name: "Clients", icon: <Users size={18} />, path: "/clients" },
   { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
+  { name: "Login", icon: <KeySquare size={18} />, path: "/login" },
+  { name: "Register", icon: <UserRoundPlus size={18} />, path: "/register" },
 ]
 
 export default function Sidebar() {
@@ -21,7 +23,7 @@ export default function Sidebar() {
               key={item.name}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted",
+                "flex w-full items-center gap-6 rounded-md px-6 py-2 text-sm font-medium transition-colors hover:bg-muted",
                 location.pathname === item.path && "bg-muted font-semibold"
               )}
             >

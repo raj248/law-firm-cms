@@ -8,10 +8,12 @@ export default function MainLayout() {
     "/": "Dashboard",
     "/clients": "Clients",
     "/cases": "Cases",
+    "/login": "Login",
+    "/register": "Register",
   }[location.pathname] ?? "Untitled"
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-[var(--card)] text-[var(--card-foreground)]">
+    <div className="flex flex-col h-full w-full overflow-hidden hide-scrollbar bg-[var(--card)] text-[var(--card-foreground)]">
 
       {/* Header */}
       <header className="p-4 border-b">
@@ -21,7 +23,7 @@ export default function MainLayout() {
       <Separator />
 
       {/* Scrollable Content */}
-      <main className="flex-1 overflow-y-auto p-4">
+      <main className="flex-1 overflow-y-auto hide-scrollbar p-4">
         <Outlet />
       </main>
 
