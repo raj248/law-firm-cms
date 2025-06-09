@@ -1,5 +1,16 @@
-import { NavigationMenu, NavigationMenuList } from "@/components/ui/navigation-menu"
-import { Home, Users, Briefcase, KeySquare, UserRoundPlus } from "lucide-react"
+import {
+  NavigationMenu,
+  NavigationMenuList
+} from "@/components/ui/navigation-menu"
+import { Button } from "@/components/ui/button"
+import {
+  Home,
+  Users,
+  Briefcase,
+  KeySquare,
+  UserRoundPlus,
+  ChevronsLeft
+} from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 
@@ -11,11 +22,11 @@ const navItems = [
   { name: "Register", icon: <UserRoundPlus size={18} />, path: "/register" },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ collapsePanel }: { collapsePanel: () => void }) {
   const location = useLocation()
 
   return (
-    <aside className="h-full w-full p-4 bg-[var(--color-sidebar)] text-[var(--color-sidebar-foreground)]">
+    <div className="h-full flex flex-col justify-between px-2 py-4">
       <NavigationMenu orientation="vertical">
         <NavigationMenuList className="flex flex-col space-y-2">
           {navItems.map((item) => (
@@ -23,7 +34,7 @@ export default function Sidebar() {
               key={item.name}
               to={item.path}
               className={cn(
-                "flex w-full items-center gap-6 rounded-md px-6 py-2 text-sm font-medium transition-colors hover:bg-muted",
+                "flex w-full items-center gap-4 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted",
                 location.pathname === item.path && "bg-muted font-semibold"
               )}
             >
@@ -33,6 +44,17 @@ export default function Sidebar() {
           ))}
         </NavigationMenuList>
       </NavigationMenu>
-    </aside>
+
+      {/* Collapse Button at the Bottom */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={collapsePanel}
+        className="mt-4 flex items-center justify-center gap-2 self-end"
+      >
+        <ChevronsLeft className="h-4 w-4" />
+        Collapse
+      </Button>
+    </div>
   )
 }
