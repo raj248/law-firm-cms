@@ -1,60 +1,64 @@
 import {
   NavigationMenu,
-  NavigationMenuList
-} from "@/components/ui/navigation-menu"
-import { Button } from "@/components/ui/button"
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
 import {
   Home,
   Users,
   Briefcase,
-  KeySquare,
-  UserRoundPlus,
-  ChevronsLeft
-} from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
-import { cn } from "@/lib/utils"
-
+  Calendar,
+  Files,
+} from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 const navItems = [
   { name: "Dashboard", icon: <Home size={18} />, path: "/" },
   { name: "Clients", icon: <Users size={18} />, path: "/clients" },
   { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
-  { name: "Login", icon: <KeySquare size={18} />, path: "/login" },
-  { name: "Register", icon: <UserRoundPlus size={18} />, path: "/register" },
-]
+  { name: "Calender", icon: <Calendar size={18} />, path: "/register" },
+  { name: "Docs", icon: <Files size={18} />, path: "/login" },
+];
 
-export default function Sidebar({ collapsePanel }: { collapsePanel: () => void }) {
-  const location = useLocation()
+export default function Sidebar() {
+  const location = useLocation();
 
   return (
-    <div className="h-full flex flex-col justify-between px-2 py-4">
-      <NavigationMenu orientation="vertical">
-        <NavigationMenuList className="flex flex-col space-y-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={cn(
-                "flex w-full items-center gap-4 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted",
-                location.pathname === item.path && "bg-muted font-semibold"
-              )}
-            >
-              {item.icon}
-              {item.name}
-            </Link>
-          ))}
-        </NavigationMenuList>
-      </NavigationMenu>
-
-      {/* Collapse Button at the Bottom */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={collapsePanel}
-        className="mt-4 flex items-center justify-center gap-2 self-end"
+    <div
+      className="relative h-1/2 translate-y-1/2 z-10"
+      dir="rtl"
+    >
+      <div
+        className="group absolute left-0 top-0 h-full w-14 hover:w-32 transition-all duration-300 bg-white rounded-r-lg border-2 flex flex-col py-4 overflow-hidden z-10"
       >
-        <ChevronsLeft className="h-4 w-4" />
-        Collapse
-      </Button>
+        <NavigationMenu orientation="vertical">
+          <NavigationMenuList className="flex flex-col items-start space-y-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={cn(
+                  "flex items-center w-full gap-4 rounded-md px-2 py-2 text-sm font-medium transition-colors hover:bg-muted",
+                  location.pathname === item.path && "bg-muted font-semibold"
+                )}
+              >
+                <div className={cn(
+                  "min-w-[20px] flex justify-center transition-all duration-300",
+                  "ml-20 group-hover:ml-0"
+                )}>{item.icon}</div>
+                <span
+                  className={cn(
+                    "transform transition-all duration-300 whitespace-nowrap mr-2",
+                    "group-hover:translate-x-0 group-hover:opacity-100",
+                    "translate-x-14 opacity-0"
+                  )}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            ))}
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
     </div>
-  )
+  );
 }

@@ -13,7 +13,7 @@ export default function MainLayout() {
   }[location.pathname] ?? "Untitled"
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden hide-scrollbar bg-[var(--card)] text-[var(--card-foreground)]">
+    <div className="flex flex-col h-full w-full ml-14 overflow-hidden hide-scrollbar bg-[var(--card)] text-[var(--card-foreground)]">
 
       {/* Header */}
       <header className="p-4 border-b">

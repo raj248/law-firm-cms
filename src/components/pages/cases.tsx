@@ -1,8 +1,9 @@
 "use client"
 
-import { DataTable } from "@/components/data-table"
+import { ClientTable } from "@/components/client-table"
 import { casesColumns } from "@/components/columns/cases-columns"
 import { Case } from "@/types"
+import { CaseTable } from "../case-table"
 
 const cases: Case[] = [
   {
@@ -49,7 +50,7 @@ export default function CasesPage() {
       </div>
 
       {/* Table */}
-      <DataTable columns={casesColumns} data={cases} />
+      <CaseTable />
     </div>
   )
 }
