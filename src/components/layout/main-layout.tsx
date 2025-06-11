@@ -8,12 +8,14 @@ export default function MainLayout() {
     "/": "Dashboard",
     "/clients": "Clients",
     "/cases": "Cases",
+    "/calender": "Calender",
+    "/docs": "Documents",
     "/login": "Login",
     "/register": "Register",
   }[location.pathname] ?? "Untitled"
 
   return (
-    <div className="flex flex-col h-full w-full ml-14 overflow-hidden hide-scrollbar bg-[var(--card)] text-[var(--card-foreground)]">
+    <div className="flex flex-col h-full w-full ml-14 overflow-hidden hide-scrollbar bg-[var(--color-background)] text-[var(--card-foreground)]">
 
       {/* Header */}
       <header className="p-4 border-b">

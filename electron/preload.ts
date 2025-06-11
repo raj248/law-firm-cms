@@ -1,6 +1,6 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { ipcRenderer, contextBridge, shell } from 'electron'
 
-// --------- Expose some API to the Renderer process ---------
+// --------- Expose APIs to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
     const [channel, listener] = args
@@ -18,7 +18,9 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     const [channel, ...omit] = args
     return ipcRenderer.invoke(channel, ...omit)
   },
+})
 
-  // You can expose other APTs you need here.
-  // ...
+// --------- Expose shell.openPath ---------
+contextBridge.exposeInMainWorld('electronAPI', {
+  openFile: (filePath: string) => {console.log(shell.openPath(filePath))},
 })

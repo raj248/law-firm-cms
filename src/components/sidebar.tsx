@@ -15,8 +15,8 @@ const navItems = [
   { name: "Dashboard", icon: <Home size={18} />, path: "/" },
   { name: "Clients", icon: <Users size={18} />, path: "/clients" },
   { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
-  { name: "Calender", icon: <Calendar size={18} />, path: "/register" },
-  { name: "Docs", icon: <Files size={18} />, path: "/login" },
+  { name: "Calender", icon: <Calendar size={18} />, path: "/calender" },
+  { name: "Documents", icon: <Files size={18} />, path: "/docs" },
 ];
 
 export default function Sidebar() {
@@ -28,10 +28,10 @@ export default function Sidebar() {
       dir="rtl"
     >
       <div
-        className="group absolute left-0 top-0 h-full w-14 hover:w-32 transition-all duration-300 bg-white rounded-r-lg border-2 flex flex-col py-4 overflow-hidden z-10"
+        className="group absolute left-0 top-0 h-full w-14 hover:w-36 transition-all duration-300 bg-[var(--color-sidebar)] rounded-r-lg border-2 flex flex-col py-4 overflow-hidden z-10"
       >
         <NavigationMenu orientation="vertical">
-          <NavigationMenuList className="flex flex-col items-start space-y-2">
+          <NavigationMenuList className="flex flex-col items-start ml-4 space-y-2">
             {navItems.map((item) => (
               <Link
                 key={item.name}
