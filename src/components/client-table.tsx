@@ -96,15 +96,18 @@ export const columns: ColumnDef<Client>[] = [
       </Button>
     ),
     cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    filterFn: 'includesString',
   },
   {
     accessorKey: "email",
     header: "Email",
+    filterFn: 'includesString',
     cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
   },
   {
     accessorKey: "phone",
     header: "Phone",
+    filterFn: 'includesString',
     cell: ({ row }) => <div>{row.getValue("phone")}</div>,
   },
   {
@@ -149,7 +152,7 @@ export const columns: ColumnDef<Client>[] = [
 
 export function ClientTable() {
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [globalFilter, setGlobalFilter] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
@@ -157,16 +160,17 @@ export function ClientTable() {
     data,
     columns,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    globalFilterFn: 'includesString',
     state: {
       sorting,
-      columnFilters,
+      globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -176,11 +180,9 @@ export function ClientTable() {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter by name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          placeholder="Filter by name, email, or phone..."
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>

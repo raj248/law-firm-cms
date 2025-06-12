@@ -95,11 +95,13 @@ export const columns: ColumnDef<Case>[] = [
         Title <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    filterFn: 'includesString',
     cell: ({ row }) => <div>{row.getValue("title")}</div>,
   },
   {
     accessorKey: "clientName",
     header: "Client",
+    filterFn: 'includesString',
     cell: ({ row }) => <div>{row.getValue("clientName")}</div>,
   },
   {
@@ -112,6 +114,7 @@ export const columns: ColumnDef<Case>[] = [
   {
     accessorKey: "courtDate",
     header: "Court Date",
+    filterFn: 'includesString',
     cell: ({ row }) => <div>{row.getValue("courtDate")}</div>,
   },
   {
@@ -147,7 +150,7 @@ export const columns: ColumnDef<Case>[] = [
 
 export function CaseTable() {
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [globalFilter, setGlobalFilter] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
@@ -155,16 +158,17 @@ export function CaseTable() {
     data,
     columns,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    globalFilterFn: 'includesString',
     state: {
       sorting,
-      columnFilters,
+      globalFilter,
       columnVisibility,
       rowSelection,
     },
@@ -175,8 +179,8 @@ export function CaseTable() {
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by title..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(e) => table.getColumn("title")?.setFilterValue(e.target.value)}
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>

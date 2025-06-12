@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import React from "react"
-import { shell } from "electron"
 
 interface DocumentItem {
   id: string
@@ -36,13 +35,14 @@ export default function DocumentsPage() {
 
     // Simulated upload
     setTimeout(() => {
+      console.log(`Uploading file: ${selectedFile.name} for Case ID: ${caseId} File at: ${selectedFile.path}`)
       setDocuments((prev) => [
         ...prev,
         {
           id: Math.random().toString(36).substring(2),
           name: selectedFile.name,
           caseId,
-          url: URL.createObjectURL(selectedFile),
+          url: selectedFile.path,
         },
       ])
       setSelectedFile(null)

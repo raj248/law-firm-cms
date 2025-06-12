@@ -19,7 +19,5 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   }
 });
 electron.contextBridge.exposeInMainWorld("electronAPI", {
-  openFile: (filePath) => {
-    console.log(electron.shell.openPath(filePath));
-  }
+  openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath)
 });
