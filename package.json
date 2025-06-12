@@ -1,8 +1,10 @@
 {
   "name": "law-firm-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Law Firm App: Please Choose an app name quickly",
+  "author": "raj248",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
