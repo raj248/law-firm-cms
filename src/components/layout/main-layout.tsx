@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
+import { ThemeToggle } from "../theme-toggle"
 
 export default function MainLayout() {
   const location = useLocation()
@@ -18,8 +19,9 @@ export default function MainLayout() {
     <div className="flex flex-col h-full w-full ml-14 overflow-hidden hide-scrollbar bg-[var(--color-background)] text-[var(--card-foreground)]">
 
       {/* Header */}
-      <header className="p-4 border-b">
+      <header className="p-4 border-b flex flex-row items-center justify-between">
         <h1 className="text-xl font-bold">{title}</h1>
+        <ThemeToggle />
       </header>
 
       <Separator />

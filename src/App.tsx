@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider, useTheme } from "@/components/theme-provider"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 import Sidebar from "@/components/sidebar"
@@ -12,8 +12,10 @@ import CalenderPage from "./components/pages/calender"
 import DocumentsPage from "./components/pages/documents"
 
 export default function App() {
+  const { theme } = useTheme()
+
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme={theme} storageKey="vite-ui-theme">
       <Router>
         <div className="w-screen h-screen flex flex-row ">
           <Sidebar />
