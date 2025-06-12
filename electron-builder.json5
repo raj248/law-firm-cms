@@ -15,7 +15,7 @@
   win: {
     target: [
       {
-        target: ["nsis", "portable"],
+        target: "nsis",
         arch: ["x64"],
       },
     ],
