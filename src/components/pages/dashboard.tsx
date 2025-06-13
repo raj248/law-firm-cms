@@ -1,8 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Briefcase, CalendarDays, FileText, ClipboardList } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { AddClientDialog } from "@/components/add-client-dialog"
+import { AddCaseDialog } from "@/components/add-case-dialog"
+
+
 
 export default function Dashboard() {
+  const clients = ["John Doe", "Jane Smith", "Client X"]
+  const handleAddClient = (data: any) => {
+    // ✅ Handle client data here:
+    // - Save to local state
+    // - Send to backend/API
+    // - Show toast/notification
+    console.log("New client:", data)
+  }
+  const handleAddCase = (data: any) => {
+    console.log("New case:", data)
+    // TODO: Save to DB, update state, or sync with backend
+  }
   return (
     <div className="space-y-6 p-4">
       {/* Welcome */}
@@ -49,8 +65,9 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-2">
-        <Button variant="default">+ New Client</Button>
+        <AddClientDialog onAdd={handleAddClient} />
         <Button variant="default">+ New Case</Button>
+        <AddCaseDialog clients={clients} onAdd={handleAddCase} />
         <Button variant="outline">+ Schedule Appointment</Button>
       </div>
 

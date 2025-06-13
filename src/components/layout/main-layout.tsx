@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "../theme-toggle"
+import { Toaster } from "@/components/ui/sonner"
 import { Debug } from "../debug"
 
 export default function MainLayout() {
@@ -33,6 +34,7 @@ export default function MainLayout() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto hide-scrollbar p-4">
         <Outlet />
+        <Toaster />
       </main>
 
     </div>
