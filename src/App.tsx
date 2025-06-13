@@ -1,5 +1,5 @@
 import { ThemeProvider, useTheme } from "@/components/theme-provider"
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { HashRouter as Router, Routes, Route } from "react-router-dom"
 
 import Sidebar from "@/components/sidebar"
 import MainLayout from "@/components/layout/main-layout"
