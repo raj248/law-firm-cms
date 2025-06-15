@@ -1,7 +1,54 @@
 import { app, BrowserWindow, ipcMain, shell } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { createRequire } from "node:module";
+const require2 = createRequire(import.meta.url);
+const Database = require2("better-sqlite3");
+function db() {
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const mockClients = [
+    {
+      id: "c1",
+      name: "Alice Sharma",
+      phone: "9876543210",
+      email: "alice@example.com",
+      address: "123 Civil Lines",
+      notes: "Prefers email communication",
+      updatedAt: now
+    },
+    {
+      id: "c2",
+      name: "Bob Verma",
+      phone: "9123456780",
+      email: "bob@example.com",
+      address: "45 MG Road",
+      notes: "",
+      updatedAt: now
+    }
+  ];
+  const database = new Database("lawfirm.db");
+  console.log("Database successfully created");
+  database.exec(`
+  CREATE TABLE IF NOT EXISTS clients (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    address TEXT,
+    notes TEXT,
+    updatedAt TEXT NOT NULL);
+    `);
+  const insertClient = database.prepare(`
+    INSERT OR REPLACE INTO clients (id, name, phone, email, address, notes, updatedAt)
+    VALUES (@id, @name, @phone, @email, @address, @notes, @updatedAt)
+  `);
+  mockClients.forEach((client) => insertClient.run(client));
+  const result = database.prepare(`SELECT * FROM clients`).all();
+  console.log(result);
+}
+createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 process.env.APP_ROOT = path.join(__dirname, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
@@ -41,6 +88,11 @@ app.whenReady().then(() => {
     const result = await shell.openPath(filePath);
     return result;
   });
+  ipcMain.handle("db-test", () => {
+    db();
+  });
+}).catch((err) => {
+  console.error("Electron app launch failed:", err);
 });
 export {
   MAIN_DIST,

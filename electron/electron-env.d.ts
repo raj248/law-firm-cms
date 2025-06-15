@@ -26,7 +26,14 @@ interface ElectronAPI {
   openFile: (filePath: string) => Promise<string | null>
 }
 
+interface DB {
+  insertClient: (client: Client) => void
+  getAllClients: () => Client[]
+  deleteClient: (id: string) => void
+  dbTest: () => void
+}
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
   electronAPI: ElectronAPI
+  db: DB
 }

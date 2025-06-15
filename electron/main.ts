@@ -1,10 +1,15 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
-// import { createRequire } from 'node:module'
+// import { insertClient, getAllClients } from './client-repo.ts'
+
+// import Database from 'better-sqlite3'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import db from './db'
+import { createRequire } from 'node:module'
 
-// const require = createRequire(import.meta.url)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const require = createRequire(import.meta.url)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // The built directory structure
 //
@@ -65,11 +70,27 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(() => {
+app.whenReady()
+.then(() => {
   createWindow()
 
   ipcMain.handle('open-file', async (_event, filePath: string) => {
     const result = await shell.openPath(filePath)
     return result
   })
+
+  // ipcMain.handle('db:add-client', (_, client) => {
+  //   insertClient(client)
+  // })
+
+  // ipcMain.handle('db:get-clients', () => {
+  //   return getAllClients()
+  // })
+
+  ipcMain.handle('db-test',()=> {
+    db();
+  })
+})
+.catch((err) => {
+  console.error('Electron app launch failed:', err)
 })

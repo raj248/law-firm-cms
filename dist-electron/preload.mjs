@@ -21,3 +21,8 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
 electron.contextBridge.exposeInMainWorld("electronAPI", {
   openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath)
 });
+electron.contextBridge.exposeInMainWorld("db", {
+  addClient: (client) => electron.ipcRenderer.invoke("db:add-client", client),
+  getClients: async () => await electron.ipcRenderer.invoke("db:get-clients"),
+  dbTest: async () => await electron.ipcRenderer.invoke("db-test")
+});
