@@ -34,32 +34,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-export type Client = {
-  id: string
-  name: string
-  email: string
-  phone: string
-  status: "active" | "inactive"
-}
-
-const data: Client[] = [
-  {
-    id: "c001",
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "9876543210",
-    status: "active",
-  },
-  {
-    id: "c002",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    phone: "9123456780",
-    status: "inactive",
-  },
-  // Add more client objects here
-]
+import { Client } from "@/types"
+import { useClientStore } from "@/stores/client-store"
 
 export const columns: ColumnDef<Client>[] = [
   {
@@ -110,10 +86,12 @@ export const columns: ColumnDef<Client>[] = [
     cell: ({ row }) => <div>{row.getValue("phone")}</div>,
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "address",
+    header: "Address",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
+      <div className="truncate max-w-xs" title={row.getValue("address")}>
+        {row.getValue("address")}
+      </div>
     ),
   },
   {
@@ -154,9 +132,10 @@ export function ClientTable() {
   const [globalFilter, setGlobalFilter] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
+  const client = useClientStore((s) => s.clients)
 
-  const table = useReactTable({
-    data,
+  const table = useReactTable<Client>({
+    data: client,
     columns,
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,

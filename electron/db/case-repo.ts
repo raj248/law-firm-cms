@@ -1,7 +1,7 @@
 import { Case } from '@/types'
 import { db } from './db.ts'
 
-export const insertCase = (legalCase: Case) => {
+export const insertCase = (legalCase: Case) : { success: boolean; error?: string }=> {
   const exists = db
     .prepare(`SELECT 1 FROM cases WHERE id = ?`)
     .get(legalCase.id)

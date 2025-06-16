@@ -45,7 +45,6 @@ db.exec(`
       updatedAt TEXT NOT NULL
       );
   `);
-console.log(db.prepare(`SELECT * FROM clients`).all());
 const insertClient = (client) => {
   const exists = db.prepare(`SELECT 1 FROM clients WHERE phone = ? OR email = ?`).get(client.phone, client.email);
   if (exists) {
@@ -157,6 +156,9 @@ app.on("activate", () => {
 });
 app.whenReady().then(() => {
   createWindow();
+  ipcMain.on("log", (_event, ...args) => {
+    console.log("\x1B[32m%s\x1B[0m", "[Renderer Log]:", ...args);
+  });
   ipcMain.handle("open-file", async (_event, filePath) => {
     return await shell.openPath(filePath);
   });

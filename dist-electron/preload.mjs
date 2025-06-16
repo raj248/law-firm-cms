@@ -18,6 +18,9 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
     return electron.ipcRenderer.invoke(channel, ...omit);
   }
 });
+electron.contextBridge.exposeInMainWorld("debug", {
+  log: (...args) => electron.ipcRenderer.send("log", ...args)
+});
 electron.contextBridge.exposeInMainWorld("electronAPI", {
   openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath)
 });

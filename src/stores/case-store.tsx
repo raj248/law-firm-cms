@@ -1,36 +1,62 @@
 import { create } from 'zustand'
+import { Case } from '@/types'
 
-export type Case = {
-  id: string
-  clientId: string
-  title: string
-  description?: string
-  status: 'open' | 'closed' | 'pending'
-  hearingDates: string[]
-  [key: string]: any
-}
-
-type CaseState = {
+type CaseStore = {
   cases: Case[]
-  addCase: (data: Case) => void
-  updateCase: (id: string, data: Partial<Case>) => void
-  deleteCase: (id: string) => void
-  setCases: (cases: Case[]) => void
+  fetchCases: () => Promise<void>
+  addCase: (legalCase: Case) => Promise<void>
+  deleteCase: (id: string) => Promise<void>
+  updateCase: (id: string, data: Partial<Case>) => Promise<void>
+  getCaseById: (id: string) => Case | undefined
 }
 
-export const useCaseStore = create<CaseState>((set) => ({
+export const useCaseStore = create<CaseStore>((set, get) => ({
   cases: [],
-  addCase: (data) =>
-    set((state) => ({ cases: [...state.cases, data] })),
-  updateCase: (id, data) =>
-    set((state) => ({
-      cases: state.cases.map((c) =>
-        c.id === id ? { ...c, ...data } : c
-      ),
-    })),
-  deleteCase: (id) =>
+
+  fetchCases: async () => {
+    const data = await window.database.getAllCases()
+    const parsed = data.map((c: any) => ({
+      ...c,
+      tags: c.tags ? JSON.parse(c.tags) : [],
+    }))
+    set({ cases: parsed })
+  },
+
+  addCase: async (legalCase) => {
+    const result = await window.database.insertCase({
+      ...legalCase,
+      tags: JSON.stringify(legalCase.tags ?? []),
+    })
+
+    if (result.success) {
+      set((state) => ({ cases: [...state.cases, legalCase] }))
+    } else {
+      console.error(result.error)
+    }
+  },
+
+  deleteCase: async (id) => {
+    await window.database.deleteCase(id)
     set((state) => ({
       cases: state.cases.filter((c) => c.id !== id),
-    })),
-  setCases: (cases) => set({ cases }),
+    }))
+  },
+
+  updateCase: async (id, data) => {
+    const caseToUpdate = get().cases.find(c => c.id === id)
+    if (!caseToUpdate) return
+
+    const updated = { ...caseToUpdate, ...data, tags: JSON.stringify(data.tags ?? caseToUpdate.tags ?? []) }
+    const result = await window.database.insertCase(updated) // INSERT OR REPLACE
+
+    if (result.success) {
+      set((state) => ({
+        cases: state.cases.map((c) => (c.id === id ? { ...c, ...data } : c)),
+      }))
+    } else {
+      console.error(result.error)
+    }
+  },
+
+  getCaseById: (id) => get().cases.find((c) => c.id === id),
 }))

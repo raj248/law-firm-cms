@@ -51,7 +51,7 @@ db.exec(`
       updatedAt TEXT NOT NULL
       );
   `)
-console.log(db.prepare(`SELECT * FROM clients`).all())
+// console.log(db.prepare(`SELECT * FROM clients`).all())
       
 // import Database from "better-sqlite3"
 

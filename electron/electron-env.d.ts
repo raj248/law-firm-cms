@@ -28,12 +28,12 @@ interface ElectronAPI {
 
 interface DB {
   // Clients
-  insertClient: (client: Client) => void
+  insertClient: (client: Client) => Promise<{ success: boolean; error?: string }>
   getAllClients: () => Promise<Client[]>
   deleteClient: (id: string) => void
 
   // Cases
-  insertCase: (legalCase: Case) => void
+  insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string }>
   getAllCases: () => Promise<Case[]>
   getCasesByClient: (clientId: string) => Promise<Case[]>
   deleteCase: (id: string) => void

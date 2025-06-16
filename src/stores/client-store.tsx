@@ -1,28 +1,36 @@
-import { Client } from '@/types'
 import { create } from 'zustand'
+import { Client } from '@/types'
 
-
-type ClientState = {
+type ClientStore = {
   clients: Client[]
-  addClient: (client: Client) => void
-  updateClient: (id: string, data: Partial<Client>) => void
-  deleteClient: (id: string) => void
-  setClients: (clients: Client[]) => void
+  fetchClients: () => Promise<void>
+  addClient: (client: Client) => Promise<void>
+  deleteClient: (id: string) => Promise<void>
 }
 
-export const useClientStore = create<ClientState>((set) => ({
+export const useClientStore = create<ClientStore>((set) => ({
   clients: [],
-  addClient: (client) =>
-    set((state) => ({ clients: [...state.clients, client] })),
-  updateClient: (id, data) =>
+  fetchClients: async () => {
+    const data = await window.database.getAllClients()
+    set({ clients: data })
+  },
+  addClient: async (client) => {
+    const result = await window.database.insertClient(client)
+    if (result.success) {
+      set((state) => ({ clients: [...state.clients, client] }))
+    } else {
+      console.error(result.error)
+    }
+  },
+  deleteClient: async (id) => {
+    window.database.deleteClient(id)
     set((state) => ({
-      clients: state.clients.map((c) =>
-        c.id === id ? { ...c, ...data } : c
-      ),
-    })),
-  deleteClient: (id) =>
-    set((state) => ({
-      clients: state.clients.filter((c) => c.id !== id),
-    })),
-  setClients: (clients) => set({ clients }),
+      clients: state.clients.filter((c) => c.id !== id)
+    }))
+  }
 }))
+
+// For update client
+// set((state) => ({
+//   clients: state.clients.map((c) => c.id === client.id ? client : c)
+// }))

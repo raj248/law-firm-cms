@@ -10,8 +10,18 @@ import Clients from "@/components/pages/clients"
 import Cases from "@/components/pages/cases"
 import CalenderPage from "./components/pages/calender"
 import DocumentsPage from "./components/pages/documents"
+import { useClientStore } from "./stores/client-store"
+import { useEffect } from "react"
 
 export default function App() {
+  const clients = useClientStore((s) => s.clients)
+  const fetchClients = useClientStore((s) => s.fetchClients)
+
+  useEffect(() => {
+    window.debug.log("Fetching clients...")
+    fetchClients().then(() => console.log("Clients fetched", clients)).catch(console.error)
+  }, [])
+
   const { theme } = useTheme()
 
   return (

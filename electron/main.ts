@@ -74,6 +74,10 @@ app.on('activate', () => {
 app.whenReady().then(() => {
   createWindow()
 
+  ipcMain.on('log', (_event, ...args) => {
+    console.log('\x1b[32m%s\x1b[0m', '[Renderer Log]:', ...args)
+  })
+
   // Shell
   ipcMain.handle('open-file', async (_event, filePath: string) => {
     return await shell.openPath(filePath)

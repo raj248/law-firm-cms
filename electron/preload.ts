@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   
 })
 
+contextBridge.exposeInMainWorld('debug', {
+  log: (...args: any[]) => ipcRenderer.send('log', ...args),
+})
+
 // --------- Expose shell.openPath ---------
 contextBridge.exposeInMainWorld('electronAPI', {
   openFile: (filePath: string) => ipcRenderer.invoke('open-file', filePath),

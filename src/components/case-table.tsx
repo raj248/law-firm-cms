@@ -34,31 +34,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Case } from "@/types"
 
-export type Case = {
-  id: string
-  title: string
-  clientName: string
-  status: "open" | "closed" | "pending"
-  courtDate: string
-}
 
 const data: Case[] = [
   {
     id: "cs001",
     title: "Property Dispute",
-    clientName: "John Doe",
-    status: "open",
-    courtDate: "2025-07-01",
+    description: "Nothing ",
+    status: "Open",
+    clientId: "cl001",
+    court: "tees hazari",
+    createdAt: "2024-04-23"
   },
-  {
-    id: "cs002",
-    title: "Divorce Settlement",
-    clientName: "Jane Smith",
-    status: "pending",
-    courtDate: "2025-06-20",
-  },
-  // add more cases...
 ]
 
 export const columns: ColumnDef<Case>[] = [
