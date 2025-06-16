@@ -27,13 +27,25 @@ interface ElectronAPI {
 }
 
 interface DB {
+  // Clients
   insertClient: (client: Client) => void
-  getAllClients: () => Client[]
+  getAllClients: () => Promise<Client[]>
   deleteClient: (id: string) => void
-  dbTest: () => void
+
+  // Cases
+  insertCase: (legalCase: Case) => void
+  getAllCases: () => Promise<Case[]>
+  getCasesByClient: (clientId: string) => Promise<Case[]>
+  deleteCase: (id: string) => void
+
+  // Tasks
+  insertTask: (task: Task) => void
+  getAllTasks: () => Promise<Task[]>
+  getTasksByClient: (clientId: string) => Promise<Task[]>
+  deleteTask: (id: string) => void
 }
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
   electronAPI: ElectronAPI
-  db: DB
+  database: DB
 }

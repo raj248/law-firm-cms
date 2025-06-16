@@ -1,10 +1,11 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
-// import { insertClient, getAllClients } from './client-repo.ts'
 
-// import Database from 'better-sqlite3'
+import { insertClient, getAllClients, deleteClient } from './db/client-repo.ts'
+import { insertCase, getAllCases, getCasesByClient, deleteCase } from './db/case-repo.ts'
+import { insertTask, getAllTasks, getTasksByClient, deleteTask } from './db/task-repo.ts'
+
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import db from './db'
 import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
@@ -70,27 +71,58 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady()
-.then(() => {
+app.whenReady().then(() => {
   createWindow()
 
+  // Shell
   ipcMain.handle('open-file', async (_event, filePath: string) => {
-    const result = await shell.openPath(filePath)
-    return result
+    return await shell.openPath(filePath)
   })
 
-  // ipcMain.handle('db:add-client', (_, client) => {
-  //   insertClient(client)
-  // })
-
-  // ipcMain.handle('db:get-clients', () => {
-  //   return getAllClients()
-  // })
-
-  ipcMain.handle('db-test',()=> {
-    db();
+  // Clients
+  ipcMain.handle('database:insert-client', (_event, client) => {
+    return insertClient(client)
   })
-})
-.catch((err) => {
-  console.error('Electron app launch failed:', err)
+
+  ipcMain.handle('database:get-all-clients', () => {
+    return getAllClients()
+  })
+
+  ipcMain.handle('database:delete-client', (_event, id: string) => {
+    return deleteClient(id)
+  })
+
+  // Cases
+  ipcMain.handle('database:insert-case', (_event, legalCase) => {
+    return insertCase(legalCase)
+  })
+
+  ipcMain.handle('database:get-all-cases', () => {
+    return getAllCases()
+  })
+
+  ipcMain.handle('database:get-cases-by-client', (_event, clientId: string) => {
+    return getCasesByClient(clientId)
+  })
+
+  ipcMain.handle('database:delete-case', (_event, id: string) => {
+    return deleteCase(id)
+  })
+
+  // Tasks
+  ipcMain.handle('database:insert-task', (_event, task) => {
+    return insertTask(task)
+  })
+
+  ipcMain.handle('database:get-all-tasks', () => {
+    return getAllTasks()
+  })
+
+  ipcMain.handle('database:get-tasks-by-client', (_event, clientId: string) => {
+    return getTasksByClient(clientId)
+  })
+
+  ipcMain.handle('database:delete-task', (_event, id: string) => {
+    return deleteTask(id)
+  })
 })

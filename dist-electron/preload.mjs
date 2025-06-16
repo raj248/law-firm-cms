@@ -21,8 +21,19 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
 electron.contextBridge.exposeInMainWorld("electronAPI", {
   openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath)
 });
-electron.contextBridge.exposeInMainWorld("db", {
-  addClient: (client) => electron.ipcRenderer.invoke("db:add-client", client),
-  getClients: async () => await electron.ipcRenderer.invoke("db:get-clients"),
-  dbTest: async () => await electron.ipcRenderer.invoke("db-test")
+electron.contextBridge.exposeInMainWorld("database", {
+  // Clients
+  insertClient: (client) => electron.ipcRenderer.invoke("database:insert-client", client),
+  getAllClients: () => electron.ipcRenderer.invoke("database:get-all-clients"),
+  deleteClient: (id) => electron.ipcRenderer.invoke("database:delete-client", id),
+  // Cases
+  insertCase: (legalCase) => electron.ipcRenderer.invoke("database:insert-case", legalCase),
+  getAllCases: () => electron.ipcRenderer.invoke("database:get-all-cases"),
+  getCasesByClient: (clientId) => electron.ipcRenderer.invoke("database:get-cases-by-client", clientId),
+  deleteCase: (id) => electron.ipcRenderer.invoke("database:delete-case", id),
+  // Tasks
+  insertTask: (task) => electron.ipcRenderer.invoke("database:insert-task", task),
+  getAllTasks: () => electron.ipcRenderer.invoke("database:get-all-tasks"),
+  getTasksByClient: (clientId) => electron.ipcRenderer.invoke("database:get-tasks-by-client", clientId),
+  deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id)
 });

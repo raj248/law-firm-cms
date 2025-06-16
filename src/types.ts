@@ -24,7 +24,7 @@ export type Case = {
   tags?: string[]
 }
 
-export type Appointment = {
+export type Task = {
   id: string
   title: string
   date: string // ISO format (e.g., "2025-06-15")
