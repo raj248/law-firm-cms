@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "../theme-toggle"
 import { Toaster } from "@/components/ui/sonner"
 import { Debug } from "../debug"
+import { GlobalSearch } from "../global-search"
 
 export default function MainLayout() {
   const location = useLocation()
@@ -24,6 +25,7 @@ export default function MainLayout() {
       <header className="p-4 border-b flex flex-row items-center justify-between">
         <h1 className="text-xl font-bold">{title}</h1>
         <div className="flex items-center gap-2">
+          <GlobalSearch />
           <ThemeToggle />
           <Debug />
         </div>
