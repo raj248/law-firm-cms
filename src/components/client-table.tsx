@@ -58,7 +58,7 @@ export const columns: ColumnDef<Client>[] = [
       />
     ),
     enableSorting: false,
-    enableHiding: false,
+    enableHiding: true,
   },
   {
     accessorKey: "name",

@@ -7,7 +7,6 @@ import { AddCaseDialog } from "@/components/add-case-dialog"
 
 
 export default function Dashboard() {
-  const clients = ["John Doe", "Jane Smith", "Client X"]
   const handleAddClient = (data: any) => {
     // ✅ Handle client data here:
     // - Save to local state
@@ -66,8 +65,7 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-2">
         <AddClientDialog onAdd={handleAddClient} />
-        <Button variant="default">+ New Case</Button>
-        <AddCaseDialog clients={clients} onAdd={handleAddCase} />
+        <AddCaseDialog onAdd={handleAddCase} />
         <Button variant="outline">+ Schedule Appointment</Button>
       </div>
 

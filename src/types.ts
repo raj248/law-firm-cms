@@ -11,6 +11,7 @@ export type Client = {
   email: string
   address?: string
   notes?: string
+  updatedAt? : string
 }
 
 export type Case = {
@@ -22,6 +23,7 @@ export type Case = {
   court: string
   createdAt: string
   tags?: string[]
+  updatedAt? : string
 }
 
 export type Task = {
@@ -32,6 +34,7 @@ export type Task = {
   caseId: string
   time: string // e.g., "14:00"
   notes?: string
+  updatedAt? : string
 }
 
 export type Document = {

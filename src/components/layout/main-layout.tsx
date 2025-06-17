@@ -34,7 +34,7 @@ export default function MainLayout() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto hide-scrollbar p-4">
         <Outlet />
-        <Toaster />
+        <Toaster richColors={true} />
       </main>
 
     </div>

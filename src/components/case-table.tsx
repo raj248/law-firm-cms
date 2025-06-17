@@ -11,6 +11,8 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
+  FilterFn,
+  Row,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 
@@ -45,9 +47,44 @@ const data: Case[] = [
     status: "Open",
     clientId: "cl001",
     court: "tees hazari",
-    createdAt: "2024-04-23"
+    createdAt: "2024-04-23",
+    tags: ["Property", "Civil"],
+    updatedAt: "2024-04-23",
+  },
+  {
+    id: "cs002",
+    title: "Criminal Defense",
+    description: "Defense for theft case",
+    status: "Closed",
+    clientId: "cl002",
+    court: "High Court",
+    createdAt: "2023-11-10",
+    tags: ["Criminal"],
+  },
+  {
+    id: "cs003",
+    title: "Family Law - Divorce",
+    description: "Divorce proceedings",
+    status: "Open",
+    clientId: "cl003",
+    court: "Family Court",
+    createdAt: "2024-02-01",
+    tags: ["Family"],
+
   },
 ]
+
+export const tagIncludes: FilterFn<Case> = (
+  row: Row<Case>,
+  columnId: string,
+  filterValue: string
+) => {
+  const tags = row.getValue(columnId) as string[]
+  if (!Array.isArray(tags)) return false
+  return tags.some((tag) =>
+    tag.toLowerCase().includes(filterValue.toLowerCase())
+  )
+}
 
 export const columns: ColumnDef<Case>[] = [
   {
@@ -70,7 +107,20 @@ export const columns: ColumnDef<Case>[] = [
       />
     ),
     enableSorting: false,
-    enableHiding: false,
+    enableHiding: true,
+  },
+  {
+    accessorKey: "id",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Case ID <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    filterFn: 'includesString',
+    cell: ({ row }) => <div>{row.getValue("id")}</div>,
   },
   {
     accessorKey: "title",
@@ -86,12 +136,6 @@ export const columns: ColumnDef<Case>[] = [
     cell: ({ row }) => <div>{row.getValue("title")}</div>,
   },
   {
-    accessorKey: "clientName",
-    header: "Client",
-    filterFn: 'includesString',
-    cell: ({ row }) => <div>{row.getValue("clientName")}</div>,
-  },
-  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
@@ -99,10 +143,34 @@ export const columns: ColumnDef<Case>[] = [
     ),
   },
   {
-    accessorKey: "courtDate",
-    header: "Court Date",
+    accessorKey: "court",
+    header: "Court",
     filterFn: 'includesString',
-    cell: ({ row }) => <div>{row.getValue("courtDate")}</div>,
+    cell: ({ row }) => <div>{row.getValue("court")}</div>,
+  },
+  {
+    accessorKey: "tags",
+    header: "Tags",
+    filterFn: "includesString",
+    cell: ({ row }) => {
+      const tags: string[] = row.getValue("tags") || []
+      return (
+        <div className="flex flex-wrap gap-1">
+          {tags.length > 0 ? (
+            tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 text-xs bg-[var(--color-accent)] text-[var(--color-accent-foreground)] rounded-full"
+              >
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span className="text-muted-foreground text-sm">—</span>
+          )}
+        </div>
+      )
+    },
   },
   {
     id: "actions",
@@ -153,6 +221,9 @@ export function CaseTable() {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     globalFilterFn: 'includesString',
+    filterFns: {
+      tagIncludes,
+    },
     state: {
       sorting,
       globalFilter,

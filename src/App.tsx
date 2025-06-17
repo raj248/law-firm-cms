@@ -19,7 +19,7 @@ export default function App() {
 
   useEffect(() => {
     window.debug.log("Fetching clients...")
-    fetchClients().then(() => console.log("Clients fetched", clients)).catch(console.error)
+    fetchClients().then(() => window.debug.log("Clients fetched", clients)).catch(console.error)
   }, [])
 
   const { theme } = useTheme()
