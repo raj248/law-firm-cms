@@ -8,13 +8,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useClientStore } from "@/stores/client-store"
 import { useCaseStore } from "@/stores/case-store"
 import { useTaskStore } from "@/stores/task-store"
 // import { useRouter } from "next/navigation"
 import Fuse, { FuseResultMatch } from "fuse.js"
+import { Input } from "./ui/input"
 
 type Client = { id: string; name: string; email?: string; phone?: string }
 type Case = { id: string; title: string; description?: string; status: string }
@@ -41,49 +43,27 @@ export function GlobalSearch() {
   const tasks = useTaskStore((s) => s.tasks)
   // const router = useRouter()
 
-  const highlightMatch = (text: string, matches?: FuseResultMatch[]) => {
-    if (!matches) return text
-
-    const match = matches.find((m) => typeof m.value === "string")
-    if (!match || !Array.isArray(match.indices)) return text
-
-    const indices = match.indices
-    let result = ""
-    let lastIndex = 0
-
-    for (const [start, end] of indices) {
-      result += text.slice(lastIndex, start)
-      result += `<mark class="bg-yellow-200">${text.slice(start, end + 1)}</mark>`
-      lastIndex = end + 1
-    }
-    result += text.slice(lastIndex)
-    return result
-  }
-
-  const runSearch = (q: string) => {
-    window.debug.log("runSearch: ", q)
+  const fuse = useMemo(() => {
     const indexed: IndexedData[] = [
       ...clients.map((c) => ({ ...c, type: "Client" as const })),
       ...cases.map((c) => ({ ...c, type: "Case" as const })),
       ...tasks.map((t) => ({ ...t, type: "Task" as const })),
     ]
 
-    const fuse = new Fuse(indexed, {
-      keys: [
-        // "id",          // All
-        "name",        // Client
-        "email",
-        "phone",
-        "title",       // Case/Task
-        "description",
-        "status",      // Case
-      ],
+    window.debug.log("fuse indexed:", cases)
+
+
+    return new Fuse(indexed, {
+      keys: ["name", "email", "phone", "title", "description", "status"],
       threshold: 0.4,
       minMatchCharLength: 2,
       includeScore: true,
       includeMatches: true,
     })
+  }, [clients, cases, tasks])
 
+  const runSearch = (q: string) => {
+    window.debug.log("runSearch:", q)
     if (q.length > 0) {
       const matched = fuse.search(q).map((r) => ({
         ...r.item,
@@ -107,7 +87,7 @@ export function GlobalSearch() {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => runSearch(query), 300)
+    debounceRef.current = setTimeout(() => runSearch(query), 50)
   }, [query])
 
   useEffect(() => {
@@ -127,6 +107,7 @@ export function GlobalSearch() {
   }, [])
 
   const renderItem = (item: IndexedData) => {
+    window.debug.log("renderItem:", item)
     const label =
       item.type === "Client" ? item.name :
         item.type === "Case" ? item.title :
@@ -141,7 +122,8 @@ export function GlobalSearch() {
 
     return (
       <CommandItem
-        key={`${item.type}-${item.id}`}
+        key={item.id}
+
         onSelect={() => {
           setOpen(false)
           // router.push(`/${item.type.toLowerCase()}/${item.id}`)
@@ -149,47 +131,47 @@ export function GlobalSearch() {
         }}
         className="flex flex-col items-start"
       >
-        <span
-          className="font-medium"
-          dangerouslySetInnerHTML={{
-            __html: highlightMatch(label, item.matches),
-          }}
-        />
-        <span
-          className="text-xs text-muted-foreground"
-          dangerouslySetInnerHTML={{
-            __html: highlightMatch(subInfo, item.matches),
-          }}
-        />
+        <span className="font-medium">{label}</span>
+        <span className="text-xs text-muted-foreground">{subInfo}</span>
       </CommandItem>
     )
   }
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput
+    <div className="relative w-full mx-4">
+      <Input
         placeholder="Search clients, cases, tasks..."
-        onValueChange={setQuery}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
       />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
 
-        {results.Client.length > 0 && (
-          <CommandGroup heading="Clients">
-            {results.Client.map(renderItem)}
-          </CommandGroup>
-        )}
-        {results.Case.length > 0 && (
-          <CommandGroup heading="Cases">
-            {results.Case.map(renderItem)}
-          </CommandGroup>
-        )}
-        {results.Task.length > 0 && (
-          <CommandGroup heading="Tasks">
-            {results.Task.map(renderItem)}
-          </CommandGroup>
-        )}
-      </CommandList>
-    </CommandDialog>
+      {query && (
+        <div className="absolute z-50 mt-2 w-full bg-white rounded-md shadow-lg border max-h-[400px] overflow-y-auto">
+          <Command>
+            <CommandList className="p-2 hide-scrollbar">
+              <CommandEmpty>No results found.</CommandEmpty>
+
+              {results.Client.length > 0 && (
+                <CommandGroup heading="Clients">
+                  {results.Client.map(renderItem)}
+                </CommandGroup>
+              )}
+
+              {results.Case.length > 0 && (
+                <CommandGroup heading="Cases">
+                  {results.Case.map(renderItem)}
+                </CommandGroup>
+              )}
+
+              {results.Task.length > 0 && (
+                <CommandGroup heading="Tasks">
+                  {results.Task.map(renderItem)}
+                </CommandGroup>
+              )}
+            </CommandList>
+          </Command>
+        </div>
+      )}
+    </div>
   )
 }

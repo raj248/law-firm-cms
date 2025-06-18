@@ -15,6 +15,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
 
   fetchCases: async () => {
     const data = await window.database.getAllCases()
+    window.debug.log("Fetched cases: ", data)
     const parsed = data.map((c: any) => ({
       ...c,
       tags: c.tags ? JSON.parse(c.tags) : [],

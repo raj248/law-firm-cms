@@ -37,42 +37,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Case } from "@/types"
+import { useCaseStore } from "@/stores/case-store"
 
-
-const data: Case[] = [
-  {
-    id: "cs001",
-    title: "Property Dispute",
-    description: "Nothing ",
-    status: "Open",
-    clientId: "cl001",
-    court: "tees hazari",
-    createdAt: "2024-04-23",
-    tags: ["Property", "Civil"],
-    updatedAt: "2024-04-23",
-  },
-  {
-    id: "cs002",
-    title: "Criminal Defense",
-    description: "Defense for theft case",
-    status: "Closed",
-    clientId: "cl002",
-    court: "High Court",
-    createdAt: "2023-11-10",
-    tags: ["Criminal"],
-  },
-  {
-    id: "cs003",
-    title: "Family Law - Divorce",
-    description: "Divorce proceedings",
-    status: "Open",
-    clientId: "cl003",
-    court: "Family Court",
-    createdAt: "2024-02-01",
-    tags: ["Family"],
-
-  },
-]
 
 export const tagIncludes: FilterFn<Case> = (
   row: Row<Case>,
@@ -134,6 +100,12 @@ export const columns: ColumnDef<Case>[] = [
     ),
     filterFn: 'includesString',
     cell: ({ row }) => <div>{row.getValue("title")}</div>,
+  },
+  {
+    accessorKey: "description",
+    header: "Description",
+    filterFn: 'includesString',
+    cell: ({ row }) => <div>{row.getValue("description")}</div>,
   },
   {
     accessorKey: "status",
@@ -208,9 +180,10 @@ export function CaseTable() {
   const [globalFilter, setGlobalFilter] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
+  const cases = useCaseStore((s) => s.cases)
 
   const table = useReactTable({
-    data,
+    data: cases,
     columns,
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
@@ -236,7 +209,7 @@ export function CaseTable() {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter by title..."
+          placeholder="Filter by id, itle, description, court, or tags..."
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"

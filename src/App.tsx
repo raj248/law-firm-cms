@@ -12,14 +12,22 @@ import CalenderPage from "./components/pages/calender"
 import DocumentsPage from "./components/pages/documents"
 import { useClientStore } from "./stores/client-store"
 import { useEffect } from "react"
+import { useCaseStore } from "./stores/case-store"
+import { useTaskStore } from "./stores/task-store"
 
 export default function App() {
-  const clients = useClientStore((s) => s.clients)
   const fetchClients = useClientStore((s) => s.fetchClients)
+  const fetchCases = useCaseStore((s) => s.fetchCases)
+  const fetchTasks = useTaskStore((s) => s.fetchTasks)
+
 
   useEffect(() => {
     window.debug.log("Fetching clients...")
-    fetchClients().then(() => window.debug.log("Clients fetched", clients)).catch(console.error)
+    fetchClients()
+    window.debug.log("Fetching cases...")
+    fetchCases()
+    window.debug.log("Fetching tasks...")
+    fetchTasks()
   }, [])
 
   const { theme } = useTheme()
