@@ -7,6 +7,7 @@ type ClientStore = {
   fetchClients: () => Promise<void>
   addClient: (client: Client) => Promise<void>
   deleteClient: (id: string) => Promise<void>
+  updateClient: (id: string, field: keyof Client, value: string) => Promise<void>
 }
 
 export const useClientStore = create<ClientStore>((set) => ({
@@ -21,6 +22,23 @@ export const useClientStore = create<ClientStore>((set) => ({
       set((state) => ({ clients: [...state.clients, client] }))
     } else {
       toast.error("Error", { description: result.error })
+    }
+  },
+  updateClient: async (id: string, field: keyof Client, value: string) => {
+    const success = await window.database.updateClientField(id, field, value)
+    if (success) {
+      set((state) => ({
+        clients: state.clients.map((c) =>
+          c.id === id ? { ...c, [field]: value } : c
+        )
+      }))
+      toast.success("Client updated", {
+        description: `${field} updated successfully`
+      })
+    } else {
+      toast.error("Update failed", {
+        description: `Could not update ${field}`
+      })
     }
   },
   deleteClient: async (id) => {

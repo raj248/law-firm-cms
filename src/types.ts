@@ -56,3 +56,4 @@ export const courtOptions = [
   "Patiala House Court",
   "Rouse Avenue Court",
 ] as const;
+export const tagOptions = ["Urgent", "Criminal", "Civil", "Family", "Tax", "Custom"] as const;

@@ -224,7 +224,7 @@ export function CaseTable() {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const cases = useCaseStore((s) => s.cases)
-  const [selectedCase, setSelectedCase] = React.useState<Case | null>(null);
+  const [selectedCase, setSelectedCase] = React.useState<string | null>(null);
   const [open, setOpen] = React.useState(false);
   const [caseToDelete, setCaseToDelete] = React.useState<Case | null>(null)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false)
@@ -309,7 +309,7 @@ export function CaseTable() {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => {
-                    setSelectedCase(row.original);
+                    setSelectedCase(row.original.id);
                     setOpen(true);
                   }}
                 >
@@ -359,10 +359,7 @@ export function CaseTable() {
         <CaseDetailDialog
           open={open}
           setOpen={setOpen}
-          caseData={selectedCase}
-          onUpdate={(field, value) => {
-            window.debug.log(field, value)
-          }}
+          caseId={selectedCase}
         />
       )}
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>

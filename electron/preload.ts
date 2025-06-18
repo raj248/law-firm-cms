@@ -36,6 +36,7 @@ contextBridge.exposeInMainWorld('database', {
   insertClient: (client: Client) => ipcRenderer.invoke('database:insert-client', client),
   getAllClients: (): Promise<Client[]> => ipcRenderer.invoke('database:get-all-clients'),
   deleteClient: (id: string) => ipcRenderer.invoke('database:delete-client', id),
+  updateClientField: (id:string, field:keyof Client, value:string) => ipcRenderer.invoke('database:update-client-field', id, field, value),
 
   // Cases
   insertCase: (legalCase: Case) => ipcRenderer.invoke('database:insert-case', legalCase),
@@ -43,6 +44,7 @@ contextBridge.exposeInMainWorld('database', {
   getCasesByClient: (clientId: string): Promise<Case[]> =>
     ipcRenderer.invoke('database:get-cases-by-client', clientId),
   deleteCase: (id: string) => ipcRenderer.invoke('database:delete-case', id),
+  updateCase: (id: string, field: keyof Case, value: any) => ipcRenderer.invoke('database:update-case', id, field, value),
 
   // Tasks
   insertTask: (task: Task) => ipcRenderer.invoke('database:insert-task', task),

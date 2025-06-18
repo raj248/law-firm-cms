@@ -5,7 +5,6 @@ import { formatDistanceToNow } from "date-fns";
 import { useCaseStore } from "@/stores/case-store";
 import { AddCaseDialog } from "./add-case-dialog";
 import { CaseDetailDialog } from "./case-detail-dialog"; // ✅ import
-import { Case } from "@/types";
 
 type Props = {
   id: string; // client ID
@@ -13,19 +12,11 @@ type Props = {
 
 export const CaseSection = ({ id }: Props) => {
   const allCases = useCaseStore((s) => s.cases);
-  const updateCase = useCaseStore((s) => s.updateCase);
-
-  const clientCases = useMemo(() => allCases.filter((c) => c.clientId === id), [allCases, id]);
+  const clientCases = useMemo(() => allCases.filter(c => c.clientId === id), [allCases, id]);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
 
-  const selectedCase = clientCases.find((c) => c.id === selectedCaseId);
-
-  const handleUpdate = (field: keyof Case, value: any) => {
-    if (!selectedCase) return;
-    updateCase(selectedCase.id, { ...selectedCase, [field]: value });
-  };
 
   return (
     <div className="mt-6">
@@ -79,12 +70,11 @@ export const CaseSection = ({ id }: Props) => {
       </div>
 
       {/* ✅ Case Detail Dialog */}
-      {selectedCase && (
+      {selectedCaseId && (
         <CaseDetailDialog
           open={openDialog}
           setOpen={setOpenDialog}
-          caseData={selectedCase}
-          onUpdate={handleUpdate}
+          caseId={selectedCaseId}
         />
       )}
     </div>

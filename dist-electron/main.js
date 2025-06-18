@@ -68,18 +68,24 @@ const insertClient = (client) => {
 const getAllClients = () => {
   return db.prepare(`SELECT * FROM clients`).all();
 };
+const updateClientField = (id, field, value) => {
+  const validFields = ["name", "email", "phone", "address", "notes"];
+  if (!validFields.includes(field)) return false;
+  const result = db.prepare(`UPDATE clients SET ${field} = ? WHERE id = ?`).run(value, id);
+  console.log("inside Client repo");
+  return result.changes > 0;
+};
 const deleteClient = (id) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
-  window.debug.log(result);
   return result.changes ? true : false;
 };
 const insertCase = (legalCase) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(legalCase.id);
   if (exists) {
-    return { success: false, error: "Case with same CadeID already exists." };
+    return { success: false, error: "Case with same CaseID already exists." };
   }
   const stmt = db.prepare(`
-    INSERT OR REPLACE INTO cases
+    INSERT INTO cases
     (id, title, description, status, clientId, court, createdAt, tags, updatedAt)
     VALUES (@id, @title, @description, @status, @clientId, @court, @createdAt, @tags, @updatedAt)
   `);
@@ -95,6 +101,22 @@ const getAllCases = () => {
 };
 const getCasesByClient = (clientId) => {
   return db.prepare(`SELECT * FROM cases WHERE clientId = ?`).all(clientId);
+};
+const updateCase = (id, field, value) => {
+  const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(id);
+  if (!exists) return { success: false, error: "Case not found" };
+  const isTags = field === "tags";
+  const stmt = db.prepare(`
+    UPDATE cases
+    SET ${field} = ?, updatedAt = ?
+    WHERE id = ?
+  `);
+  const result = stmt.run(
+    isTags ? JSON.stringify(value) : value,
+    (/* @__PURE__ */ new Date()).toISOString(),
+    id
+  );
+  return result.changes ? { success: true } : { success: false, error: "Update failed" };
 };
 const deleteCase = (id) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);
@@ -171,6 +193,9 @@ app.whenReady().then(() => {
   ipcMain.handle("database:get-all-clients", () => {
     return getAllClients();
   });
+  ipcMain.handle("database:update-client-field", (_event, id, field, value) => {
+    return updateClientField(id, field, value);
+  });
   ipcMain.handle("database:delete-client", (_event, id) => {
     return deleteClient(id);
   });
@@ -185,6 +210,9 @@ app.whenReady().then(() => {
   });
   ipcMain.handle("database:delete-case", (_event, id) => {
     return deleteCase(id);
+  });
+  ipcMain.handle("database:update-case", (_event, id, field, value) => {
+    return updateCase(id, field, value);
   });
   ipcMain.handle("database:insert-task", (_event, task) => {
     return insertTask(task);

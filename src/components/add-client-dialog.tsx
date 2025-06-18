@@ -22,6 +22,7 @@ const clientSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string().min(10, "Phone must be at least 10 digits"),
   address: z.string().optional(),
+  notes: z.string().optional(),
 })
 
 type ClientFormData = z.infer<typeof clientSchema>
@@ -39,6 +40,7 @@ export function AddClientDialog() {
       email: "",
       phone: "",
       address: "",
+      notes: "",
     },
   })
 
@@ -79,6 +81,16 @@ export function AddClientDialog() {
           <div>
             <Label htmlFor="address" className="mb-2">Address</Label>
             <Input {...form.register("address")} placeholder="123 Street Name, City" />
+          </div>
+
+          <div>
+            <Label htmlFor="notes">Description</Label>
+            <textarea
+              id="notes"
+              {...form.register("notes")}
+              className="w-full rounded-md border px-3 py-2 text-sm"
+              placeholder="Optional description..."
+            />
           </div>
 
           <DialogFooter className="pt-2">

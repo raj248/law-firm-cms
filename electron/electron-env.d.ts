@@ -31,12 +31,14 @@ interface DB {
   insertClient: (client: Client) => Promise<{ success: boolean; error?: string }>
   getAllClients: () => Promise<Client[]>
   deleteClient: (id: string) => Promise<boolean>
+  updateClientField: (id: string, field: keyof Client, value: string) => Promise<boolean>
 
   // Cases
   insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string }>
   getAllCases: () => Promise<Case[]>
   getCasesByClient: (clientId: string) => Promise<Case[]>
   deleteCase: (id: string) => Promise<boolean>
+  updateCase: (id: string, field: keyof Case, value: any) => Promise<{ success: boolean; error?: string }> 
 
   // Tasks
   insertTask: (task: Task) => void

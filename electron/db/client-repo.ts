@@ -33,6 +33,15 @@ export const getAllClients = () => {
   return db.prepare(`SELECT * FROM clients`).all()
 }
 
+export const updateClientField = (id: string, field: string, value: string) => {
+  const validFields = ["name", "email", "phone", "address", "notes"]
+  if (!validFields.includes(field)) return false
+
+  const result = db.prepare(`UPDATE clients SET ${field} = ? WHERE id = ?`).run(value, id)
+  console.log("inside Client repo")
+  return result.changes > 0
+}
+
 export const deleteClient = (id: string) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id)
   return result.changes? true : false

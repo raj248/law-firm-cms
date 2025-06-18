@@ -7,11 +7,11 @@ export const insertCase = (legalCase: Case) : { success: boolean; error?: string
     .get(legalCase.id)
 
   if (exists) {
-    return { success: false, error: 'Case with same CadeID already exists.' }
+    return { success: false, error: 'Case with same CaseID already exists.' }
   }
 
   const stmt = db.prepare(`
-    INSERT OR REPLACE INTO cases
+    INSERT INTO cases
     (id, title, description, status, clientId, court, createdAt, tags, updatedAt)
     VALUES (@id, @title, @description, @status, @clientId, @court, @createdAt, @tags, @updatedAt)
   `)
@@ -31,6 +31,28 @@ export const getAllCases = () => {
 
 export const getCasesByClient = (clientId: string) => {
   return db.prepare(`SELECT * FROM cases WHERE clientId = ?`).all(clientId)
+}
+
+export const updateCase = (id: string, field: keyof Case, value: any): { success: boolean; error?: string } => {
+  const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(id)
+  if (!exists) return { success: false, error: "Case not found" }
+
+  const isTags = field === "tags"
+  const stmt = db.prepare(`
+    UPDATE cases
+    SET ${field} = ?, updatedAt = ?
+    WHERE id = ?
+  `)
+
+  const result = stmt.run(
+    isTags ? JSON.stringify(value) : value,
+    new Date().toISOString(),
+    id
+  )
+
+  return result.changes
+    ? { success: true }
+    : { success: false, error: "Update failed" }
 }
 
 export const deleteCase = (id: string) => {

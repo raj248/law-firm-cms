@@ -8,20 +8,16 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
 import { z } from "zod"
 import { useClientStore } from "@/stores/client-store"
 import { ClientCombobox } from "./client-combo-box"
 import { TagsCombobox } from "./tag-combo-box"
 import { CourtCombobox } from "./court-combo-box"
-import { Case, courtOptions } from "@/types"
-import { id } from "date-fns/locale"
+import { Case, courtOptions, tagOptions } from "@/types"
 import { useCaseStore } from "@/stores/case-store"
 
-const tagOptions = ["Urgent", "Criminal", "Civil", "Family", "Tax", "Custom"]
-
 const caseSchema = z.object({
-  id: z.string().min(16).max(16),
+  id: z.string().min(16),
   title: z.string().min(1),
   description: z.string().min(1),
   client: z.string().min(1),
@@ -60,7 +56,7 @@ export function AddCaseDialog({ id = "" }: {
   const form = useForm<CaseFormData>({
     resolver: zodResolver(caseSchema),
     defaultValues: {
-      id: "",
+      id: id,
       title: "",
       description: "",
       client: client?.id || "",
@@ -75,6 +71,7 @@ export function AddCaseDialog({ id = "" }: {
     form.reset()
   }
   const courts = courtOptions.map((c) => c)
+  const tags = tagOptions.map((t) => t)
 
   return (
     <Dialog>
@@ -152,7 +149,7 @@ export function AddCaseDialog({ id = "" }: {
             setTags={(updated) =>
               form.setValue("tags", updated, { shouldValidate: true, shouldDirty: true })
             }
-            options={tagOptions}
+            options={tags}
           />
 
           {/* Upload File Button */}

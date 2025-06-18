@@ -11,7 +11,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ChevronsUpDown } from "lucide-react"
+import { ChevronsUpDown, PencilIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 
@@ -19,9 +19,10 @@ interface TagsComboboxProps {
   tags: string[]
   setTags: (tags: string[]) => void
   options: string[]
+  iconPencil?: boolean
 }
 
-export function TagsCombobox({ tags, setTags, options }: TagsComboboxProps) {
+export function TagsCombobox({ tags, setTags, options, iconPencil = false }: TagsComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
 
@@ -40,16 +41,20 @@ export function TagsCombobox({ tags, setTags, options }: TagsComboboxProps) {
 
   return (
     <div>
-      <Label className="mb-2 block">Case Tags</Label>
+      {!iconPencil && (<Label className="mb-2 block">Case Tags</Label>)}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
+          {!iconPencil ? (<Button
             variant="outline"
             className={cn("w-full justify-start", tags.length === 0 && "text-muted-foreground")}
           >
             {tags.length > 0 ? tags.join(", ") : "Select tags"}
             <ChevronsUpDown className="ml-auto h-4 w-4 opacity-50" />
-          </Button>
+          </Button>) : (
+            <Button size="icon" variant="ghost">
+              <PencilIcon className="w-4 h-4" />
+            </Button>
+          )}
         </PopoverTrigger>
         <PopoverContent className="w-64 p-0">
           <Command>

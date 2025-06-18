@@ -202,7 +202,7 @@ export function ClientTable() {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const client = useClientStore((s) => s.clients)
-  const [selectedClient, setSelectedClient] = React.useState<Client | null>(null);
+  const [selectedClient, setSelectedClient] = React.useState<string | null>(null);
   const [open, setOpen] = React.useState(false);
   const [clientToDelete, setClientToDelete] = React.useState<Client | null>(null)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false)
@@ -290,7 +290,7 @@ export function ClientTable() {
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => {
                     // row.toggleSelected()
-                    setSelectedClient(row.original);
+                    setSelectedClient(row.original.id);
                     setOpen(true);
                   }}
                 >
@@ -342,10 +342,7 @@ export function ClientTable() {
         <ClientDetailDialog
           open={open}
           setOpen={setOpen}
-          clientData={selectedClient}
-          onUpdate={(field, value) => {
-            window.debug.log(field, value)
-          }}
+          clientId={selectedClient}
         />
       )}
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>

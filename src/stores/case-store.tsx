@@ -7,7 +7,7 @@ type CaseStore = {
   fetchCases: () => Promise<void>
   addCase: (legalCase: Case) => Promise<void>
   deleteCase: (id: string) => Promise<void>
-  updateCase: (id: string, data: Partial<Case>) => Promise<void>
+  updateCase: (id: string, field: keyof Case, value: any) => Promise<void>
   getCaseById: (id: string) => Case | undefined
   getCasesByClientId: (clientId: string) => Case[] | undefined
 }
@@ -46,17 +46,24 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
 
   },
 
-  updateCase: async (id, data) => {
+  updateCase: async (id: string, field: keyof Case, value: any) => {
     const caseToUpdate = get().cases.find(c => c.id === id)
-    if (!caseToUpdate) return
+    if (!caseToUpdate) {
+      toast.error("Error", { description: "Case not found" })
+      return
+    }
 
-    const updated = { ...caseToUpdate, ...data, tags: JSON.stringify(data.tags ?? caseToUpdate.tags ?? []) }
-    const result = await window.database.insertCase(updated) // INSERT OR REPLACE
+    const result = await window.database.updateCase(id, field, value) // INSERT OR REPLACE
 
     if (result.success) {
       set((state) => ({
-        cases: state.cases.map((c) => (c.id === id ? { ...c, ...data } : c)),
+        cases: state.cases.map((c) =>
+          c.id === id ? { ...c, [field]: value } : c
+        ),
       }))
+      toast.success("Case updated", {
+        description: `${field} updated successfully`
+      })
     } else {
       toast.error("Error", { description: result.error })
     }
