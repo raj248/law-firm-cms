@@ -1,10 +1,11 @@
-// components/ThemeToggle.tsx
+
+
+
+
 import { Button } from "@/components/ui/button"
 // import { populateDummyData } from "@/debug-scripts/db-test"
 import { Bug } from "lucide-react"
 import { toast } from "sonner"
-
-
 
 export function Debug() {
 
