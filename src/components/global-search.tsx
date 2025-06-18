@@ -37,6 +37,8 @@ export function GlobalSearch() {
   })
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
 
   const clients = useClientStore((s) => s.clients)
   const cases = useCaseStore((s) => s.cases)
@@ -50,8 +52,6 @@ export function GlobalSearch() {
       ...tasks.map((t) => ({ ...t, type: "Task" as const })),
     ]
 
-    window.debug.log("fuse indexed:", cases)
-
 
     return new Fuse(indexed, {
       keys: ["name", "email", "phone", "title", "description", "status"],
@@ -63,7 +63,6 @@ export function GlobalSearch() {
   }, [clients, cases, tasks])
 
   const runSearch = (q: string) => {
-    window.debug.log("runSearch:", q)
     if (q.length > 0) {
       const matched = fuse.search(q).map((r) => ({
         ...r.item,
@@ -87,27 +86,36 @@ export function GlobalSearch() {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => runSearch(query), 50)
+    debounceRef.current = setTimeout(() => runSearch(query), 200)
   }, [query])
 
-  useEffect(() => {
-    window.debug.log("Updated results:", results)
-  }, [results])
+  // useEffect(() => {
+  //   window.debug.log("Updated results:", results)
+  // }, [results])
 
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+K or Cmd+K to focus
+      if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
-        setOpen((open) => !open)
+        inputRef.current?.focus()
+      }
+
+      // Esc to blur and clear
+      if (e.key === "Escape") {
+        if (document.activeElement === inputRef.current) {
+          inputRef.current?.blur()
+        }
       }
     }
-    window.addEventListener("keydown", down)
-    return () => window.removeEventListener("keydown", down)
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
+
   const renderItem = (item: IndexedData) => {
-    window.debug.log("renderItem:", item)
     const label =
       item.type === "Client" ? item.name :
         item.type === "Case" ? item.title :
@@ -123,16 +131,20 @@ export function GlobalSearch() {
     return (
       <CommandItem
         key={item.id}
-
-        onSelect={() => {
-          setOpen(false)
-          // router.push(`/${item.type.toLowerCase()}/${item.id}`)
-          window.debug.log("item, needs router push", item)
+        onMouseDown={() => {
+          window.debug.log("item, needs router push")
         }}
-        className="flex flex-col items-start"
+        className="group flex flex-col items-start cursor-pointer px-2 py-1.5 rounded-sm aria-selected:bg-muted/70"
       >
-        <span className="font-medium">{label}</span>
-        <span className="text-xs text-muted-foreground">{subInfo}</span>
+        {/* Inject a hidden id for uniqueness in the search system */}
+        <span className="sr-only">{item.id}</span>
+
+        <span className="font-medium group-aria-selected:text-primary">
+          {label}
+        </span>
+        <span className="text-xs text-muted-foreground ">
+          {subInfo}
+        </span>
       </CommandItem>
     )
   }
@@ -140,9 +152,12 @@ export function GlobalSearch() {
   return (
     <div className="relative w-full mx-4">
       <Input
-        placeholder="Search clients, cases, tasks..."
+        placeholder="Press Ctrl+K to search..."
+        className="w-full"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onBlur={() => setQuery("")}
+        ref={inputRef}
       />
 
       {query && (
