@@ -45,3 +45,14 @@ export type Document = {
   case_id: string
   uploaded_at: string // ISO timestamp
 }
+
+export const statusOptions = ["Open", "Pending", "Closed"] as const;
+export const courtOptions = [
+  "Tis Hazari Court",
+  "Saket Court",
+  "Rohini Court",
+  "Dwarka Court",
+  "Karkardooma Court",
+  "Patiala House Court",
+  "Rouse Avenue Court",
+] as const;

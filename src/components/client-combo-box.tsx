@@ -58,14 +58,14 @@ export function ClientCombobox({ value, onChange, clients }: ClientComboboxProps
               <CommandItem
                 key={client.id}
                 onSelect={() => {
-                  onChange(client.name)
+                  onChange(client.id)
                   setOpen(false)
                 }}
               >
                 <CheckIcon
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === client.name ? "opacity-100" : "opacity-0"
+                    value === client.id ? "opacity-100" : "opacity-0"
                   )}
                 />
                 <div>

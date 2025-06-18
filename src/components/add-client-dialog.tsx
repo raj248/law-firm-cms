@@ -26,7 +26,12 @@ const clientSchema = z.object({
 
 type ClientFormData = z.infer<typeof clientSchema>
 
-export function AddClientDialog({ onAdd }: { onAdd: (data: ClientFormData) => void }) {
+const onAdd = (data: ClientFormData) => {
+  window.debug.log(data)
+}
+
+
+export function AddClientDialog() {
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {

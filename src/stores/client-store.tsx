@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { Client } from '@/types'
+import { toast } from 'sonner'
 
 type ClientStore = {
   clients: Client[]
@@ -19,7 +20,7 @@ export const useClientStore = create<ClientStore>((set) => ({
     if (result.success) {
       set((state) => ({ clients: [...state.clients, client] }))
     } else {
-      console.error(result.error)
+      toast.error("Error", { description: result.error })
     }
   },
   deleteClient: async (id) => {

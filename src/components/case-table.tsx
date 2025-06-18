@@ -23,7 +23,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -38,6 +37,8 @@ import {
 } from "@/components/ui/table"
 import { Case } from "@/types"
 import { useCaseStore } from "@/stores/case-store"
+import { CaseDetailDialog } from "./case-detail-dialog"
+import { toast } from "sonner"
 
 
 export const tagIncludes: FilterFn<Case> = (
@@ -66,12 +67,18 @@ export const columns: ColumnDef<Case>[] = [
       />
     ),
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(v) => row.toggleSelected(!!v)}
-        aria-label="Select row"
-      />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(v) => row.toggleSelected(!!v)}
+          aria-label="Select row"
+        />
+      </div>
     ),
+
     enableSorting: false,
     enableHiding: true,
   },
@@ -158,16 +165,50 @@ export const columns: ColumnDef<Case>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="z-50">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(item.id)}
+              onClick={(e) => {
+                e.stopPropagation()
+                navigator.clipboard.writeText(item.id)
+                toast("Copied", { description: "Case ID copied" })
+              }
+              }
             >
               Copy Case ID
             </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation()
+                navigator.clipboard.writeText(item.title)
+                toast("Copied", { description: "Case Title copied" })
+              }
+              }
+            >
+              Copy Case Title
+            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>Edit Case</DropdownMenuItem>
-            <DropdownMenuItem>Close Case</DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation()
+                // archive logic
+                toast("Archived", { description: "Client archived successfully" })
+              }}
+            >
+              Archive
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation()
+                // delete logic
+                toast("Deleted", { description: "Client has been deleted" })
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -181,6 +222,9 @@ export function CaseTable() {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const cases = useCaseStore((s) => s.cases)
+  const [selectedCase, setSelectedCase] = React.useState<Case | null>(null);
+  const [open, setOpen] = React.useState(false);
+
 
   const table = useReactTable({
     data: cases,
@@ -261,7 +305,8 @@ export function CaseTable() {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => {
-                    row.toggleSelected()
+                    setSelectedCase(row.original);
+                    setOpen(true);
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -306,6 +351,16 @@ export function CaseTable() {
           </Button>
         </div>
       </div>
+      {selectedCase && (
+        <CaseDetailDialog
+          open={open}
+          setOpen={setOpen}
+          caseData={selectedCase}
+          onUpdate={(field, value) => {
+            window.debug.log(field, value)
+          }}
+        />
+      )}
     </div>
   )
 }

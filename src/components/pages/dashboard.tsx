@@ -7,17 +7,6 @@ import { AddCaseDialog } from "@/components/add-case-dialog"
 
 
 export default function Dashboard() {
-  const handleAddClient = (data: any) => {
-    // ✅ Handle client data here:
-    // - Save to local state
-    // - Send to backend/API
-    // - Show toast/notification
-    console.log("New client:", data)
-  }
-  const handleAddCase = (data: any) => {
-    console.log("New case:", data)
-    // TODO: Save to DB, update state, or sync with backend
-  }
   return (
     <div className="space-y-6 p-4">
       {/* Welcome */}
@@ -64,8 +53,8 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-2">
-        <AddClientDialog onAdd={handleAddClient} />
-        <AddCaseDialog onAdd={handleAddCase} />
+        <AddClientDialog />
+        <AddCaseDialog />
         <Button variant="outline">+ Schedule Appointment</Button>
       </div>
 

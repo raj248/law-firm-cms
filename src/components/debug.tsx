@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button"
 // import { populateDummyData } from "@/debug-scripts/db-test"
 import { Bug } from "lucide-react"
+import { toast } from "sonner"
 
 
 
@@ -11,7 +12,7 @@ export function Debug() {
     <Button
       variant="outline"
       size="icon"
-      onClick={async () => window.debug.log(await window.database.getAllCases())}
+      onClick={() => window.database.deleteCase('0987654321123456')}
       // onClick={() => populateDummyData()}
       className="rounded-full"
     >

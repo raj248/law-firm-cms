@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { Case } from '@/types'
+import { toast } from 'sonner'
 
 type CaseStore = {
   cases: Case[]
@@ -8,6 +9,7 @@ type CaseStore = {
   deleteCase: (id: string) => Promise<void>
   updateCase: (id: string, data: Partial<Case>) => Promise<void>
   getCaseById: (id: string) => Case | undefined
+  getCasesByClientId: (clientId: string) => Case[] | undefined
 }
 
 export const useCaseStore = create<CaseStore>((set, get) => ({
@@ -24,15 +26,14 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
   },
 
   addCase: async (legalCase) => {
-    const result = await window.database.insertCase({
-      ...legalCase,
-      tags: JSON.stringify(legalCase.tags ?? []),
-    })
-
+    const result = await window.database.insertCase(legalCase)
+    window.debug.log("Added case: ", result)
     if (result.success) {
       set((state) => ({ cases: [...state.cases, legalCase] }))
+      toast.success("Case added", { description: legalCase.title })
+
     } else {
-      console.error(result.error)
+      toast.error("Error", { description: result.error })
     }
   },
 
@@ -55,9 +56,10 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         cases: state.cases.map((c) => (c.id === id ? { ...c, ...data } : c)),
       }))
     } else {
-      console.error(result.error)
+      toast.error("Error", { description: result.error })
     }
   },
 
   getCaseById: (id) => get().cases.find((c) => c.id === id),
+  getCasesByClientId: (clientId) => get().cases.filter((c) => c.clientId === clientId),
 }))
