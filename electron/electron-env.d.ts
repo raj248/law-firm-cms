@@ -36,7 +36,7 @@ interface DB {
   insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string }>
   getAllCases: () => Promise<Case[]>
   getCasesByClient: (clientId: string) => Promise<Case[]>
-  deleteCase: (id: string) => void
+  deleteCase: (id: string) => Promise<boolean>
 
   // Tasks
   insertTask: (task: Task) => void

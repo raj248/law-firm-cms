@@ -70,7 +70,8 @@ const getAllClients = () => {
 };
 const deleteClient = (id) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
-  return result.changes === 0 ? true : false;
+  window.debug.log(result);
+  return result.changes ? true : false;
 };
 const insertCase = (legalCase) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(legalCase.id);
@@ -96,7 +97,8 @@ const getCasesByClient = (clientId) => {
   return db.prepare(`SELECT * FROM cases WHERE clientId = ?`).all(clientId);
 };
 const deleteCase = (id) => {
-  db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);
+  const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);
+  return result.changes ? true : false;
 };
 const insertTask = (task) => {
   const stmt = db.prepare(`

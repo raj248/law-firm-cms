@@ -35,5 +35,5 @@ export const getAllClients = () => {
 
 export const deleteClient = (id: string) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id)
-  return result.changes===0? true : false
+  return result.changes? true : false
 }

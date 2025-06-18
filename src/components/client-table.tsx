@@ -366,9 +366,6 @@ export function ClientTable() {
               onClick={() => {
                 if (clientToDelete) {
                   useClientStore.getState().deleteClient(clientToDelete.id)
-                  toast("Client deleted", {
-                    description: `${clientToDelete.name} has been removed.`,
-                  })
                   setClientToDelete(null)
                   setIsAlertDialogOpen(false)
                 }
@@ -379,7 +376,6 @@ export function ClientTable() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   )
 }

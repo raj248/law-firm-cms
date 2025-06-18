@@ -39,9 +39,10 @@ import { Case } from "@/types"
 import { useCaseStore } from "@/stores/case-store"
 import { CaseDetailDialog } from "./case-detail-dialog"
 import { toast } from "sonner"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
 
 
-export const tagIncludes: FilterFn<Case> = (
+const tagIncludes: FilterFn<Case> = (
   row: Row<Case>,
   columnId: string,
   filterValue: string
@@ -53,170 +54,171 @@ export const tagIncludes: FilterFn<Case> = (
   )
 }
 
-export const columns: ColumnDef<Case>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <div
-        onClick={(e) => e.stopPropagation()}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(v) => row.toggleSelected(!!v)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Case ID <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    filterFn: 'includesString',
-    cell: ({ row }) => <div>{row.getValue("id")}</div>,
-  },
-  {
-    accessorKey: "title",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Title <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    filterFn: 'includesString',
-    cell: ({ row }) => <div>{row.getValue("title")}</div>,
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    filterFn: 'includesString',
-    cell: ({ row }) => <div>{row.getValue("description")}</div>,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
-  },
-  {
-    accessorKey: "court",
-    header: "Court",
-    filterFn: 'includesString',
-    cell: ({ row }) => <div>{row.getValue("court")}</div>,
-  },
-  {
-    accessorKey: "tags",
-    header: "Tags",
-    filterFn: "includesString",
-    cell: ({ row }) => {
-      const tags: string[] = row.getValue("tags") || []
-      return (
-        <div className="flex flex-wrap gap-1">
-          {tags.length > 0 ? (
-            tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 text-xs bg-[var(--color-accent)] text-[var(--color-accent-foreground)] rounded-full"
-              >
-                {tag}
-              </span>
-            ))
-          ) : (
-            <span className="text-muted-foreground text-sm">—</span>
-          )}
-        </div>
-      )
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const item = row.original
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open actions</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="z-50">
-
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation()
-                navigator.clipboard.writeText(item.id)
-                toast("Copied", { description: "Case ID copied" })
-              }
-              }
-            >
-              Copy Case ID
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation()
-                navigator.clipboard.writeText(item.title)
-                toast("Copied", { description: "Case Title copied" })
-              }
-              }
-            >
-              Copy Case Title
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation()
-                // archive logic
-                toast("Archived", { description: "Client archived successfully" })
-              }}
-            >
-              Archive
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation()
-                // delete logic
-                toast("Deleted", { description: "Client has been deleted" })
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
-]
 
 export function CaseTable() {
+  const columns: ColumnDef<Case>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(v) => row.toggleSelected(!!v)}
+            aria-label="Select row"
+          />
+        </div>
+      ),
+
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      accessorKey: "id",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Case ID <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{row.getValue("id")}</div>,
+    },
+    {
+      accessorKey: "title",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Title <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{row.getValue("title")}</div>,
+    },
+    {
+      accessorKey: "description",
+      header: "Description",
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{row.getValue("description")}</div>,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("status")}</div>
+      ),
+    },
+    {
+      accessorKey: "court",
+      header: "Court",
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{row.getValue("court")}</div>,
+    },
+    {
+      accessorKey: "tags",
+      header: "Tags",
+      filterFn: "includesString",
+      cell: ({ row }) => {
+        const tags: string[] = row.getValue("tags") || []
+        return (
+          <div className="flex flex-wrap gap-1">
+            {tags.length > 0 ? (
+              tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-0.5 text-xs bg-[var(--color-accent)] text-[var(--color-accent-foreground)] rounded-full"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span className="text-muted-foreground text-sm">—</span>
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const item = row.original
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open actions</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="z-50">
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(item.id)
+                  toast("Copied", { description: "Case ID copied" })
+                }
+                }
+              >
+                Copy Case ID
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(item.title)
+                  toast("Copied", { description: "Case Title copied" })
+                }
+                }
+              >
+                Copy Case Title
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // archive logic
+                  toast("Archived", { description: "Client archived successfully" })
+                }}
+              >
+                Archive
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // delete logic
+                  setCaseToDelete(item)
+                  setIsAlertDialogOpen(true)
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    },
+  ]
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -224,6 +226,8 @@ export function CaseTable() {
   const cases = useCaseStore((s) => s.cases)
   const [selectedCase, setSelectedCase] = React.useState<Case | null>(null);
   const [open, setOpen] = React.useState(false);
+  const [caseToDelete, setCaseToDelete] = React.useState<Case | null>(null)
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false)
 
 
   const table = useReactTable({
@@ -361,6 +365,33 @@ export function CaseTable() {
           }}
         />
       )}
+      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+        <AlertDialogContent className="!max-w-screen-md !w-full p-6">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. It will permanently delete Client : {" "}
+              <span className="font-semibold text-destructive">
+                {caseToDelete?.title}
+              </span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (caseToDelete) {
+                  useCaseStore.getState().deleteCase(caseToDelete.id)
+                  setCaseToDelete(null)
+                  setIsAlertDialogOpen(false)
+                }
+              }}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

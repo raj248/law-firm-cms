@@ -34,5 +34,6 @@ export const getCasesByClient = (clientId: string) => {
 }
 
 export const deleteCase = (id: string) => {
-  db.prepare(`DELETE FROM cases WHERE id = ?`).run(id)
+  const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id)
+  return result.changes? true : false
 }
