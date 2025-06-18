@@ -69,7 +69,8 @@ const getAllClients = () => {
   return db.prepare(`SELECT * FROM clients`).all();
 };
 const deleteClient = (id) => {
-  db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
+  const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
+  return result.changes === 0 ? true : false;
 };
 const insertCase = (legalCase) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(legalCase.id);

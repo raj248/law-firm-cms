@@ -24,10 +24,12 @@ export const useClientStore = create<ClientStore>((set) => ({
     }
   },
   deleteClient: async (id) => {
-    window.database.deleteClient(id)
-    set((state) => ({
+    const success = await window.database.deleteClient(id)
+    if (success) set((state) => ({
       clients: state.clients.filter((c) => c.id !== id)
-    }))
+    }));
+
+    success ? toast.success("Client deleted", { description: "Client has been deleted" }) : toast.error("Error", { description: "Client not found" })
   }
 }))
 

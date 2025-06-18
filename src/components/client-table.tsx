@@ -36,103 +36,178 @@ import {
 } from "@/components/ui/table"
 import { Client } from "@/types"
 import { useClientStore } from "@/stores/client-store"
+import { ClientDetailDialog } from "./client-detail-dialog"
+import { toast } from "sonner"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
 
-export const columns: ColumnDef<Client>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Name <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
-    filterFn: 'includesString',
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    filterFn: 'includesString',
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "phone",
-    header: "Phone",
-    filterFn: 'includesString',
-    cell: ({ row }) => <div>{row.getValue("phone")}</div>,
-  },
-  {
-    accessorKey: "address",
-    header: "Address",
-    cell: ({ row }) => (
-      <div className="truncate max-w-xs" title={row.getValue("address")}>
-        {row.getValue("address")}
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const client = row.original
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0"
-              onClick={() => console.log("Dropdown Trigger Clicked")}
-            >
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="z-50">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(client.id)}
-            >
-              Copy Client ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
-]
+
+
 
 export function ClientTable() {
+  const columns: ColumnDef<Client>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: true,
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+      filterFn: 'includesString',
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      filterFn: 'includesString',
+      cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    },
+    {
+      accessorKey: "phone",
+      header: "Phone",
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{row.getValue("phone")}</div>,
+    },
+    {
+      accessorKey: "address",
+      header: "Address",
+      cell: ({ row }) => (
+        <div className="truncate max-w-xs" title={row.getValue("address")}>
+          {row.getValue("address")}
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: true,
+      cell: ({ row }) => {
+        const client = row.original
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0"
+                onClick={() => console.log("Dropdown Trigger Clicked")}
+              >
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="z-50">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(client.id)
+                  toast("Copied", { description: "Client ID copied to clipboard" })
+                }}
+              >
+                Copy Client ID
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(client.email)
+                  toast("Copied", { description: "Email copied to clipboard" })
+                }}
+              >
+                Copy Email
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(client.phone)
+                  toast("Copied", { description: "Phone number copied to clipboard" })
+                }}
+              >
+                Copy Phone
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // your appointment logic
+                  toast("Scheduled", { description: "Appointment logic executed" })
+                }}
+              >
+                Schedule Appointment
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // your send email logic
+                  toast("Email Sent", { description: "Email action triggered" })
+                }}
+              >
+                Send Email
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // archive logic
+                  toast("Archived", { description: "Client archived successfully" })
+                }}
+              >
+                Archive
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // delete logic
+                  setClientToDelete(client)
+                  setIsAlertDialogOpen(true)
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    },
+  ]
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const client = useClientStore((s) => s.clients)
+  const [selectedClient, setSelectedClient] = React.useState<Client | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [clientToDelete, setClientToDelete] = React.useState<Client | null>(null)
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false)
+
 
   const table = useReactTable<Client>({
     data: client,
@@ -215,7 +290,9 @@ export function ClientTable() {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => {
-                    row.toggleSelected()
+                    // row.toggleSelected()
+                    setSelectedClient(row.original);
+                    setOpen(true);
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -262,6 +339,47 @@ export function ClientTable() {
           </Button>
         </div>
       </div>
+      {selectedClient && (
+        <ClientDetailDialog
+          open={open}
+          setOpen={setOpen}
+          clientData={selectedClient}
+          onUpdate={(field, value) => {
+            window.debug.log(field, value)
+          }}
+        />
+      )}
+      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+        <AlertDialogContent className="!max-w-screen-md !w-full p-6">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. It will permanently delete Client : {" "}
+              <span className="font-semibold text-destructive">
+                {clientToDelete?.name}
+              </span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (clientToDelete) {
+                  useClientStore.getState().deleteClient(clientToDelete.id)
+                  toast("Client deleted", {
+                    description: `${clientToDelete.name} has been removed.`,
+                  })
+                  setClientToDelete(null)
+                  setIsAlertDialogOpen(false)
+                }
+              }}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   )
 }

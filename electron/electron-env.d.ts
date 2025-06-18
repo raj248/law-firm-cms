@@ -30,7 +30,7 @@ interface DB {
   // Clients
   insertClient: (client: Client) => Promise<{ success: boolean; error?: string }>
   getAllClients: () => Promise<Client[]>
-  deleteClient: (id: string) => void
+  deleteClient: (id: string) => Promise<boolean>
 
   // Cases
   insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string }>
