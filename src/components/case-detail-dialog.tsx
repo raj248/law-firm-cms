@@ -31,14 +31,11 @@ export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
   const [tags, setTags] = React.useState<string[]>(caseData.tags ?? [])
   React.useEffect(() => {
     setTags(caseData.tags ?? [])
-  }, [caseData.id])
+  }, [caseData])
 
   const handleTagUpdate = async (newTags: string[]) => {
     setTags(newTags)
-    const result = await window.database.updateCase(caseData.id, "tags", newTags)
-    if (!result.success) {
-      toast.error("Failed to update tags", { description: result.error })
-    }
+    await useCaseStore.getState().updateCase(caseData.id, "tags", newTags)
   }
 
   return (
@@ -96,7 +93,7 @@ export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
 
             <div className="pt-2">
               <TagsCombobox
-                tags={tags}
+                tags={caseData.tags || []}
                 setTags={handleTagUpdate}
                 options={tagOptions.map(opt => opt)}
                 iconPencil
