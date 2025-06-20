@@ -106,6 +106,7 @@ const updateCase = (id, field, value) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(id);
   if (!exists) return { success: false, error: "Case not found" };
   const isTags = field === "tags";
+  const updatedAt = (/* @__PURE__ */ new Date()).toISOString();
   const stmt = db.prepare(`
     UPDATE cases
     SET ${field} = ?, updatedAt = ?
@@ -113,10 +114,16 @@ const updateCase = (id, field, value) => {
   `);
   const result = stmt.run(
     isTags ? JSON.stringify(value) : value,
-    (/* @__PURE__ */ new Date()).toISOString(),
+    updatedAt,
     id
   );
-  return result.changes ? { success: true } : { success: false, error: "Update failed" };
+  if (!result.changes) return { success: false, error: "Update failed" };
+  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id);
+  const castCase2 = (c) => ({
+    ...c,
+    tags: c.tags ? JSON.parse(c.tags) : []
+  });
+  return { success: true, updatedCase: castCase2(modifiedCase) };
 };
 const deleteCase = (id) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);

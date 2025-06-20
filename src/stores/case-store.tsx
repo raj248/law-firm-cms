@@ -55,12 +55,13 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
 
     const result = await window.database.updateCase(id, field, value) // INSERT OR REPLACE
 
-    if (result.success) {
+    if (result.success && result.updatedCase) {
       set((state) => ({
         cases: state.cases.map((c) =>
-          c.id === id ? { ...c, [field]: value } : c
+          c.id === id ? result.updatedCase : c
         ),
       }))
+      window.debug.log("Updated case: ", result.updatedCase)
       toast.success("Case updated", {
         description: `${field} updated successfully`
       })

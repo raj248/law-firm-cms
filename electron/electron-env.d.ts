@@ -38,7 +38,7 @@ interface DB {
   getAllCases: () => Promise<Case[]>
   getCasesByClient: (clientId: string) => Promise<Case[]>
   deleteCase: (id: string) => Promise<boolean>
-  updateCase: (id: string, field: keyof Case, value: any) => Promise<{ success: boolean; error?: string }> 
+  updateCase: (id: string, field: keyof Case, value: any) => Promise<{ success: boolean; updatedCase?: Case; error?: string }> 
 
   // Tasks
   insertTask: (task: Task) => void

@@ -11,7 +11,6 @@ import { formatDistanceToNow } from "date-fns"
 import { DropdownEditableField } from "./dropdown-editable-field"
 import { useCaseStore } from "@/stores/case-store"
 import React from "react"
-import { toast } from "sonner"
 import { TagsCombobox } from "./tag-combo-box"
 
 type Props = {

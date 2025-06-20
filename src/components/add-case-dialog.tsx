@@ -56,7 +56,7 @@ export function AddCaseDialog({ id = "" }: {
   const form = useForm<CaseFormData>({
     resolver: zodResolver(caseSchema),
     defaultValues: {
-      id: id,
+      id: "",
       title: "",
       description: "",
       client: client?.id || "",

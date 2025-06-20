@@ -57,6 +57,7 @@ export const CaseSection = ({ id }: Props) => {
                       </Badge>
                     ))}
                   </div>
+                  {/* {(window.debug.log(`Case ${c.title} updated at:  ${formatDistanceToNow(new Date(c.updatedAt || c.createdAt), { addSuffix: true })}`))} */}
                   {c.updatedAt && (
                     <div className="text-xs italic">
                       Last updated {formatDistanceToNow(new Date(c.updatedAt), { addSuffix: true })}

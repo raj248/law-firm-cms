@@ -33,11 +33,17 @@ export const getCasesByClient = (clientId: string) => {
   return db.prepare(`SELECT * FROM cases WHERE clientId = ?`).all(clientId)
 }
 
-export const updateCase = (id: string, field: keyof Case, value: any): { success: boolean; error?: string } => {
+export const updateCase = (
+  id: string,
+  field: keyof Case,
+  value: any
+): { success: boolean; updatedCase?: Case; error?: string } => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(id)
   if (!exists) return { success: false, error: "Case not found" }
 
   const isTags = field === "tags"
+  const updatedAt = new Date().toISOString()
+
   const stmt = db.prepare(`
     UPDATE cases
     SET ${field} = ?, updatedAt = ?
@@ -46,16 +52,28 @@ export const updateCase = (id: string, field: keyof Case, value: any): { success
 
   const result = stmt.run(
     isTags ? JSON.stringify(value) : value,
-    new Date().toISOString(),
+    updatedAt,
     id
   )
 
-  return result.changes
-    ? { success: true }
-    : { success: false, error: "Update failed" }
+  if (!result.changes) return { success: false, error: "Update failed" }
+
+  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id)
+
+    const castCase = (c: any): Case => ({
+    ...c,
+    tags: c.tags ? JSON.parse(c.tags) : [],
+})
+  return { success: true, updatedCase: castCase(modifiedCase) }
 }
+
 
 export const deleteCase = (id: string) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id)
   return result.changes? true : false
 }
+
+const castCase = (c: any): Case => ({
+  ...c,
+  tags: c.tags ? JSON.parse(c.tags) : [],
+})

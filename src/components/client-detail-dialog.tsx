@@ -21,7 +21,7 @@ const handleOnSave = (id: string, field: keyof Client, value: string) => {
 }
 
 
-export const ClientDetailDialog = ({ clientId, open, setOpen }: Props) => {
+export const ClientDetailDialog = ({ clientId, open = true, setOpen = () => { open = false; } }: Props) => {
   const clientData = useClientStore.getState().clients.find(c => c.id === clientId)
   if (!clientData) return null;
 

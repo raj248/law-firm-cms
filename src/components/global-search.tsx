@@ -17,6 +17,7 @@ import { useTaskStore } from "@/stores/task-store"
 // import { useRouter } from "next/navigation"
 import Fuse, { FuseResultMatch } from "fuse.js"
 import { Input } from "./ui/input"
+import { ClientDetailDialog } from "./client-detail-dialog"
 
 type Client = { id: string; name: string; email?: string; phone?: string }
 type Case = { id: string; title: string; description?: string; status: string }
@@ -133,6 +134,14 @@ export function GlobalSearch() {
         key={item.id}
         onMouseDown={() => {
           window.debug.log("item, needs router push")
+          if (item.type === "Client") {
+            // router.push(`/clients/${item.id}`)
+            // ClientDetailDialog(item.id)
+          } else if (item.type === "Case") {
+            // router.push(`/cases/${item.id}`)
+          } else if (item.type === "Task") {
+            // router.push(`/tasks/${item.id}`)
+          }
         }}
         className="group flex flex-col items-start cursor-pointer px-2 py-1.5 rounded-sm aria-selected:bg-muted/70"
       >
