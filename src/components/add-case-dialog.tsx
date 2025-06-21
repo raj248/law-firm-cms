@@ -74,96 +74,103 @@ export function AddCaseDialog({ id = "" }: {
   const tags = tagOptions.map((t) => t)
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={(open) => {
+      if (!open) {
+        form.reset()
+      }
+    }}
+    >
       <DialogTrigger asChild>
         <Button>+ New Case</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto hide-scrollbar">
+      <DialogContent className=" overflow-y-auto hide-scrollbar !max-w-screen-lg !w-full p-6">
         <DialogHeader>
           <DialogTitle>Add New Case</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left: ID, Title, Description */}
+          <div className="flex flex-col gap-4">
+            <div>
+              <Label htmlFor="id">Case ID</Label>
+              <input
+                id="id"
+                {...form.register("id", { required: true })}
+                className="w-full rounded-md border px-3 py-2 text-sm"
+                placeholder="Enter Case ID"
+              />
+            </div>
 
-          {/* Title */}
-          <div>
-            <Label htmlFor="id">Case ID</Label>
-            <input
-              id="id"
-              {...form.register("id", { required: true })}
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              placeholder="Enter Case ID"
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <input
+                id="title"
+                {...form.register("title", { required: true })}
+                className="w-full rounded-md border px-3 py-2 text-sm"
+                placeholder="Enter case title"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <textarea
+                id="description"
+                {...form.register("description", { required: true })}
+                className="w-full rounded-md border px-3 py-2 text-sm h-32"
+                placeholder="Case details..."
+              />
+            </div>
+          </div>
+
+          {/* Right: Client, Court, Tags, Docs */}
+          <div className="flex flex-col gap-4">
+            <div>
+              <Label className="mb-2">Client</Label>
+              <Controller
+                control={form.control}
+                name="client"
+                render={({ field }) => (
+                  <ClientCombobox
+                    value={clients.find((c) => c.id === field.value)?.name || ""}
+                    onChange={field.onChange}
+                    clients={clients}
+                  />
+                )}
+              />
+            </div>
+
+            <CourtCombobox
+              value={form.watch("court") || ""}
+              onChange={(val) =>
+                form.setValue("court", val, { shouldDirty: true, shouldValidate: true })
+              }
+              options={courts}
             />
-          </div>
 
-          {/* Title */}
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <input
-              id="title"
-              {...form.register("title", { required: true })}
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              placeholder="Enter case title"
+            <TagsCombobox
+              tags={form.watch("tags") || []}
+              setTags={(updated) =>
+                form.setValue("tags", updated, { shouldValidate: true, shouldDirty: true })
+              }
+              options={tags}
             />
+
+            <div>
+              <Label className="mb-2">Documents</Label>
+              <Button variant="secondary" type="button" className="w-full">
+                Upload Files
+              </Button>
+            </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <textarea
-              id="description"
-              {...form.register("description", { required: true })}
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              placeholder="Case details..."
-            />
+          {/* Full Width Footer */}
+          <div className="col-span-full">
+            <DialogFooter className="pt-2">
+              <Button type="submit">Add Case</Button>
+            </DialogFooter>
           </div>
-
-          {/* Select Client */}
-          <div>
-            <Label className="mb-2">Client</Label>
-            <Controller
-              control={form.control}
-              name="client"
-              render={({ field }) => (
-                <ClientCombobox
-                  value={clients.find((c) => c.id === field.value)?.name || ""}
-                  onChange={field.onChange}
-                  clients={clients}
-                />
-              )}
-            />
-          </div>
-
-          {/* Court */}
-          <CourtCombobox
-            value={form.watch("court") || ""}
-            onChange={(val) =>
-              form.setValue("court", val, { shouldDirty: true, shouldValidate: true })
-            }
-            options={courts}
-          />
-
-          {/* Tags */}
-          <TagsCombobox
-            tags={form.watch("tags") || []}
-            setTags={(updated) =>
-              form.setValue("tags", updated, { shouldValidate: true, shouldDirty: true })
-            }
-            options={tags}
-          />
-
-          {/* Upload File Button */}
-          <div>
-            <Label className="mb-2">Documents</Label>
-            <Button variant="secondary" type="button" className="w-full">
-              Upload Files
-            </Button>
-          </div>
-
-          <DialogFooter className="pt-2">
-            <Button type="submit">Add Case</Button>
-          </DialogFooter>
         </form>
+
 
       </DialogContent>
     </Dialog>
