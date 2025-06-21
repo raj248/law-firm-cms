@@ -29,10 +29,6 @@ export const getAllCases = () => {
   return db.prepare(`SELECT * FROM cases`).all()
 }
 
-export const getCasesByClient = (clientId: string) => {
-  return db.prepare(`SELECT * FROM cases WHERE clientId = ?`).all(clientId)
-}
-
 export const updateCase = (
   id: string,
   field: keyof Case,
@@ -56,7 +52,7 @@ export const updateCase = (
     id
   )
 
-  if (!result.changes) return { success: false, error: "Update failed" }
+  if (!result.changes) return { success: false, error: "Update failed: No idea what happend." }
 
   const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id)
 
@@ -70,5 +66,9 @@ export const updateCase = (
 
 export const deleteCase = (id: string) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id)
-  return result.changes? true : false
+  if (result.changes === 0) {
+      return { success: false, error: 'Delete Failed: No idea what happend.' }
+    }
+
+    return { success: true }
 }

@@ -18,7 +18,7 @@ db.exec(`
     phone TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     address TEXT,
-    notes TEXT,
+    note TEXT,
     updatedAt TEXT NOT NULL
   );
 
@@ -34,17 +34,19 @@ db.exec(`
     updatedAt TEXT NOT NULL
     );
     
-    CREATE TABLE IF NOT EXISTS tasks (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      clientId TEXT NOT NULL,
-      caseId TEXT NOT NULL,
-      date TEXT NOT NULL,
-      time TEXT NOT NULL,
-      notes TEXT,
-      updatedAt TEXT NOT NULL
-      );
-  `);
+  CREATE TABLE IF NOT EXISTS tasks (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    dueDate TEXT, -- ISO date (nullable if no due date)
+    time TEXT, -- optional time
+    clientId TEXT NOT NULL,
+    caseId TEXT NOT NULL,
+    note TEXT,
+    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',
+    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High')) NOT NULL DEFAULT 'Medium',
+    updatedAt TEXT NOT NULL
+  );
+`);
 const insertClient = (client) => {
   const exists = db.prepare(`SELECT 1 FROM clients WHERE phone = ? OR email = ?`).get(client.phone, client.email);
   if (exists) {
@@ -52,17 +54,21 @@ const insertClient = (client) => {
   }
   const stmt = db.prepare(`
     INSERT INTO clients 
-    (id, name, phone, email, address, updatedAt) 
-    VALUES (@id, @name, @phone, @email, @address, @updatedAt)
+    (id, name, phone, email, address, updatedAt, note) 
+    VALUES (@id, @name, @phone, @email, @address, @updatedAt, @note)
   `);
-  stmt.run({
+  const result = stmt.run({
     id: client.id,
     name: client.name,
     phone: client.phone,
     email: client.email,
     address: client.address ?? "",
-    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    note: client.note ?? ""
   });
+  if (result.changes === 0) {
+    return { success: false, error: "Insert failed: no rows affected." };
+  }
   return { success: true };
 };
 const getAllClients = () => {
@@ -73,11 +79,17 @@ const updateClientField = (id, field, value) => {
   if (!validFields.includes(field)) return false;
   const result = db.prepare(`UPDATE clients SET ${field} = ? WHERE id = ?`).run(value, id);
   console.log("inside Client repo");
-  return result.changes > 0;
+  if (result.changes === 0) {
+    return { success: false, error: "Update Failed: No idea what happend." };
+  }
+  return { success: true };
 };
 const deleteClient = (id) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
-  return result.changes ? true : false;
+  if (result.changes === 0) {
+    return { success: false, error: "Delete Failed: No idea what happend." };
+  }
+  return { success: true };
 };
 const insertCase = (legalCase) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(legalCase.id);
@@ -99,9 +111,6 @@ const insertCase = (legalCase) => {
 const getAllCases = () => {
   return db.prepare(`SELECT * FROM cases`).all();
 };
-const getCasesByClient = (clientId) => {
-  return db.prepare(`SELECT * FROM cases WHERE clientId = ?`).all(clientId);
-};
 const updateCase = (id, field, value) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(id);
   if (!exists) return { success: false, error: "Case not found" };
@@ -117,7 +126,7 @@ const updateCase = (id, field, value) => {
     updatedAt,
     id
   );
-  if (!result.changes) return { success: false, error: "Update failed" };
+  if (!result.changes) return { success: false, error: "Update failed: No idea what happend." };
   const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id);
   const castCase = (c) => ({
     ...c,
@@ -127,28 +136,61 @@ const updateCase = (id, field, value) => {
 };
 const deleteCase = (id) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);
-  return result.changes ? true : false;
+  if (result.changes === 0) {
+    return { success: false, error: "Delete Failed: No idea what happend." };
+  }
+  return { success: true };
 };
 const insertTask = (task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, date, time, clientId, caseId, notes, updatedAt)
-    VALUES (@id, @title, @date, @time, @clientId, @caseId, @notes, @updatedAt)
+    (id, title, dueDate, time, clientId, caseId, status, priority, note, updatedAt)
+    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updatedAt)
   `);
-  stmt.run({
+  const result = stmt.run({
     ...task,
-    notes: task.notes ?? "",
+    note: task.note ?? "",
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
   });
+  if (result.changes === 0) {
+    return { success: false, error: "Insert failed: no rows affected." };
+  }
+  return { success: true };
 };
 const getAllTasks = () => {
   return db.prepare(`SELECT * FROM tasks`).all();
 };
-const getTasksByClient = (clientId) => {
-  return db.prepare(`SELECT * FROM tasks WHERE clientId = ?`).all(clientId);
-};
 const deleteTask = (id) => {
-  db.prepare(`DELETE FROM tasks WHERE id = ?`).run(id);
+  const result = db.prepare(`DELETE FROM tasks WHERE id = ?`).run(id);
+  if (result.changes === 0) {
+    return { success: false, error: "Delete Failed: No idea what happend." };
+  }
+  return { success: true };
+};
+const updateTask = (task) => {
+  const stmt = db.prepare(`
+    UPDATE tasks
+    SET 
+      title = @title,
+      dueDate = @dueDate,
+      time = @time,
+      clientId = @clientId,
+      caseId = @caseId,
+      note = @note,
+      status = @status,
+      priority = @priority,
+      updatedAt = @updatedAt
+    WHERE id = @id
+  `);
+  const result = stmt.run({
+    ...task,
+    note: task.note ?? "",
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  });
+  if (result.changes === 0) {
+    return { success: false, error: "Update failed: No such task found (or i have no idea what happend)." };
+  }
+  return { success: true };
 };
 createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
@@ -212,9 +254,6 @@ app.whenReady().then(() => {
   ipcMain.handle("database:get-all-cases", () => {
     return getAllCases();
   });
-  ipcMain.handle("database:get-cases-by-client", (_event, clientId) => {
-    return getCasesByClient(clientId);
-  });
   ipcMain.handle("database:delete-case", (_event, id) => {
     return deleteCase(id);
   });
@@ -227,11 +266,11 @@ app.whenReady().then(() => {
   ipcMain.handle("database:get-all-tasks", () => {
     return getAllTasks();
   });
-  ipcMain.handle("database:get-tasks-by-client", (_event, clientId) => {
-    return getTasksByClient(clientId);
-  });
   ipcMain.handle("database:delete-task", (_event, id) => {
     return deleteTask(id);
+  });
+  ipcMain.handle("database:update-task", (_event, task) => {
+    return updateTask(task);
   });
 });
 export {

@@ -75,7 +75,7 @@ export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
           <div className="pt-2 text-muted-foreground">
             {caseData.updatedAt
               ? formatDistanceToNow(new Date(caseData.updatedAt), { addSuffix: true })
-              : "Not Available"}
+              : formatDistanceToNow(new Date(caseData.createdAt), { addSuffix: true })}
           </div>
 
           <div className="font-medium pt-4">Tags:</div>

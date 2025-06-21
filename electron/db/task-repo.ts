@@ -4,25 +4,61 @@ import { db } from './db.ts'
 export const insertTask = (task: Task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, date, time, clientId, caseId, notes, updatedAt)
-    VALUES (@id, @title, @date, @time, @clientId, @caseId, @notes, @updatedAt)
+    (id, title, dueDate, time, clientId, caseId, status, priority, note, updatedAt)
+    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updatedAt)
   `)
 
-  stmt.run({
+  const result = stmt.run({
     ...task,
-    notes: task.notes ?? '',
+    note: task.note ?? '',
     updatedAt: new Date().toISOString(),
   })
+  if (result.changes === 0) {
+      return { success: false, error: 'Insert failed: no rows affected.' }
+    }
+
+    return { success: true }
 }
 
 export const getAllTasks = () => {
   return db.prepare(`SELECT * FROM tasks`).all()
 }
 
-export const getTasksByClient = (clientId: string) => {
-  return db.prepare(`SELECT * FROM tasks WHERE clientId = ?`).all(clientId)
+export const deleteTask = (id: string) => {
+  const result = db.prepare(`DELETE FROM tasks WHERE id = ?`).run(id)
+  if (result.changes === 0) {
+      return { success: false, error: 'Delete Failed: No idea what happend.' }
+    }
+
+    return { success: true }
 }
 
-export const deleteTask = (id: string) => {
-  db.prepare(`DELETE FROM tasks WHERE id = ?`).run(id)
+export const updateTask = (task: Task): { success: boolean; error?: string } => {
+  const stmt = db.prepare(`
+    UPDATE tasks
+    SET 
+      title = @title,
+      dueDate = @dueDate,
+      time = @time,
+      clientId = @clientId,
+      caseId = @caseId,
+      note = @note,
+      status = @status,
+      priority = @priority,
+      updatedAt = @updatedAt
+    WHERE id = @id
+  `)
+
+  const result = stmt.run({
+    ...task,
+    note: task.note ?? '',
+    updatedAt: new Date().toISOString()
+  })
+
+  if (result.changes === 0) {
+    return { success: false, error: 'Update failed: No such task found (or i have no idea what happend).' }
+  }
+
+  return { success: true }
+  
 }

@@ -24,7 +24,7 @@ db.exec(`
     phone TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     address TEXT,
-    notes TEXT,
+    note TEXT,
     updatedAt TEXT NOT NULL
   );
 
@@ -40,61 +40,16 @@ db.exec(`
     updatedAt TEXT NOT NULL
     );
     
-    CREATE TABLE IF NOT EXISTS tasks (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      clientId TEXT NOT NULL,
-      caseId TEXT NOT NULL,
-      date TEXT NOT NULL,
-      time TEXT NOT NULL,
-      notes TEXT,
-      updatedAt TEXT NOT NULL
-      );
-  `)
-// console.log(db.prepare(`SELECT * FROM clients`).all())
-      
-// import Database from "better-sqlite3"
-
-// export default function db() {
-//   const now = new Date().toISOString()
-//   const mockClients = [
-//     {
-//       id: 'c1',
-//       name: 'Alice Sharma',
-//       phone: '9876543210',
-//       email: 'alice@example.com',
-//       address: '123 Civil Lines',
-//       notes: 'Prefers email communication',
-//       updatedAt: now
-//     },
-//     {
-//       id: 'c2',
-//       name: 'Bob Verma',
-//       phone: '9123456780',
-//       email: 'bob@example.com',
-//       address: '45 MG Road',
-//       notes: '',
-//       updatedAt: now
-//     }
-//   ]
-//   const database = new Database("lawfirm.db")
-//   console.log("Database successfully created")
-//   database.exec(`
-//   CREATE TABLE IF NOT EXISTS clients (
-//     id TEXT PRIMARY KEY,
-//     name TEXT NOT NULL,
-//     phone TEXT NOT NULL,
-//     email TEXT NOT NULL,
-//     address TEXT,
-//     notes TEXT,
-//     updatedAt TEXT NOT NULL);
-//     `);
-
-//   const insertClient = database.prepare(`
-//     INSERT OR REPLACE INTO clients (id, name, phone, email, address, notes, updatedAt)
-//     VALUES (@id, @name, @phone, @email, @address, @notes, @updatedAt)
-//   `)
-//   mockClients.forEach(client => insertClient.run(client))
-//   const result = database.prepare(`SELECT * FROM clients`).all()
-//   console.log(result)
-// }
+  CREATE TABLE IF NOT EXISTS tasks (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    dueDate TEXT, -- ISO date (nullable if no due date)
+    time TEXT, -- optional time
+    clientId TEXT NOT NULL,
+    caseId TEXT NOT NULL,
+    note TEXT,
+    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',
+    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High')) NOT NULL DEFAULT 'Medium',
+    updatedAt TEXT NOT NULL
+  );
+`)

@@ -124,7 +124,11 @@ export function CaseTable() {
       accessorKey: "description",
       header: "Description",
       filterFn: 'includesString',
-      cell: ({ row }) => <div>{row.getValue("description")}</div>,
+      cell: ({ row }) => (
+        <div className="truncate max-w-xs" title={row.getValue("description")}>
+          {row.getValue("description")}
+        </div>
+      ),
     },
     {
       accessorKey: "status",

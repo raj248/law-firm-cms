@@ -38,11 +38,11 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
   },
 
   deleteCase: async (id) => {
-    const success = await window.database.deleteCase(id)
-    if (success) set((state) => ({
+    const result = await window.database.deleteCase(id)
+    if (result.success) set((state) => ({
       cases: state.cases.filter((c) => c.id !== id),
     }))
-    success ? toast.success("Case deleted", { description: "Case has been deleted" }) : toast.error("Error", { description: "Case not found" })
+    result.success ? toast.success("Case deleted", { description: "Case has been deleted" }) : toast.error("Error", { description: "Case not found" })
 
   },
 

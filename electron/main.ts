@@ -1,8 +1,8 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 
 import { insertClient, getAllClients, deleteClient, updateClientField } from './db/client-repo.ts'
-import { insertCase, getAllCases, getCasesByClient, deleteCase, updateCase } from './db/case-repo.ts'
-import { insertTask, getAllTasks, getTasksByClient, deleteTask } from './db/task-repo.ts'
+import { insertCase, getAllCases, deleteCase, updateCase } from './db/case-repo.ts'
+import { insertTask, getAllTasks, deleteTask, updateTask } from './db/task-repo.ts'
 
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -109,10 +109,6 @@ app.whenReady().then(() => {
     return getAllCases()
   })
 
-  ipcMain.handle('database:get-cases-by-client', (_event, clientId: string) => {
-    return getCasesByClient(clientId)
-  })
-
   ipcMain.handle('database:delete-case', (_event, id: string) => {
     return deleteCase(id)
   })
@@ -130,11 +126,11 @@ app.whenReady().then(() => {
     return getAllTasks()
   })
 
-  ipcMain.handle('database:get-tasks-by-client', (_event, clientId: string) => {
-    return getTasksByClient(clientId)
-  })
-
   ipcMain.handle('database:delete-task', (_event, id: string) => {
     return deleteTask(id)
+  })
+
+  ipcMain.handle('database:update-task', (_event, task) => {
+    return updateTask(task)
   })
 })

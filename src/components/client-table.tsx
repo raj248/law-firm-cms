@@ -107,6 +107,15 @@ export function ClientTable() {
       ),
     },
     {
+      accessorKey: "note",
+      header: "Note",
+      cell: ({ row }) => (
+        <div className="truncate max-w-xs" title={row.getValue("note")}>
+          {row.getValue("note")}
+        </div>
+      ),
+    },
+    {
       id: "actions",
       enableHiding: true,
       cell: ({ row }) => {

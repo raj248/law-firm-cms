@@ -20,13 +20,14 @@ export const useClientStore = create<ClientStore>((set) => ({
     const result = await window.database.insertClient(client)
     if (result.success) {
       set((state) => ({ clients: [...state.clients, client] }))
+      toast.success("Client added", { description: "Client has been added" })
     } else {
       toast.error("Error", { description: result.error })
     }
   },
   updateClient: async (id: string, field: keyof Client, value: string) => {
-    const success = await window.database.updateClientField(id, field, value)
-    if (success) {
+    const result = await window.database.updateClientField(id, field, value)
+    if (result.success) {
       set((state) => ({
         clients: state.clients.map((c) =>
           c.id === id ? { ...c, [field]: value } : c
@@ -42,12 +43,12 @@ export const useClientStore = create<ClientStore>((set) => ({
     }
   },
   deleteClient: async (id) => {
-    const success = await window.database.deleteClient(id)
-    if (success) set((state) => ({
+    const result = await window.database.deleteClient(id)
+    if (result.success) set((state) => ({
       clients: state.clients.filter((c) => c.id !== id)
     }));
 
-    success ? toast.success("Client deleted", { description: "Client has been deleted" }) : toast.error("Error", { description: "Client not found" })
+    result.success ? toast.success("Client deleted", { description: "Client has been deleted" }) : toast.error("Error", { description: "Client not found" })
   }
 }))
 

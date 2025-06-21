@@ -7,7 +7,8 @@ type TaskStore = {
   fetchTasks: () => Promise<void>
   addTask: (task: Task) => Promise<void>
   deleteTask: (id: string) => Promise<void>
-  getTasksByClient: (clientId: string) => Promise<Task[]>
+  getTasksByCaseId: (caseId: string) => Promise<Task[] | []>
+  getTasksByClient: (clientId: string) => Promise<Task[] | []>
   getTaskById: (id: string) => Promise<Task | undefined>
 }
 
@@ -32,13 +33,20 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   },
 
   getTasksByClient: async (clientId) => {
-    const data = await window.database.getTasksByClient(clientId)
+    const data = get().tasks.filter((t) => t.clientId === clientId)
+    // if (!data) toast.error('Tasks not found')
+    return data
+  },
+
+  getTasksByCaseId: async (caseId) => {
+    const data = get().tasks.filter((t) => t.caseId === caseId)
+    // if (!data) toast.error('Tasks not found')
     return data
   },
 
   getTaskById: async (id) => {
     const data = get().tasks.find((t) => t.id === id)
-    if (!data) toast.error('Task not found')
+    // if (!data) toast.error('Task not found')
     return data
   }
 

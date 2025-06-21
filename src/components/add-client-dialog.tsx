@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
+import { useClientStore } from "@/stores/client-store"
 
 // Schema for validation
 const clientSchema = z.object({
@@ -22,13 +22,14 @@ const clientSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string().min(10, "Phone must be at least 10 digits"),
   address: z.string().optional(),
-  notes: z.string().optional(),
+  note: z.string().optional(),
 })
 
 type ClientFormData = z.infer<typeof clientSchema>
 
 const onAdd = (data: ClientFormData) => {
   window.debug.log(data)
+  useClientStore.getState().addClient({ ...data, id: crypto.randomUUID() })
 }
 
 
@@ -40,14 +41,13 @@ export function AddClientDialog() {
       email: "",
       phone: "",
       address: "",
-      notes: "",
+      note: "",
     },
   })
 
   const onSubmit = (data: ClientFormData) => {
     onAdd(data)
     form.reset()
-    toast("Client added", { description: data.name + " has been added." })
   }
 
   return (
@@ -84,10 +84,10 @@ export function AddClientDialog() {
           </div>
 
           <div>
-            <Label htmlFor="notes">Description</Label>
+            <Label htmlFor="note">Description</Label>
             <textarea
-              id="notes"
-              {...form.register("notes")}
+              id="note"
+              {...form.register("note")}
               className="w-full rounded-md border px-3 py-2 text-sm"
               placeholder="Optional description..."
             />

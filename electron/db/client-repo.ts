@@ -12,20 +12,24 @@ export const insertClient = (client: Client): { success: boolean; error?: string
 
   const stmt = db.prepare(`
     INSERT INTO clients 
-    (id, name, phone, email, address, updatedAt) 
-    VALUES (@id, @name, @phone, @email, @address, @updatedAt)
+    (id, name, phone, email, address, updatedAt, note) 
+    VALUES (@id, @name, @phone, @email, @address, @updatedAt, @note)
   `)
 
-  stmt.run({
+  const result = stmt.run({
     id: client.id,
     name: client.name,
     phone: client.phone,
     email: client.email,
     address: client.address ?? '',
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    note: client.note?? ''
   })
+  if (result.changes === 0) {
+      return { success: false, error: 'Insert failed: no rows affected.' }
+    }
 
-  return { success: true }
+    return { success: true }
 }
 
 
@@ -39,10 +43,18 @@ export const updateClientField = (id: string, field: string, value: string) => {
 
   const result = db.prepare(`UPDATE clients SET ${field} = ? WHERE id = ?`).run(value, id)
   console.log("inside Client repo")
-  return result.changes > 0
+  if (result.changes === 0) {
+      return { success: false, error: 'Update Failed: No idea what happend.' }
+    }
+
+    return { success: true }
 }
 
 export const deleteClient = (id: string) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id)
-  return result.changes? true : false
+  if (result.changes === 0) {
+      return { success: false, error: 'Delete Failed: No idea what happend.' }
+    }
+
+    return { success: true }
 }

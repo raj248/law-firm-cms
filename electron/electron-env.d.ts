@@ -30,21 +30,20 @@ interface DB {
   // Clients
   insertClient: (client: Client) => Promise<{ success: boolean; error?: string }>
   getAllClients: () => Promise<Client[]>
-  deleteClient: (id: string) => Promise<boolean>
-  updateClientField: (id: string, field: keyof Client, value: string) => Promise<boolean>
+  deleteClient: (id: string) => Promise<{ success: boolean; error?: string }>
+  updateClientField: (id: string, field: keyof Client, value: string) => Promise<{ success: boolean; error?: string }>
 
   // Cases
   insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string }>
   getAllCases: () => Promise<Case[]>
-  getCasesByClient: (clientId: string) => Promise<Case[]>
-  deleteCase: (id: string) => Promise<boolean>
+  deleteCase: (id: string) => Promise<{ success: boolean; error?: string }>
   updateCase: (id: string, field: keyof Case, value: any) => Promise<{ success: boolean; updatedCase?: Case; error?: string }> 
 
   // Tasks
-  insertTask: (task: Task) => void
+  insertTask: (task: Task) => Promise<{ success: boolean; error?: string }>
   getAllTasks: () => Promise<Task[]>
-  getTasksByClient: (clientId: string) => Promise<Task[]>
-  deleteTask: (id: string) => void
+  updateTask: (task: Task) => promises<{ success: boolean; error?: string }>
+  deleteTask: (id: string) => Promise<{ success: boolean; error?: string }>
 }
 interface Window {
   ipcRenderer: import('electron').IpcRenderer

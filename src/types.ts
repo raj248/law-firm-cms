@@ -10,7 +10,7 @@ export type Client = {
   phone: string
   email: string
   address?: string
-  notes?: string
+  note?: string
   updatedAt? : string
 }
 
@@ -18,7 +18,7 @@ export type Case = {
   id: string
   title: string
   description: string
-  status: "Open" | "Closed" | "Pending"
+  status: typeof statusOptions[number]
   clientId: string
   court: string
   createdAt: string
@@ -29,13 +29,16 @@ export type Case = {
 export type Task = {
   id: string
   title: string
-  date: string // ISO format (e.g., "2025-06-15")
-  clientId: string
-  caseId: string
-  time: string // e.g., "14:00"
-  notes?: string
-  updatedAt? : string
+  note?: string
+  dueDate?: string // ISO format
+  time?: string // "14:00"
+  status: "Open" | "Pending" | "Closed"
+  priority: "Low" | "Medium" | "High"
+  caseId?: string
+  clientId?: string
+  updatedAt?: string
 }
+
 
 export type Document = {
   id: string

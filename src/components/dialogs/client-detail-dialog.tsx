@@ -50,7 +50,7 @@ export const ClientDetailDialog = ({ clientId, open = true, setOpen = () => { op
           <EditableField value={clientData.address || "Not Available"} onSave={(val) => handleOnSave(clientData.id, "address", val)} />
 
           <div className="font-medium pt-2">Notes:</div>
-          <EditableField value={clientData.notes || "Not Available"} onSave={(val) => handleOnSave(clientData.id, "notes", val)} />
+          <EditableField value={clientData.note || "Not Available"} onSave={(val) => handleOnSave(clientData.id, "note", val)} />
         </div>
 
 
