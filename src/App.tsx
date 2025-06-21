@@ -14,6 +14,7 @@ import { useClientStore } from "./stores/client-store"
 import { useEffect } from "react"
 import { useCaseStore } from "./stores/case-store"
 import { useTaskStore } from "./stores/task-store"
+import { DialogPortal } from "./components/dialogs/DialogPortal"
 
 export default function App() {
   const fetchClients = useClientStore((s) => s.fetchClients)
@@ -50,6 +51,8 @@ export default function App() {
               <Route path="/docs" element={<DocumentsPage />} />
             </Route>
           </Routes>
+          {/* End main content */}
+          <DialogPortal />
         </div>
       </Router>
     </ThemeProvider>

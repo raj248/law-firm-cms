@@ -37,10 +37,12 @@ import {
 } from "@/components/ui/table"
 import { Case } from "@/types"
 import { useCaseStore } from "@/stores/case-store"
-import { CaseDetailDialog } from "./case-detail-dialog"
+import { CaseDetailDialog } from "./dialogs/case-detail-dialog"
 import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
+import { AddCaseDialog } from "./add-case-dialog"
 
+const COLUMN_VISIBILITY_KEY = "case-table-column-visibility"
 
 const tagIncludes: FilterFn<Case> = (
   row: Row<Case>,
@@ -54,6 +56,13 @@ const tagIncludes: FilterFn<Case> = (
   )
 }
 
+
+// Load from localStorage
+const getInitialVisibility = (): VisibilityState => {
+  if (typeof window === "undefined") return {}
+  const stored = localStorage.getItem(COLUMN_VISIBILITY_KEY)
+  return stored ? JSON.parse(stored) : {}
+}
 
 export function CaseTable() {
   const columns: ColumnDef<Case>[] = [
@@ -221,7 +230,7 @@ export function CaseTable() {
   ]
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState<any>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(getInitialVisibility)
   const [rowSelection, setRowSelection] = React.useState({})
   const cases = useCaseStore((s) => s.cases)
   const [selectedCase, setSelectedCase] = React.useState<string | null>(null);
@@ -253,37 +262,44 @@ export function CaseTable() {
     },
   })
 
+  React.useEffect(() => {
+    localStorage.setItem(COLUMN_VISIBILITY_KEY, JSON.stringify(columnVisibility))
+  }, [columnVisibility])
+
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <div className="flex justify-between py-4">
         <Input
           placeholder="Filter by id, itle, description, court, or tags..."
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="z-50">
-            {table
-              .getAllColumns()
-              .filter((col) => col.getCanHide())
-              .map((col) => (
-                <DropdownMenuCheckboxItem
-                  key={col.id}
-                  className="capitalize"
-                  checked={col.getIsVisible()}
-                  onCheckedChange={(val) => col.toggleVisibility(!!val)}
-                >
-                  {col.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <AddCaseDialog />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="z-50">
+              {table
+                .getAllColumns()
+                .filter((col) => col.getCanHide())
+                .map((col) => (
+                  <DropdownMenuCheckboxItem
+                    key={col.id}
+                    className="capitalize"
+                    checked={col.getIsVisible()}
+                    onCheckedChange={(val) => col.toggleVisibility(!!val)}
+                  >
+                    {col.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="rounded-md border">

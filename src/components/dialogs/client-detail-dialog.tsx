@@ -4,9 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditableField } from "./editable-field";
+import { EditableField } from "../editable-field";
 import { Client } from "@/types";
-import { CaseSection } from "./case-section";
+import { CaseSection } from "../case-section";
 import { useClientStore } from "@/stores/client-store"
 
 type Props = {
@@ -23,7 +23,10 @@ const handleOnSave = (id: string, field: keyof Client, value: string) => {
 
 export const ClientDetailDialog = ({ clientId, open = true, setOpen = () => { open = false; } }: Props) => {
   const clientData = useClientStore.getState().clients.find(c => c.id === clientId)
-  if (!clientData) return null;
+  if (!clientData) {
+    setOpen(false)
+    return null
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

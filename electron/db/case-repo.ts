@@ -60,10 +60,10 @@ export const updateCase = (
 
   const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id)
 
-    const castCase = (c: any): Case => ({
+  const castCase = (c: any): Case => ({
     ...c,
     tags: c.tags ? JSON.parse(c.tags) : [],
-})
+  })
   return { success: true, updatedCase: castCase(modifiedCase) }
 }
 
@@ -72,8 +72,3 @@ export const deleteCase = (id: string) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id)
   return result.changes? true : false
 }
-
-const castCase = (c: any): Case => ({
-  ...c,
-  tags: c.tags ? JSON.parse(c.tags) : [],
-})

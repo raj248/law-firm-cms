@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { useCaseStore } from "@/stores/case-store";
 import { AddCaseDialog } from "./add-case-dialog";
-import { CaseDetailDialog } from "./case-detail-dialog"; // ✅ import
+import { CaseDetailDialog } from "./dialogs/case-detail-dialog"; // ✅ import
 
 type Props = {
   id: string; // client ID

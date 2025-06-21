@@ -35,12 +35,18 @@ import {
 } from "@/components/ui/table"
 import { Client } from "@/types"
 import { useClientStore } from "@/stores/client-store"
-import { ClientDetailDialog } from "./client-detail-dialog"
+import { ClientDetailDialog } from "./dialogs/client-detail-dialog"
 import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
+import { AddClientDialog } from "./add-client-dialog"
 
+const COLUMN_VISIBILITY_KEY = "client-table-column-visibility"
 
-
+const getInitialVisibility = (): VisibilityState => {
+  if (typeof window === "undefined") return {}
+  const stored = localStorage.getItem(COLUMN_VISIBILITY_KEY)
+  return stored ? JSON.parse(stored) : {}
+}
 
 export function ClientTable() {
   const columns: ColumnDef<Client>[] = [
@@ -199,7 +205,7 @@ export function ClientTable() {
   ]
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState<any>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(getInitialVisibility)
   const [rowSelection, setRowSelection] = React.useState({})
   const client = useClientStore((s) => s.clients)
   const [selectedClient, setSelectedClient] = React.useState<string | null>(null);
@@ -228,41 +234,48 @@ export function ClientTable() {
     },
   })
 
+  React.useEffect(() => {
+    localStorage.setItem(COLUMN_VISIBILITY_KEY, JSON.stringify(columnVisibility))
+  }, [columnVisibility])
+
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <div className="flex justify-between py-4">
         <Input
           placeholder="Filter by name, email, or phone..."
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <AddClientDialog />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  )
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

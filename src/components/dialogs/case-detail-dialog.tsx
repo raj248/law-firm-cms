@@ -4,14 +4,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { EditableField } from "./editable-field"
+import { EditableField } from "../editable-field"
 import { Badge } from "@/components/ui/badge"
 import { Case, courtOptions, statusOptions, tagOptions } from "@/types"
 import { formatDistanceToNow } from "date-fns"
-import { DropdownEditableField } from "./dropdown-editable-field"
+import { DropdownEditableField } from "../dropdown-editable-field"
 import { useCaseStore } from "@/stores/case-store"
 import React from "react"
-import { TagsCombobox } from "./tag-combo-box"
+import { TagsCombobox } from "../tag-combo-box"
 
 type Props = {
   caseId: string
@@ -25,7 +25,10 @@ const handleOnSave = (id: string, field: keyof Case, value: any) => {
 
 export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
   const caseData = useCaseStore.getState().cases.find(c => c.id === caseId)
-  if (!caseData) return null
+  if (!caseData) {
+    setOpen(false)
+    return null
+  }
 
   const [tags, setTags] = React.useState<string[]>(caseData.tags ?? [])
   React.useEffect(() => {

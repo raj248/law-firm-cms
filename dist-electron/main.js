@@ -119,11 +119,11 @@ const updateCase = (id, field, value) => {
   );
   if (!result.changes) return { success: false, error: "Update failed" };
   const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id);
-  const castCase2 = (c) => ({
+  const castCase = (c) => ({
     ...c,
     tags: c.tags ? JSON.parse(c.tags) : []
   });
-  return { success: true, updatedCase: castCase2(modifiedCase) };
+  return { success: true, updatedCase: castCase(modifiedCase) };
 };
 const deleteCase = (id) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);

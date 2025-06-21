@@ -2,22 +2,18 @@
 
 import {
   Command,
-  CommandDialog,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "@/components/ui/command"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useClientStore } from "@/stores/client-store"
 import { useCaseStore } from "@/stores/case-store"
 import { useTaskStore } from "@/stores/task-store"
-// import { useRouter } from "next/navigation"
 import Fuse, { FuseResultMatch } from "fuse.js"
 import { Input } from "./ui/input"
-import { ClientDetailDialog } from "./client-detail-dialog"
+import { useDialogStore } from "@/stores/dialog-store"
 
 type Client = { id: string; name: string; email?: string; phone?: string }
 type Case = { id: string; title: string; description?: string; status: string }
@@ -29,7 +25,17 @@ type IndexedData =
   | ({ type: "Task"; matches?: FuseResultMatch[] } & Task)
 
 export function GlobalSearch() {
-  const [open, setOpen] = useState(false)
+
+  const handleClientClick = (id: string) => {
+    useDialogStore.getState().openClientDialog(id)
+  }
+  const handleCaseClick = (id: string) => {
+    useDialogStore.getState().openCaseDialog(id)
+  }
+  const handleTaskClick = (id: string) => {
+    useDialogStore.getState().openTaskDialog(id)
+  }
+
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<Record<"Client" | "Case" | "Task", IndexedData[]>>({
     Client: [],
@@ -57,7 +63,7 @@ export function GlobalSearch() {
     return new Fuse(indexed, {
       keys: ["name", "email", "phone", "title", "description", "status"],
       threshold: 0.4,
-      minMatchCharLength: 2,
+      minMatchCharLength: 1,
       includeScore: true,
       includeMatches: true,
     })
@@ -135,12 +141,11 @@ export function GlobalSearch() {
         onMouseDown={() => {
           window.debug.log("item, needs router push")
           if (item.type === "Client") {
-            // router.push(`/clients/${item.id}`)
-            // ClientDetailDialog(item.id)
+            handleClientClick(item.id)
           } else if (item.type === "Case") {
-            // router.push(`/cases/${item.id}`)
+            handleCaseClick(item.id)
           } else if (item.type === "Task") {
-            // router.push(`/tasks/${item.id}`)
+            handleTaskClick(item.id)
           }
         }}
         className="group flex flex-col items-start cursor-pointer px-2 py-1.5 rounded-sm aria-selected:bg-muted/70"
