@@ -17,8 +17,8 @@ import require$$4$1 from "url";
 import require$$1$3 from "string_decoder";
 import require$$14 from "zlib";
 import require$$4$2 from "http";
-const require$2 = createRequire(import.meta.url);
-const Database = require$2("better-sqlite3");
+const require$1 = createRequire(import.meta.url);
+const Database = require$1("better-sqlite3");
 console.log("App Name : ", app.getName());
 const dbPath = require$$1.join("./database", "lawfirm.db");
 console.log("Databse Path : ", dbPath);
@@ -13961,10 +13961,9 @@ NsisUpdater$1.NsisUpdater = NsisUpdater;
     }
   });
 })(main$1);
-const require$1 = createRequire(import.meta.url);
+createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path$m.dirname(__filename);
-console.log(require$1);
 process.env.APP_ROOT = path$m.join(__dirname, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path$m.join(process.env.APP_ROOT, "dist-electron");
@@ -13978,6 +13977,7 @@ function createWindow() {
       preload: path$m.join(__dirname, "preload.mjs")
     }
   });
+  console.log(path$m.join(__dirname, "preload.mjs"));
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
   });
@@ -14003,7 +14003,7 @@ app.on("activate", () => {
 app.whenReady().then(() => {
   createWindow();
   main$1.autoUpdater.autoDownload = true;
-  console.log("autoUpdater.checkForUpdates(): ", typeof main$1.autoUpdater.checkForUpdates);
+  console.log("autoUpdater.checkForUpdates(): ", main$1.autoUpdater.checkForUpdates());
   main$1.autoUpdater.on("update-available", (info) => {
     dialog.showMessageBox({
       type: "info",
@@ -14028,14 +14028,11 @@ app.whenReady().then(() => {
   ipcMain.on("log", (_event, ...args) => {
     console.log("\x1B[32m%s\x1B[0m", "[Renderer Log]:", ...args);
   });
-  ipcMain.handle("check-for-update", async () => {
-    console.log("");
-    return await main$1.autoUpdater.checkForUpdates();
-  });
   ipcMain.handle("open-file", async (_event, filePath) => {
     return await shell.openPath(filePath);
   });
   ipcMain.handle("database:insert-client", (_event, client) => {
+    console.log(main$1.autoUpdater.currentVersion);
     return insertClient(client);
   });
   ipcMain.handle("database:get-all-clients", () => {

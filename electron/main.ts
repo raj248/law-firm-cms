@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-console.log(require)
+{require}
 // The built directory structure
 //
 // ├─┬─┬ dist
@@ -43,7 +43,7 @@ function createWindow() {
     },
   })
 
-  
+  console.log(path.join(__dirname, 'preload.mjs'))
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
@@ -84,7 +84,7 @@ app.whenReady().then(() => {
 
   autoUpdater.autoDownload = true // set to false if you want user to confirm before download
 
-  console.log("autoUpdater.checkForUpdates(): ", typeof autoUpdater.checkForUpdates)
+  console.log("autoUpdater.checkForUpdates(): ", autoUpdater.checkForUpdates())
   autoUpdater.on('update-available', (info) => {
     dialog.showMessageBox({
       type: 'info',
@@ -111,19 +111,14 @@ app.whenReady().then(() => {
   ipcMain.on('log', (_event, ...args) => {
     console.log('\x1b[32m%s\x1b[0m', '[Renderer Log]:', ...args)
   })
-
-  ipcMain.handle("check-for-update", async () => {
-    console.log("")
-    return await autoUpdater.checkForUpdates()
-  })
-
-  // Shell
+  
+   // Shell
   ipcMain.handle('open-file', async (_event, filePath: string) => {
     return await shell.openPath(filePath)
   })
-
   // Clients
   ipcMain.handle('database:insert-client', (_event, client) => {
+    console.log(autoUpdater.currentVersion)
     return insertClient(client)
   })
 
@@ -173,3 +168,12 @@ app.whenReady().then(() => {
     return updateTask(task)
   })
 })
+
+
+// dialog.showMessageBox({
+//       type: 'info',
+//       title: 'currentVersion',
+//       message: app.getVersion(),
+//       detail: 'This is the current version.',
+//       buttons: ['OK']
+//     })

@@ -22,7 +22,8 @@ electron.contextBridge.exposeInMainWorld("debug", {
   log: (...args) => electron.ipcRenderer.send("log", ...args)
 });
 electron.contextBridge.exposeInMainWorld("electronAPI", {
-  openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath)
+  openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath),
+  checkForUpdates: () => electron.ipcRenderer.invoke("check-for-update")
 });
 electron.contextBridge.exposeInMainWorld("database", {
   // Clients
