@@ -34,6 +34,7 @@ jobs:
 
           VERSION="v$(node -p "require('./package.json').version")"
           echo "Creating tag $VERSION"
+          echo "Pat $PAT"
 
           # Configure Git to use PAT for push
           git remote set-url origin https://x-access-token:${PAT}@github.com/${{ github.repository }}
