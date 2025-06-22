@@ -2,7 +2,8 @@ name: Windows Build
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -23,24 +24,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: Create Git Tag from package.json version
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          $version = "v" + (node -p "require('./package.json').version")
-          Write-Host "Creating tag $version"
-
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          git tag $version
-
-          # Override the Git remote to use the GitHub PAT
-          git remote set-url origin "https://x-access-token:$env:GH_TOKEN@github.com/${{ github.repository }}"
-
-          git push origin $version
 
       - name: Build and Publish Electron App
         run: npx electron-builder --win --x64 --publish always
