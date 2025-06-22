@@ -8,8 +8,10 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,13 +24,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build the app
-        run: npm run build
+      - name: Build and Publish Electron App
+        run: npx electron-builder --win --x64 --publish always
 
-      - name: Upload Windows Build
+      # Optional: Save installer as artifact too
+      - name: Upload Windows Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: law-firm-windows-build
           path: |
             release/**/*.exe
-            release/**/*.portable.exe
