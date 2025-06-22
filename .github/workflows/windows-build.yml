@@ -26,15 +26,21 @@ jobs:
 
       - name: Create Git Tag from package.json version
         shell: bash
+        env:
+          PAT: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          export VERSION="v$(node -p "require('./package.json').version")"
-          export GH_PUSH_TOKEN="${GH_TOKEN}"
-          git tag $VERSION
-          git remote set-url origin https://x-access-token:$GH_PUSH_TOKEN@github.com/${{ github.repository }}
-          git push origin $VERSION
 
+          VERSION="v$(node -p "require('./package.json').version")"
+          echo "Creating tag $VERSION"
+
+          # Configure Git to use PAT for push
+          git remote set-url origin https://x-access-token:${PAT}@github.com/${{ github.repository }}
+
+          # Create and push tag
+          git tag $VERSION
+          git push origin $VERSION
 
       - name: Build and Publish Electron App
         run: npx electron-builder --win --x64 --publish always
