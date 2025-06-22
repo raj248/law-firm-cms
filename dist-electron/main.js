@@ -13983,8 +13983,10 @@ function createWindow() {
   });
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
+    console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL);
   } else {
     win.loadFile(path$m.join(RENDERER_DIST, "index.html"));
+    console.log("RENDERER_DIST: ", path$m.join(RENDERER_DIST, "index.html"));
   }
 }
 app.on("window-all-closed", () => {
@@ -14001,7 +14003,7 @@ app.on("activate", () => {
 app.whenReady().then(() => {
   createWindow();
   main$1.autoUpdater.autoDownload = true;
-  main$1.autoUpdater.checkForUpdates();
+  console.log("autoUpdater.checkForUpdates(): ", typeof main$1.autoUpdater.checkForUpdates);
   main$1.autoUpdater.on("update-available", (info) => {
     dialog.showMessageBox({
       type: "info",
@@ -14027,7 +14029,8 @@ app.whenReady().then(() => {
     console.log("\x1B[32m%s\x1B[0m", "[Renderer Log]:", ...args);
   });
   ipcMain.handle("check-for-update", async () => {
-    main$1.autoUpdater.checkForUpdates();
+    console.log("");
+    return await main$1.autoUpdater.checkForUpdates();
   });
   ipcMain.handle("open-file", async (_event, filePath) => {
     return await shell.openPath(filePath);

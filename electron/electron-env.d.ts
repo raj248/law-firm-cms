@@ -24,7 +24,7 @@ declare namespace NodeJS {
 // Used in Renderer process, exposed via `preload.ts`
 interface ElectronAPI {
   openFile: (filePath: string) => Promise<string | null>
-  checkForUpdate: () => Promise<UpdateCheckResult | null>
+  checkForUpdates: () => Promise<UpdateCheckResult | null>
 }
 
 interface DB {

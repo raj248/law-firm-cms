@@ -43,16 +43,21 @@ function createWindow() {
     },
   })
 
+  
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
+    // win?.webContents.send('main-process-message', VITE_DEV_SERVER_URL)
   })
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
+    console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL)
+
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+    console.log("RENDERER_DIST: ", path.join(RENDERER_DIST, 'index.html'))
   }
 }
 
@@ -79,8 +84,7 @@ app.whenReady().then(() => {
 
   autoUpdater.autoDownload = true // set to false if you want user to confirm before download
 
-  autoUpdater.checkForUpdates()
-
+  console.log("autoUpdater.checkForUpdates(): ", typeof autoUpdater.checkForUpdates)
   autoUpdater.on('update-available', (info) => {
     dialog.showMessageBox({
       type: 'info',
@@ -109,7 +113,8 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle("check-for-update", async () => {
-    autoUpdater.checkForUpdates()
+    console.log("")
+    return await autoUpdater.checkForUpdates()
   })
 
   // Shell
