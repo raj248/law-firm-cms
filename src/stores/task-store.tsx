@@ -23,6 +23,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   addTask: async (task) => {
     await window.database.insertTask(task)
     set((state) => ({ tasks: [...state.tasks, task] }))
+    toast.success('Task added successfully')
   },
 
   deleteTask: async (id) => {
