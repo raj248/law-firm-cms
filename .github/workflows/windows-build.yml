@@ -29,10 +29,12 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          VERSION="v$(node -p "require('./package.json').version")"
+          export VERSION="v$(node -p "require('./package.json').version")"
+          export GH_PUSH_TOKEN="${GH_TOKEN}"
           git tag $VERSION
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:$GH_PUSH_TOKEN@github.com/${{ github.repository }}
           git push origin $VERSION
+
 
       - name: Build and Publish Electron App
         run: npx electron-builder --win --x64 --publish always
