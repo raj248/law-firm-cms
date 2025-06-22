@@ -31,6 +31,7 @@ jobs:
           git config user.email "github-actions@github.com"
           VERSION="v$(node -p "require('./package.json').version")"
           git tag $VERSION
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
           git push origin $VERSION
 
       - name: Build and Publish Electron App
