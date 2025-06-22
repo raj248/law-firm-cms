@@ -12,7 +12,7 @@ export default function MainLayout() {
     "/": "Dashboard",
     "/clients": "Clients",
     "/cases": "Cases",
-    "/calender": "Calender",
+    "/task": "Tasks",
     "/docs": "Documents",
     "/login": "Login",
     "/register": "Register",

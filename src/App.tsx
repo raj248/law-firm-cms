@@ -8,7 +8,7 @@ import LoginPage from "@/components/pages/login"
 import RegisterPage from "@/components/pages/register"
 import Clients from "@/components/pages/clients"
 import Cases from "@/components/pages/cases"
-import CalenderPage from "./components/pages/calender"
+import TaskPage from "./components/pages/task"
 import DocumentsPage from "./components/pages/documents"
 import { useClientStore } from "./stores/client-store"
 import { useEffect } from "react"
@@ -47,7 +47,7 @@ export default function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/cases" element={<Cases />} />
-              <Route path="/calender" element={<CalenderPage />} />
+              <Route path="/task" element={<TaskPage />} />
               <Route path="/docs" element={<DocumentsPage />} />
             </Route>
           </Routes>

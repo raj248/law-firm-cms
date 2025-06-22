@@ -15,7 +15,7 @@ const navItems = [
   { name: "Dashboard", icon: <Home size={18} />, path: "/" },
   { name: "Clients", icon: <Users size={18} />, path: "/clients" },
   { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
-  { name: "Calender", icon: <Calendar size={18} />, path: "/calender" },
+  { name: "Tasks", icon: <Calendar size={18} />, path: "/task" },
   { name: "Documents", icon: <Files size={18} />, path: "/docs" },
 ];
 

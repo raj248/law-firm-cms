@@ -28,7 +28,7 @@ const minutes = ['00', '10', '20', '30', '40', '50']
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  note: z.string().optional(),
+  note: z.string().min(0, "Note is required"),
   dueDate: z.string().optional(),
   hour: z.string().optional(),
   minute: z.string().optional(),
@@ -66,8 +66,8 @@ export function AddTaskDialog() {
     const newTask: Task = {
       id: crypto.randomUUID(),
       title: data.title.trim(),
-      note: data.note?.trim() || "",
-      dueDate: data.dueDate,
+      note: data.note.trim() || "",
+      dueDate: data.dueDate?.slice(0, 10),
       time: data.hour && data.minute ? `${data.hour}:${data.minute}` : '',
       status: data.status,
       priority: data.priority,
@@ -79,6 +79,7 @@ export function AddTaskDialog() {
     useTaskStore.getState().addTask(newTask)
     form.reset()
     setDialogOpen(false)
+    window.debug.log("Data Notes: ", data.note)
   }
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -98,7 +99,10 @@ export function AddTaskDialog() {
 
           <div>
             <Label>Notes</Label>
-            <Textarea {...form.register("note")} />
+            <textarea
+              {...form.register("note")}
+              className="w-full rounded-md border px-3 py-2 text-sm h-32"
+            />
           </div>
 
           <div className="flex gap-4">
