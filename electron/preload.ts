@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('debug', {
 // --------- Expose shell.openPath ---------
 contextBridge.exposeInMainWorld('electronAPI', {
   openFile: (filePath: string) => ipcRenderer.invoke('open-file', filePath),
+  checkForUpdate: () => ipcRenderer.invoke('check-for-update')
 })
 
 contextBridge.exposeInMainWorld('database', {

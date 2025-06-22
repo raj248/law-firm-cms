@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 
 import { insertClient, getAllClients, deleteClient, updateClientField } from './db/client-repo.ts'
 import { insertCase, getAllCases, deleteCase, updateCase } from './db/case-repo.ts'
@@ -77,14 +77,39 @@ app.on('activate', () => {
 app.whenReady().then(() => {
   createWindow()
 
-  autoUpdater.checkForUpdatesAndNotify()
+  autoUpdater.autoDownload = true // set to false if you want user to confirm before download
+
+  autoUpdater.checkForUpdates()
+
+  autoUpdater.on('update-available', (info) => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Available',
+      message: `A new version (${info.version}) is available.`,
+      detail: 'The update will be downloaded in the background.',
+      buttons: ['OK']
+    })
+  })
 
   autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall()
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Ready',
+      message: 'The update has been downloaded. Restart now to apply the update.',
+      buttons: ['Restart Now', 'Later']
+    }).then(result => {
+      if (result.response === 0) { // "Restart Now"
+        autoUpdater.quitAndInstall()
+      }
+    })
   })
 
   ipcMain.on('log', (_event, ...args) => {
     console.log('\x1b[32m%s\x1b[0m', '[Renderer Log]:', ...args)
+  })
+
+  ipcMain.handle("check-for-update", async () => {
+    autoUpdater.checkForUpdates()
   })
 
   // Shell

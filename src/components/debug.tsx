@@ -11,7 +11,7 @@ export function Debug() {
     <Button
       variant="outline"
       size="icon"
-      onClick={() => window.debug.log("Debug button clicked")}
+      onClick={() => window.debug.log(window.electronAPI.checkForUpdate() === null)}
       // onClick={() => populateDummyData()}
       className="rounded-full"
     >
