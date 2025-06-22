@@ -1,6 +1,5 @@
 {
   "name": "law-firm-app",
-  "private": true,
   "version": "1.0.0",
   "type": "module",
   "description": "Law Firm App: Please Choose an app name quickly",
@@ -35,6 +34,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "electron-updater": "^6.6.2",
     "fuse.js": "^7.1.0",
     "lucide-react": "^0.513.0",
     "next-themes": "^0.4.6",
