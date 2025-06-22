@@ -24,10 +24,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create Git Tag from package.json version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          VERSION="v$(node -p "require('./package.json').version")"
+          git tag $VERSION
+          git push origin $VERSION
+
       - name: Build and Publish Electron App
         run: npx electron-builder --win --x64 --publish always
 
-      # Optional: Save installer as artifact too
       - name: Upload Windows Build Artifact
         uses: actions/upload-artifact@v4
         with:
