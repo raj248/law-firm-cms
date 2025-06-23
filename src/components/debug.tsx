@@ -11,7 +11,7 @@ export function Debug() {
     <Button
       variant="outline"
       size="icon"
-      onClick={() => window.debug.debug('debug log')}
+      onClick={() => console.log('This is an Updated version of the app')}
       // onClick={() => populateDummyData()}
       className="rounded-full"
     >

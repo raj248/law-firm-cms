@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 
 import { insertClient, getAllClients, deleteClient, updateClientField } from './db/client-repo.ts'
 import { insertCase, getAllCases, deleteCase, updateCase } from './db/case-repo.ts'
@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 
-import { autoUpdater } from 'electron-updater'
+import { autoUpdater } from "electron-updater"
+import log from "electron-log"
 
 const require = createRequire(import.meta.url)
 const __filename = fileURLToPath(import.meta.url)
@@ -82,30 +83,35 @@ app.on('activate', () => {
 app.whenReady().then(() => {
   createWindow()
 
-  autoUpdater.autoDownload = true // set to false if you want user to confirm before download
-
-  console.log("autoUpdater.checkForUpdates(): ", autoUpdater.checkForUpdates())
-  autoUpdater.on('update-available', (info) => {
-    dialog.showMessageBox({
-      type: 'info',
-      title: 'Update Available',
-      message: `A new version (${info.version}) is available.`,
-      detail: 'The update will be downloaded in the background.',
-      buttons: ['OK']
-    })
+  autoUpdater.logger = log
+  // autoUpdater.logger.info("App starting from autoupdater logger.log() ")
+  log.info("App starting...")
+  autoUpdater.checkForUpdates()
+  autoUpdater.on("checking-for-update", () => {
+    log.info("Checking for update...")
   })
 
-  autoUpdater.on('update-downloaded', () => {
-    dialog.showMessageBox({
-      type: 'info',
-      title: 'Update Ready',
-      message: 'The update has been downloaded. Restart now to apply the update.',
-      buttons: ['Restart Now', 'Later']
-    }).then(result => {
-      if (result.response === 0) { // "Restart Now"
-        autoUpdater.quitAndInstall()
-      }
-    })
+  autoUpdater.on("update-available", (info) => {
+    log.info("Update available.", info)
+  })
+
+  autoUpdater.on("update-not-available", (info) => {
+    log.info("Update not available.", info)
+  })
+
+  autoUpdater.on("error", (err) => {
+    log.error("Error in auto-updater:", err)
+  })
+
+  autoUpdater.on("download-progress", (progress) => {
+    log.info(`Download speed: ${progress.bytesPerSecond}`)
+    log.info(`Downloaded ${progress.percent}%`)
+    log.info(`${progress.transferred}/${progress.total}`)
+  })
+
+  autoUpdater.on("update-downloaded", (info) => {
+    log.info("Update downloaded. Will install on quit.")
+    log.info(info.version)
   })
 
   ipcMain.on('log', (_event, ...args) => {
