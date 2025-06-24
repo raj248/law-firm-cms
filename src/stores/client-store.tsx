@@ -1,11 +1,11 @@
 import { create } from 'zustand'
-import { Client } from '@/types'
+import { Client, NewClient } from '@/types'
 import { toast } from 'sonner'
 
 type ClientStore = {
   clients: Client[]
   fetchClients: () => Promise<void>
-  addClient: (client: Client) => Promise<void>
+  addClient: (client: NewClient) => Promise<void>
   deleteClient: (id: string) => Promise<void>
   updateClient: (id: string, field: keyof Client, value: string) => Promise<void>
 }
@@ -18,8 +18,9 @@ export const useClientStore = create<ClientStore>((set) => ({
   },
   addClient: async (client) => {
     const result = await window.database.insertClient(client)
-    if (result.success) {
-      set((state) => ({ clients: [...state.clients, client] }))
+    if (result.success && result.data) {
+
+      set((state) => ({ clients: [...state.clients, result.data] }))
       toast.success("Client added", { description: "Client has been added" })
     } else {
       toast.error("Error", { description: result.error })

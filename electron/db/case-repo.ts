@@ -1,7 +1,7 @@
 import { Case } from '@/types'
 import { db } from './db.ts'
 
-export const insertCase = (legalCase: Case) : { success: boolean; error?: string }=> {
+export const insertCase = (legalCase: Case) : { success: boolean; error?: string; data?: Case }=> {
   const exists = db
     .prepare(`SELECT 1 FROM cases WHERE id = ?`)
     .get(legalCase.id)
@@ -12,17 +12,22 @@ export const insertCase = (legalCase: Case) : { success: boolean; error?: string
 
   const stmt = db.prepare(`
     INSERT INTO cases
-    (id, title, description, status, clientId, court, created_at, tags, updated_at)
-    VALUES (@id, @title, @description, @status, @clientId, @court, @created_at, @tags, @updated_at)
+    (id, title, description, status, clientId, court, created_at, tags, updated_at, is_synced)
+    VALUES (@id, @title, @description, @status, @clientId, @court, @created_at, @tags, @updated_at, @is_synced)
   `)
-
-  stmt.run({
+  const newCase = {
     ...legalCase,
     tags: JSON.stringify(legalCase.tags ?? []),
     updated_at: new Date().toISOString(),
-  })
+    is_synced: 0,
+  } 
+  const result = stmt.run(newCase)
 
-  return { success: true }
+  if (result.changes === 0) {
+      return { success: false, error: 'Insert failed: no rows affected.' }
+    }
+
+  return { success: true, data: {...newCase, tags:legalCase.tags??[]} }
 }
 
 export const getAllCases = () => {
@@ -42,7 +47,7 @@ export const updateCase = (
 
   const stmt = db.prepare(`
     UPDATE cases
-    SET ${field} = ?, updated_at = ?
+    SET ${field} = ?, updated_at = ?, is_synced = 0,
     WHERE id = ?
   `)
 

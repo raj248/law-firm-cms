@@ -52,5 +52,11 @@ contextBridge.exposeInMainWorld('database', {
   getAllTasks: (): Promise<Task[]> => ipcRenderer.invoke('database:get-all-tasks'),
   getTasksByClient: (clientId: string): Promise<Task[]> =>
     ipcRenderer.invoke('database:get-tasks-by-client', clientId),
-  deleteTask: (id: string) => ipcRenderer.invoke('database:delete-task', id)
+  deleteTask: (id: string) => ipcRenderer.invoke('database:delete-task', id),
+
+  // Sync
+  unsyncedClients: (): Promise<Client[]> => ipcRenderer.invoke('unsynced-clients'),
+  updateClientSync: (id: string): Promise<{ success: boolean; error?: string }> => ipcRenderer.invoke('update-client-sync', id),
+
+
 })

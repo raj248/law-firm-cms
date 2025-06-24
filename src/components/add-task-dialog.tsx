@@ -104,12 +104,12 @@ export function AddTaskDialog() {
             />
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex">
             <div className="flex flex-col gap-2">
               <Label>Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-32 justify-between font-normal">
+                  <Button variant="outline" className="w-38 justify-between font-normal">
                     {form.watch("dueDate")
                       ? format(new Date(form.watch("dueDate")!), "PPP")
                       : "Select date"}
@@ -132,9 +132,9 @@ export function AddTaskDialog() {
               </Popover>
             </div>
 
-            <div className="flex-1 flex gap-2">
+            <div className="flex-1 flex ml-12 ">
               <div className="flex-1">
-                <Label>Hour</Label>
+                <Label className="mb-2">Hour</Label>
                 <Controller
                   control={form.control}
                   name="hour"
@@ -147,7 +147,7 @@ export function AddTaskDialog() {
                 />
               </div>
               <div className="flex-1">
-                <Label>Minute</Label>
+                <Label className="mb-2">Minute</Label>
                 <Controller
                   control={form.control}
                   name="minute"

@@ -76,30 +76,34 @@ const insertClient = (client) => {
   }
   const stmt = db.prepare(`
     INSERT INTO clients 
-    (id, name, phone, email, address, updated_at, note) 
-    VALUES (@id, @name, @phone, @email, @address, @updated_at, @note)
+    (id, name, phone, email, address, updated_at, created_at, note, is_synced) 
+    VALUES (@id, @name, @phone, @email, @address, @updated_at, @created_at, @note, @is_synced)
   `);
-  const result = stmt.run({
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const newClient = {
     id: client.id,
     name: client.name,
     phone: client.phone,
     email: client.email,
     address: client.address ?? "",
-    updated_at: (/* @__PURE__ */ new Date()).toISOString(),
-    note: client.note ?? ""
-  });
+    updated_at: now,
+    created_at: now,
+    note: client.note ?? "",
+    is_synced: 0
+  };
+  const result = stmt.run(newClient);
   if (result.changes === 0) {
     return { success: false, error: "Insert failed: no rows affected." };
   }
-  return { success: true };
+  return { success: true, data: newClient };
 };
 const getAllClients = () => {
   return db.prepare(`SELECT * FROM clients`).all();
 };
 const updateClientField = (id, field, value) => {
-  const validFields = ["name", "email", "phone", "address", "notes"];
+  const validFields = ["name", "email", "phone", "address", "note"];
   if (!validFields.includes(field)) return false;
-  const result = db.prepare(`UPDATE clients SET ${field} = ? WHERE id = ?`).run(value, id);
+  const result = db.prepare(`UPDATE clients SET ${field} = ?,  is_synced = 0, WHERE id = ?`).run(value, id);
   console.log("inside Client repo");
   if (result.changes === 0) {
     return { success: false, error: "Update Failed: No idea what happend." };
@@ -113,6 +117,18 @@ const deleteClient = (id) => {
   }
   return { success: true };
 };
+const unsyncedClients = () => {
+  const result = db.prepare(`
+    SELECT * FROM clients WHERE is_synced = 0
+  `).all();
+  return result;
+};
+const updateClientSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE clients SET is_synced = 1 WHERE id = ?
+  `);
+  return updateSyncStmt.run(id);
+};
 const insertCase = (legalCase) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(legalCase.id);
   if (exists) {
@@ -120,15 +136,20 @@ const insertCase = (legalCase) => {
   }
   const stmt = db.prepare(`
     INSERT INTO cases
-    (id, title, description, status, clientId, court, created_at, tags, updated_at)
-    VALUES (@id, @title, @description, @status, @clientId, @court, @created_at, @tags, @updated_at)
+    (id, title, description, status, clientId, court, created_at, tags, updated_at, is_synced)
+    VALUES (@id, @title, @description, @status, @clientId, @court, @created_at, @tags, @updated_at, @is_synced)
   `);
-  stmt.run({
+  const newCase = {
     ...legalCase,
     tags: JSON.stringify(legalCase.tags ?? []),
-    updated_at: (/* @__PURE__ */ new Date()).toISOString()
-  });
-  return { success: true };
+    updated_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: 0
+  };
+  const result = stmt.run(newCase);
+  if (result.changes === 0) {
+    return { success: false, error: "Insert failed: no rows affected." };
+  }
+  return { success: true, data: { ...newCase, tags: legalCase.tags ?? [] } };
 };
 const getAllCases = () => {
   return db.prepare(`SELECT * FROM cases`).all();
@@ -140,7 +161,7 @@ const updateCase = (id, field, value) => {
   const updated_at = (/* @__PURE__ */ new Date()).toISOString();
   const stmt = db.prepare(`
     UPDATE cases
-    SET ${field} = ?, updated_at = ?
+    SET ${field} = ?, updated_at = ?, is_synced = 0,
     WHERE id = ?
   `);
   const result = stmt.run(
@@ -166,13 +187,16 @@ const deleteCase = (id) => {
 const insertTask = (task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, time, clientId, caseId, status, priority, note, updated_at)
-    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updated_at)
+    (id, title, dueDate, time, clientId, caseId, status, priority, note, updated_at, created_at, is_synced)
+    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
   `);
+  const now = (/* @__PURE__ */ new Date()).toISOString();
   const result = stmt.run({
     ...task,
     note: task.note ?? "",
-    updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    updated_at: now,
+    created_at: now,
+    is_synced: 0
   });
   if (result.changes === 0) {
     return { success: false, error: "Insert failed: no rows affected." };
@@ -201,13 +225,15 @@ const updateTask = (task) => {
       note = @note,
       status = @status,
       priority = @priority,
-      updated_at = @updated_at
+      updated_at = @updated_at,
+      is_synced = @is_synced,
     WHERE id = @id
   `);
   const result = stmt.run({
     ...task,
     note: task.note ?? "",
-    updated_at: (/* @__PURE__ */ new Date()).toISOString()
+    updated_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: 0
   });
   if (result.changes === 0) {
     return { success: false, error: "Update failed: No such task found (or i have no idea what happend)." };
@@ -16558,7 +16584,6 @@ app.whenReady().then(() => {
     return await shell.openPath(filePath);
   });
   ipcMain.handle("database:insert-client", (_event, client) => {
-    console.log(main$2.autoUpdater.currentVersion);
     return insertClient(client);
   });
   ipcMain.handle("database:get-all-clients", () => {
@@ -16593,6 +16618,12 @@ app.whenReady().then(() => {
   });
   ipcMain.handle("database:update-task", (_event, task) => {
     return updateTask(task);
+  });
+  ipcMain.handle("unsynced-clients", () => {
+    return unsyncedClients();
+  });
+  ipcMain.handle("update-client-sync", (_event, id) => {
+    return updateClientSync(id);
   });
 });
 export {

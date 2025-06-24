@@ -4,6 +4,15 @@ export type User = {
   password_hash: string
 }
 
+export type NewClient = {
+  id: string         // optional, generated
+  name: string
+  phone: string
+  email: string
+  address?: string
+  note?: string
+}
+
 export type Client = {
   id: string
   name: string
@@ -11,7 +20,9 @@ export type Client = {
   email: string
   address?: string
   note?: string
-  updated_at? : string
+  created_at: string
+  updated_at: string
+  is_synced: number // 0 = not synced, 1 = synced
 }
 
 export type Case = {
@@ -21,9 +32,10 @@ export type Case = {
   status: typeof statusOptions[number]
   clientId: string
   court: string
-  created_at: string
   tags?: string[]
+  created_at: string
   updated_at? : string
+  is_synced: number // 0 = not synced, 1 = synced
 }
 
 export type Task = {
@@ -37,6 +49,7 @@ export type Task = {
   caseId?: string
   clientId?: string
   updated_at?: string
+  is_synced: number // 0 = not synced, 1 = synced
 }
 
 
@@ -47,6 +60,7 @@ export type Document = {
   client_id: string
   case_id: string
   uploaded_at: string // ISO timestamp
+  is_synced: number // 0 = not synced, 1 = synced
 }
 
 export const statusOptions = ["Open", "Pending", "Closed"] as const;

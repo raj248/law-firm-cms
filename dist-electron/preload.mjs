@@ -41,5 +41,8 @@ electron.contextBridge.exposeInMainWorld("database", {
   insertTask: (task) => electron.ipcRenderer.invoke("database:insert-task", task),
   getAllTasks: () => electron.ipcRenderer.invoke("database:get-all-tasks"),
   getTasksByClient: (clientId) => electron.ipcRenderer.invoke("database:get-tasks-by-client", clientId),
-  deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id)
+  deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id),
+  // Sync
+  unsyncedClients: () => electron.ipcRenderer.invoke("unsynced-clients"),
+  updateClientSync: (id) => electron.ipcRenderer.invoke("update-client-sync", id)
 });

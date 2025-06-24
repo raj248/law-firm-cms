@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 
-import { insertClient, getAllClients, deleteClient, updateClientField } from './db/client-repo.ts'
+import { insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync } from './db/client-repo.ts'
 import { insertCase, getAllCases, deleteCase, updateCase } from './db/case-repo.ts'
 import { insertTask, getAllTasks, deleteTask, updateTask } from './db/task-repo.ts'
 
@@ -124,7 +124,6 @@ app.whenReady().then(() => {
   })
   // Clients
   ipcMain.handle('database:insert-client', (_event, client) => {
-    console.log(autoUpdater.currentVersion)
     return insertClient(client)
   })
 
@@ -172,6 +171,14 @@ app.whenReady().then(() => {
 
   ipcMain.handle('database:update-task', (_event, task) => {
     return updateTask(task)
+  })
+
+  ipcMain.handle('unsynced-clients', ()=>{
+    return unsyncedClients()
+  })
+
+  ipcMain.handle('update-client-sync', (_event, id)=>{
+    return updateClientSync(id)
   })
 })
 

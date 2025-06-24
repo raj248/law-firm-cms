@@ -28,8 +28,8 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
   addCase: async (legalCase) => {
     const result = await window.database.insertCase(legalCase)
     window.debug.log("Added case: ", result)
-    if (result.success) {
-      set((state) => ({ cases: [...state.cases, legalCase] }))
+    if (result.success && result.data) {
+      set((state) => ({ cases: [...state.cases, result.data] }))
       toast.success("Case added", { description: legalCase.title })
 
     } else {

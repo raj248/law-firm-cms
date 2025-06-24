@@ -1,7 +1,7 @@
 import { Client } from '@/types'
 import { db } from './db.ts'
 
-export const insertClient = (client: Client): { success: boolean; error?: string } => {
+export const insertClient = (client: Client): { success: boolean; error?: string; data?: Client } => {
   const exists = db
     .prepare(`SELECT 1 FROM clients WHERE phone = ? OR email = ?`)
     .get(client.phone, client.email)
@@ -12,24 +12,27 @@ export const insertClient = (client: Client): { success: boolean; error?: string
 
   const stmt = db.prepare(`
     INSERT INTO clients 
-    (id, name, phone, email, address, updated_at, note) 
-    VALUES (@id, @name, @phone, @email, @address, @updated_at, @note)
+    (id, name, phone, email, address, updated_at, created_at, note, is_synced) 
+    VALUES (@id, @name, @phone, @email, @address, @updated_at, @created_at, @note, @is_synced)
   `)
-
-  const result = stmt.run({
+  const now = new Date().toISOString()
+  const newClient = {
     id: client.id,
     name: client.name,
     phone: client.phone,
     email: client.email,
     address: client.address ?? '',
-    updated_at: new Date().toISOString(),
-    note: client.note?? ''
-  })
+    updated_at: now,
+    created_at: now,
+    note: client.note?? '',
+    is_synced: 0
+  } as Client
+  const result = stmt.run(newClient)
   if (result.changes === 0) {
       return { success: false, error: 'Insert failed: no rows affected.' }
     }
 
-    return { success: true }
+  return { success: true, data: newClient }
 }
 
 
@@ -38,10 +41,10 @@ export const getAllClients = () => {
 }
 
 export const updateClientField = (id: string, field: string, value: string) => {
-  const validFields = ["name", "email", "phone", "address", "notes"]
+  const validFields = ["name", "email", "phone", "address", "note"]
   if (!validFields.includes(field)) return false
 
-  const result = db.prepare(`UPDATE clients SET ${field} = ? WHERE id = ?`).run(value, id)
+  const result = db.prepare(`UPDATE clients SET ${field} = ?,  is_synced = 0, WHERE id = ?`).run(value, id)
   console.log("inside Client repo")
   if (result.changes === 0) {
       return { success: false, error: 'Update Failed: No idea what happend.' }
@@ -57,4 +60,18 @@ export const deleteClient = (id: string) => {
     }
 
     return { success: true }
+}
+
+export const unsyncedClients = () => {
+  const result = db.prepare(`
+    SELECT * FROM clients WHERE is_synced = 0
+  `).all() as Client[]
+  return result
+}
+
+export const updateClientSync = (id: string) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE clients SET is_synced = 1 WHERE id = ?
+  `)
+  return updateSyncStmt.run(id)
 }

@@ -29,13 +29,13 @@ interface ElectronAPI {
 
 interface DB {
   // Clients
-  insertClient: (client: Client) => Promise<{ success: boolean; error?: string }>
+  insertClient: (client: Client) => Promise<{ success: boolean; error?: string; data?: Client }>
   getAllClients: () => Promise<Client[]>
   deleteClient: (id: string) => Promise<{ success: boolean; error?: string }>
   updateClientField: (id: string, field: keyof Client, value: string) => Promise<{ success: boolean; error?: string }>
 
   // Cases
-  insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string }>
+  insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string; data?: Case}>
   getAllCases: () => Promise<Case[]>
   deleteCase: (id: string) => Promise<{ success: boolean; error?: string }>
   updateCase: (id: string, field: keyof Case, value: any) => Promise<{ success: boolean; updatedCase?: Case; error?: string }> 
@@ -45,6 +45,10 @@ interface DB {
   getAllTasks: () => Promise<Task[]>
   updateTask: (task: Task) => promises<{ success: boolean; error?: string }>
   deleteTask: (id: string) => Promise<{ success: boolean; error?: string }>
+
+  // Sync
+  unsyncedClients: () => Promise<Client[]>
+  updateClientSync: (id: string) => Promise<{ success: boolean; error?: string }>
 }
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
