@@ -11,7 +11,7 @@ export type Client = {
   email: string
   address?: string
   note?: string
-  updatedAt? : string
+  updated_at? : string
 }
 
 export type Case = {
@@ -21,9 +21,9 @@ export type Case = {
   status: typeof statusOptions[number]
   clientId: string
   court: string
-  createdAt: string
+  created_at: string
   tags?: string[]
-  updatedAt? : string
+  updated_at? : string
 }
 
 export type Task = {
@@ -36,7 +36,7 @@ export type Task = {
   priority: "Low" | "Medium" | "High"
   caseId?: string
   clientId?: string
-  updatedAt?: string
+  updated_at?: string
 }
 
 

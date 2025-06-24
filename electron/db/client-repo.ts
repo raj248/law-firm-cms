@@ -12,8 +12,8 @@ export const insertClient = (client: Client): { success: boolean; error?: string
 
   const stmt = db.prepare(`
     INSERT INTO clients 
-    (id, name, phone, email, address, updatedAt, note) 
-    VALUES (@id, @name, @phone, @email, @address, @updatedAt, @note)
+    (id, name, phone, email, address, updated_at, note) 
+    VALUES (@id, @name, @phone, @email, @address, @updated_at, @note)
   `)
 
   const result = stmt.run({
@@ -22,7 +22,7 @@ export const insertClient = (client: Client): { success: boolean; error?: string
     phone: client.phone,
     email: client.email,
     address: client.address ?? '',
-    updatedAt: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     note: client.note?? ''
   })
   if (result.changes === 0) {

@@ -3,7 +3,7 @@
 
 
 import { Button } from "@/components/ui/button"
-// import { populateDummyData } from "@/debug-scripts/db-test"
+import { supabase } from "@/supabase/supabase"
 import { Bug } from "lucide-react"
 export function Debug() {
 
@@ -11,12 +11,20 @@ export function Debug() {
     <Button
       variant="outline"
       size="icon"
-      onClick={() => console.log('This is an Updated version of the app')}
-      // onClick={() => populateDummyData()}
+      onClick={() => fetchClients()}
       className="rounded-full"
     >
       <Bug size={18} />
       <span className="sr-only">Debug</span>
     </Button>
   )
+}
+
+const fetchClients = async () => {
+
+  const { data: allowedUser, error: lookupError } = await supabase
+    .from("allowed_users")
+    .select("id, user_id")
+
+  window.debug.log(allowedUser, lookupError)
 }

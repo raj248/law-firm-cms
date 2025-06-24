@@ -1,9 +1,10 @@
 import { Outlet, useLocation } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
-import { ThemeToggle } from "../theme-toggle"
+import { ThemeToggle } from "../header/theme-toggle"
 import { Toaster } from "@/components/ui/sonner"
-import { Debug } from "../debug"
-import { GlobalSearch } from "../global-search"
+import { Debug } from "../header/debug"
+import { GlobalSearch } from "@/components/header/global-search"
+import { Logout } from "../header/logout"
 
 export default function MainLayout() {
   const location = useLocation()
@@ -28,6 +29,7 @@ export default function MainLayout() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Debug />
+          <Logout />
         </div>
       </header>
 

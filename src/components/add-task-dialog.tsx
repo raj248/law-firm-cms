@@ -72,7 +72,7 @@ export function AddTaskDialog() {
       priority: data.priority,
       clientId: data.clientId,
       caseId: data.caseId || "",
-      updatedAt: new Date().toISOString()
+      updated_at: new Date().toISOString()
     }
 
     useTaskStore.getState().addTask(newTask)

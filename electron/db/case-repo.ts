@@ -12,14 +12,14 @@ export const insertCase = (legalCase: Case) : { success: boolean; error?: string
 
   const stmt = db.prepare(`
     INSERT INTO cases
-    (id, title, description, status, clientId, court, createdAt, tags, updatedAt)
-    VALUES (@id, @title, @description, @status, @clientId, @court, @createdAt, @tags, @updatedAt)
+    (id, title, description, status, clientId, court, created_at, tags, updated_at)
+    VALUES (@id, @title, @description, @status, @clientId, @court, @created_at, @tags, @updated_at)
   `)
 
   stmt.run({
     ...legalCase,
     tags: JSON.stringify(legalCase.tags ?? []),
-    updatedAt: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   })
 
   return { success: true }
@@ -38,17 +38,17 @@ export const updateCase = (
   if (!exists) return { success: false, error: "Case not found" }
 
   const isTags = field === "tags"
-  const updatedAt = new Date().toISOString()
+  const updated_at = new Date().toISOString()
 
   const stmt = db.prepare(`
     UPDATE cases
-    SET ${field} = ?, updatedAt = ?
+    SET ${field} = ?, updated_at = ?
     WHERE id = ?
   `)
 
   const result = stmt.run(
     isTags ? JSON.stringify(value) : value,
-    updatedAt,
+    updated_at,
     id
   )
 

@@ -1,1 +1,45 @@
-"use strict";const n=require("electron");n.contextBridge.exposeInMainWorld("ipcRenderer",{on(...e){const[t,a]=e;return n.ipcRenderer.on(t,(i,...r)=>a(i,...r))},off(...e){const[t,...a]=e;return n.ipcRenderer.off(t,...a)},send(...e){const[t,...a]=e;return n.ipcRenderer.send(t,...a)},invoke(...e){const[t,...a]=e;return n.ipcRenderer.invoke(t,...a)}});n.contextBridge.exposeInMainWorld("debug",{log:(...e)=>n.ipcRenderer.send("log",...e)});n.contextBridge.exposeInMainWorld("electronAPI",{openFile:e=>n.ipcRenderer.invoke("open-file",e),checkForUpdates:()=>n.ipcRenderer.invoke("check-for-update")});n.contextBridge.exposeInMainWorld("database",{insertClient:e=>n.ipcRenderer.invoke("database:insert-client",e),getAllClients:()=>n.ipcRenderer.invoke("database:get-all-clients"),deleteClient:e=>n.ipcRenderer.invoke("database:delete-client",e),updateClientField:(e,t,a)=>n.ipcRenderer.invoke("database:update-client-field",e,t,a),insertCase:e=>n.ipcRenderer.invoke("database:insert-case",e),getAllCases:()=>n.ipcRenderer.invoke("database:get-all-cases"),getCasesByClient:e=>n.ipcRenderer.invoke("database:get-cases-by-client",e),deleteCase:e=>n.ipcRenderer.invoke("database:delete-case",e),updateCase:(e,t,a)=>n.ipcRenderer.invoke("database:update-case",e,t,a),insertTask:e=>n.ipcRenderer.invoke("database:insert-task",e),getAllTasks:()=>n.ipcRenderer.invoke("database:get-all-tasks"),getTasksByClient:e=>n.ipcRenderer.invoke("database:get-tasks-by-client",e),deleteTask:e=>n.ipcRenderer.invoke("database:delete-task",e)});
+"use strict";
+const electron = require("electron");
+electron.contextBridge.exposeInMainWorld("ipcRenderer", {
+  on(...args) {
+    const [channel, listener] = args;
+    return electron.ipcRenderer.on(channel, (event, ...args2) => listener(event, ...args2));
+  },
+  off(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.off(channel, ...omit);
+  },
+  send(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.send(channel, ...omit);
+  },
+  invoke(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.invoke(channel, ...omit);
+  }
+});
+electron.contextBridge.exposeInMainWorld("debug", {
+  log: (...args) => electron.ipcRenderer.send("log", ...args)
+});
+electron.contextBridge.exposeInMainWorld("electronAPI", {
+  openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath),
+  checkForUpdates: () => electron.ipcRenderer.invoke("check-for-update")
+});
+electron.contextBridge.exposeInMainWorld("database", {
+  // Clients
+  insertClient: (client) => electron.ipcRenderer.invoke("database:insert-client", client),
+  getAllClients: () => electron.ipcRenderer.invoke("database:get-all-clients"),
+  deleteClient: (id) => electron.ipcRenderer.invoke("database:delete-client", id),
+  updateClientField: (id, field, value) => electron.ipcRenderer.invoke("database:update-client-field", id, field, value),
+  // Cases
+  insertCase: (legalCase) => electron.ipcRenderer.invoke("database:insert-case", legalCase),
+  getAllCases: () => electron.ipcRenderer.invoke("database:get-all-cases"),
+  getCasesByClient: (clientId) => electron.ipcRenderer.invoke("database:get-cases-by-client", clientId),
+  deleteCase: (id) => electron.ipcRenderer.invoke("database:delete-case", id),
+  updateCase: (id, field, value) => electron.ipcRenderer.invoke("database:update-case", id, field, value),
+  // Tasks
+  insertTask: (task) => electron.ipcRenderer.invoke("database:insert-task", task),
+  getAllTasks: () => electron.ipcRenderer.invoke("database:get-all-tasks"),
+  getTasksByClient: (clientId) => electron.ipcRenderer.invoke("database:get-tasks-by-client", clientId),
+  deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id)
+});

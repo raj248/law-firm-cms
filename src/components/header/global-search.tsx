@@ -12,7 +12,7 @@ import { useClientStore } from "@/stores/client-store"
 import { useCaseStore } from "@/stores/case-store"
 import { useTaskStore } from "@/stores/task-store"
 import Fuse, { FuseResultMatch } from "fuse.js"
-import { Input } from "./ui/input"
+import { Input } from "@/components/ui/input"
 import { useDialogStore } from "@/stores/dialog-store"
 
 type Client = { id: string; name: string; email?: string; phone?: string }

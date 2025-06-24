@@ -4,14 +4,14 @@ import { db } from './db.ts'
 export const insertTask = (task: Task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, time, clientId, caseId, status, priority, note, updatedAt)
-    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updatedAt)
+    (id, title, dueDate, time, clientId, caseId, status, priority, note, updated_at)
+    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updated_at)
   `)
 
   const result = stmt.run({
     ...task,
     note: task.note ?? '',
-    updatedAt: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   })
   if (result.changes === 0) {
       return { success: false, error: 'Insert failed: no rows affected.' }
@@ -45,14 +45,14 @@ export const updateTask = (task: Task): { success: boolean; error?: string } => 
       note = @note,
       status = @status,
       priority = @priority,
-      updatedAt = @updatedAt
+      updated_at = @updated_at
     WHERE id = @id
   `)
 
   const result = stmt.run({
     ...task,
     note: task.note ?? '',
-    updatedAt: new Date().toISOString()
+    updated_at: new Date().toISOString()
   })
 
   if (result.changes === 0) {

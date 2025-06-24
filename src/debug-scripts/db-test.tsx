@@ -32,7 +32,7 @@ export function populateDummyData() {
       status: 'Open' as const,
       clientId: client.id,
       court: 'High Court',
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
       tags: ['civil', 'urgent']
     }
 

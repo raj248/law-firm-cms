@@ -7,8 +7,8 @@ import fs from 'fs'
 import { app } from 'electron'
 
 
-// const dbPath = path.join(app.getPath('userData'), 'lawfirm.db')
 console.log('App Name : ',app.getName())
+// const dbPath = path.join(app.getPath('userData'), 'lawfirm.db')
 const dbPath = path.join('./database', 'lawfirm.db')
 console.log("Databse Path : ",dbPath)
 // Ensure folder exists
@@ -25,7 +25,9 @@ db.exec(`
     email TEXT NOT NULL UNIQUE,
     address TEXT,
     note TEXT,
-    updatedAt TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
   );
 
   CREATE TABLE IF NOT EXISTS cases (
@@ -35,9 +37,10 @@ db.exec(`
     description TEXT NOT NULL,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
     court TEXT NOT NULL,
-    createdAt TEXT NOT NULL,
     tags TEXT,
-    updatedAt TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
     );
     
   CREATE TABLE IF NOT EXISTS tasks (
@@ -50,6 +53,8 @@ db.exec(`
     note TEXT,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',
     priority TEXT CHECK(priority IN ('Low', 'Medium', 'High')) NOT NULL DEFAULT 'Medium',
-    updatedAt TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
   );
 `)
