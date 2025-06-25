@@ -3,6 +3,8 @@
 
 
 import { Button } from "@/components/ui/button"
+import { deleteCase } from "@/supabase/cloud-cases"
+import { deleteClient } from "@/supabase/cloud-clients"
 import { Bug } from "lucide-react"
 export function Debug() {
   // const { resetLastSyncedAt, lastSyncedAt, clear } = useSyncStore.getState()
@@ -12,7 +14,7 @@ export function Debug() {
       variant="outline"
       size="icon"
       onClick={async () => {
-        window.debug.log(await window.database.unsyncedCases())
+        window.debug.log(await deleteClient('ba34233c-32cc-4160-aa48-336dbf90085b'))
       }}
       // onClick={() => {
       //   clear()

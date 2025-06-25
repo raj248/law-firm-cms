@@ -46,6 +46,17 @@ interface DB {
   updateTask: (task: Task) => promises<{ success: boolean; error?: string }>
   deleteTask: (id: string) => Promise<{ success: boolean; error?: string }>
 
+  // Settings
+  getAllCourts: () => Promise<Court[]>
+  getAllTags: () => Promise<Tag[]>
+  unsyncedCourts: () => Promise<Court[]>
+  unsyncedTags: () => Promise<Tag[]>
+
+  insertCourt:(name: string, id?: string, is_synced?: number) => boolean
+  insertTag:(name: string, id?: string, is_synced?: number) => boolean
+  updateCourtSync: (id: string) => void
+  updateTagSync: (id: string) => void
+
   // Sync
   unsyncedClients: () => Promise<Client[]>
   updateClientSync: (id: string) => Promise<{ success: boolean; error?: string }>

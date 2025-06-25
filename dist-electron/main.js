@@ -21,6 +21,7 @@ import require$$1$4 from "string_decoder";
 import require$$14 from "zlib";
 import require$$4$2 from "http";
 import require$$1$7 from "https";
+import { randomUUID } from "node:crypto";
 const require$1 = createRequire(import.meta.url);
 const Database = require$1("better-sqlite3");
 console.log("App Name : ", app.getName());
@@ -68,6 +69,21 @@ db.exec(`
     updated_at TEXT NOT NULL,
     is_synced INTEGER DEFAULT 1
   );
+
+  CREATE TABLE IF NOT EXISTS courts (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS tags (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
 `);
 const insertClient = (client) => {
   const exists = db.prepare(`SELECT 1 FROM clients WHERE phone = ? OR email = ?`).get(client.phone, client.email);
@@ -103,7 +119,7 @@ const getAllClients = () => {
 const updateClientField = (id, field, value) => {
   const validFields = ["name", "email", "phone", "address", "note"];
   if (!validFields.includes(field)) return false;
-  const result = db.prepare(`UPDATE clients SET ${field} = ?,  is_synced = 0, WHERE id = ?`).run(value, id);
+  const result = db.prepare(`UPDATE clients SET ${field} = ?,  is_synced = 0 WHERE id = ?`).run(value, id);
   console.log("inside Client repo");
   if (result.changes === 0) {
     return { success: false, error: "Update Failed: No idea what happend." };
@@ -198,7 +214,7 @@ const updateCase = (id, field, value) => {
 };
 const deleteCase = (id) => {
   const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);
-  if (result.changes === 0) {
+  if (result.changes > 0) {
     return { success: false, error: "Delete Failed: No idea what happend." };
   }
   return { success: true };
@@ -16568,6 +16584,68 @@ if (isRenderer) {
 }
 var srcExports = src.exports;
 const log = /* @__PURE__ */ getDefaultExportFromCjs(srcExports);
+const getAllCourts = () => {
+  const stmt = db.prepare(`SELECT * FROM courts ORDER BY name ASC`);
+  return stmt.all();
+};
+const getAllTags = () => {
+  const stmt = db.prepare(`SELECT * FROM tags ORDER BY name ASC`);
+  return stmt.all();
+};
+const updateCourtSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE courts SET is_synced = 1 WHERE id = ?
+  `);
+  updateSyncStmt.run(id);
+};
+const updateTagSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE tags SET is_synced = 1 WHERE id = ?
+  `);
+  updateSyncStmt.run(id);
+};
+const unsyncedCourts = () => {
+  const result = db.prepare(`
+      SELECT * FROM courts WHERE is_synced = 0
+    `).all();
+  return result;
+};
+const unsyncedTags = () => {
+  const result = db.prepare(`
+      SELECT * FROM tags WHERE is_synced = 0
+    `).all();
+  return result;
+};
+const insertCourt = (name, id, is_synced) => {
+  const stmt = db.prepare(`
+    INSERT INTO courts (id, name, created_at, is_synced)
+    VALUES (@id, @name, @created_at, @is_synced)
+    ON CONFLICT(name) DO NOTHING
+  `);
+  const tag = {
+    id: id ? id : randomUUID(),
+    name,
+    created_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: is_synced ? is_synced : 0
+  };
+  const result = stmt.run(tag);
+  return result.changes > 0;
+};
+const insertTag = (name, id, is_synced) => {
+  const stmt = db.prepare(`
+    INSERT INTO tags (id, name, created_at, is_synced)
+    VALUES (@id, @name, @created_at, @is_synced)
+    ON CONFLICT(name) DO NOTHING
+  `);
+  const tag = {
+    id: id ? id : randomUUID(),
+    name,
+    created_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: is_synced ? is_synced : 0
+  };
+  const result = stmt.run(tag);
+  return result.changes > 0;
+};
 createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname$1 = path$m.dirname(__filename);
@@ -16674,6 +16752,30 @@ app.whenReady().then(() => {
   });
   ipcMain.handle("database:update-task", (_event, task) => {
     return updateTask(task);
+  });
+  ipcMain.handle("get-courts", () => {
+    return getAllCourts();
+  });
+  ipcMain.handle("get-tags", () => {
+    return getAllTags();
+  });
+  ipcMain.handle("insert-court", (_event, name, id, is_synced) => {
+    return insertCourt(name, id, is_synced);
+  });
+  ipcMain.handle("insert-tag", (_event, name, id, is_synced) => {
+    return insertTag(name, id, is_synced);
+  });
+  ipcMain.handle("update-court-sync", (_event, id) => {
+    return updateCourtSync(id);
+  });
+  ipcMain.handle("update-tag-sync", (_event, id) => {
+    return updateTagSync(id);
+  });
+  ipcMain.handle("unsynced-courts", () => {
+    return unsyncedCourts();
+  });
+  ipcMain.handle("unsynced-tags", () => {
+    return unsyncedTags();
   });
   ipcMain.handle("unsynced-clients", () => {
     return unsyncedClients();

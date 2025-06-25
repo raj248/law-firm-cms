@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { Case } from '@/types'
 import { toast } from 'sonner'
-import { pushCases } from '@/supabase/push-cases'
+import { deleteCase, pushCases } from '@/supabase/cloud-cases'
 
 type CaseStore = {
   cases: Case[]
@@ -39,8 +39,9 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
   },
 
   deleteCase: async (id) => {
-    const result = await window.database.deleteCase(id)
-    if (result.success) {
+    const resCloud = await deleteCase(id)
+    const resLocal = await window.database.deleteCase(id)
+    if (resCloud.success && resLocal.success) {
       set((state) => ({
         cases: state.cases.filter((c) => c.id !== id),
       }))
@@ -48,7 +49,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
       pushCases()
     }
     else {
-      toast.error("Error", { description: "Case not found" })
+      toast.error("Error", { description: resCloud.error?.message || resLocal.error })
     }
   },
 

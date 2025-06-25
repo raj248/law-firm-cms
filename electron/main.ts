@@ -10,6 +10,7 @@ import { createRequire } from 'node:module'
 
 import { autoUpdater } from "electron-updater"
 import log from "electron-log"
+import { getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyncedTags, updateCourtSync, updateTagSync } from './db/settings-repo.ts'
 
 const require = createRequire(import.meta.url)
 const __filename = fileURLToPath(import.meta.url)
@@ -171,6 +172,38 @@ app.whenReady().then(() => {
 
   ipcMain.handle('database:update-task', (_event, task) => {
     return updateTask(task)
+  })
+
+  ipcMain.handle('get-courts', () => {
+    return getAllCourts()
+  })
+
+  ipcMain.handle('get-tags', () => {
+    return getAllTags()
+  })
+
+  ipcMain.handle('insert-court', (_event, name, id, is_synced) => {
+    return insertCourt(name, id, is_synced)
+  })
+
+  ipcMain.handle('insert-tag', (_event, name, id, is_synced) => {
+    return insertTag(name, id, is_synced)
+  })
+
+  ipcMain.handle('update-court-sync', (_event, id) => {
+    return updateCourtSync(id)
+  })
+
+  ipcMain.handle('update-tag-sync', (_event, id) => {
+    return updateTagSync(id)
+  })
+
+  ipcMain.handle('unsynced-courts', ()=>{
+    return unsyncedCourts()
+  })
+
+  ipcMain.handle('unsynced-tags', ()=>{
+    return unsyncedTags()
   })
 
   ipcMain.handle('unsynced-clients', ()=>{

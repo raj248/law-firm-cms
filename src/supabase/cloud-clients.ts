@@ -1,4 +1,5 @@
 import { supabase } from '@/supabase/supabase'
+import { PostgrestError } from '@supabase/supabase-js'
 import { toast } from 'sonner'
 
 export async function pushClients(): Promise<void> {
@@ -34,4 +35,15 @@ export async function pushClients(): Promise<void> {
   }
 
   window.debug.log('📦 Local database updated with synced status.')
+}
+
+export const deleteClient = async (id:string): Promise<{success:boolean, error?: PostgrestError}> => {
+
+  const { error } = await supabase
+    .from('clients')
+    .delete()
+    .eq('id', id)
+  
+  if(!error) return {success:true}
+  else return {success: false, error: error}
 }

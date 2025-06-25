@@ -1,4 +1,4 @@
-import { Client, Case, Task } from '@/types'
+import { Client, Case, Task, Court, Tag } from '@/types'
 import { ipcRenderer, contextBridge } from 'electron'
 
 // --------- Expose APIs to the Renderer process ---------
@@ -53,6 +53,17 @@ contextBridge.exposeInMainWorld('database', {
   getTasksByClient: (client_id: string): Promise<Task[]> =>
     ipcRenderer.invoke('database:get-tasks-by-client', client_id),
   deleteTask: (id: string) => ipcRenderer.invoke('database:delete-task', id),
+
+  // Settings
+  getAllCourts: ()=> ipcRenderer.invoke('get-courts'),
+  getAllTags: ()=> ipcRenderer.invoke('get-tags'),
+  unsyncedCourts: (): Promise<Court[]> => ipcRenderer.invoke('unsynced-courts'),
+  unsyncedTags: (): Promise<Tag[]> => ipcRenderer.invoke('unsynced-tags'),
+
+  insertCourt:(name: string, id?: string, is_synced?: number) => ipcRenderer.invoke('insert-court', name, id, is_synced),
+  insertTag:(name: string, id?: string, is_synced?: number) => ipcRenderer.invoke('insert-tag', name, id, is_synced),
+  updateCourtSync: (id: string) => ipcRenderer.invoke('update-court-sync', id),
+  updateTagSync: (id: string) => ipcRenderer.invoke('update-tag-sync', id),
 
   // Sync
   unsyncedClients: (): Promise<Client[]> => ipcRenderer.invoke('unsynced-clients'),

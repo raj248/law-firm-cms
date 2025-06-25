@@ -1,5 +1,6 @@
 import { toast } from "sonner"
 import { supabase } from "./supabase"
+import { PostgrestError } from "@supabase/supabase-js"
 
 export async function pushCases(): Promise<void> {
   const unsyncedCases = await window.database.unsyncedCases()
@@ -35,4 +36,14 @@ export async function pushCases(): Promise<void> {
   }
 
   window.debug.log('📦 Local cases marked as synced.')
+}
+
+export const deleteCase = async (id:string): Promise<{success:boolean, error?: PostgrestError}> => {
+
+  const { error } = await supabase
+    .from('cases')
+    .delete()
+    .eq('id', id)
+  if(!error) return {success:true}
+  else return {success: false, error: error}
 }

@@ -57,4 +57,19 @@ db.exec(`
     updated_at TEXT NOT NULL,
     is_synced INTEGER DEFAULT 1
   );
+
+  CREATE TABLE IF NOT EXISTS courts (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS tags (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
 `)

@@ -40,13 +40,13 @@ export function AddClientDialog() {
       name: "",
       email: "",
       phone: "",
-      address: "",
-      note: "",
+      address: "Not Available",
+      note: "Not Available",
     },
   })
 
   const onSubmit = (data: ClientFormData) => {
-    onAdd(data)
+    onAdd({ ...data, address: data.address || "Not Available", note: data.note || "Not Available" })
     form.reset()
   }
 

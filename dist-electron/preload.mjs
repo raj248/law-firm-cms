@@ -42,6 +42,15 @@ electron.contextBridge.exposeInMainWorld("database", {
   getAllTasks: () => electron.ipcRenderer.invoke("database:get-all-tasks"),
   getTasksByClient: (client_id) => electron.ipcRenderer.invoke("database:get-tasks-by-client", client_id),
   deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id),
+  // Settings
+  getAllCourts: () => electron.ipcRenderer.invoke("get-courts"),
+  getAllTags: () => electron.ipcRenderer.invoke("get-tags"),
+  unsyncedCourts: () => electron.ipcRenderer.invoke("unsynced-courts"),
+  unsyncedTags: () => electron.ipcRenderer.invoke("unsynced-tags"),
+  insertCourt: (name, id, is_synced) => electron.ipcRenderer.invoke("insert-court", name, id, is_synced),
+  insertTag: (name, id, is_synced) => electron.ipcRenderer.invoke("insert-tag", name, id, is_synced),
+  updateCourtSync: (id) => electron.ipcRenderer.invoke("update-court-sync", id),
+  updateTagSync: (id) => electron.ipcRenderer.invoke("update-tag-sync", id),
   // Sync
   unsyncedClients: () => electron.ipcRenderer.invoke("unsynced-clients"),
   updateClientSync: (id) => electron.ipcRenderer.invoke("update-client-sync", id),

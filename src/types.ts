@@ -63,6 +63,18 @@ export type Document = {
   is_synced: number // 0 = not synced, 1 = synced
 }
 
+export type Court = {
+  id: string
+  name: string
+  created_at: string
+}
+
+export type Tag = {
+  id: string
+  name: string
+  created_at: string
+}
+
 export const statusOptions = ["Open", "Pending", "Closed"] as const;
 export const courtOptions = [
   "Tis Hazari Court",

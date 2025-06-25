@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { Client, NewClient } from '@/types'
 import { toast } from 'sonner'
-import { pushClients } from '@/supabase/push-clients'
+import { deleteClient, pushClients } from '@/supabase/cloud-clients'
 
 type ClientStore = {
   clients: Client[]
@@ -22,7 +22,7 @@ export const useClientStore = create<ClientStore>((set) => ({
     if (result.success && result.data) {
 
       set((state) => ({ clients: [...state.clients, result.data] }))
-      toast.success("Client added", { description: "Client has been added" })
+      toast.success("Client added", { description: `${result.data.name} has been added` })
       pushClients()
     } else {
       toast.error("Error", { description: result.error })
@@ -47,15 +47,15 @@ export const useClientStore = create<ClientStore>((set) => ({
     }
   },
   deleteClient: async (id) => {
-    const result = await window.database.deleteClient(id)
-    if (result.success) {
+    const resCloud = await deleteClient(id)
+    const resLocal = await window.database.deleteClient(id)
+    if (resCloud.success && resLocal.success) {
       set((state) => ({
         clients: state.clients.filter((c) => c.id !== id)
       }))
       toast.success("Client deleted", { description: "Client has been deleted" })
-      pushClients()
     } else {
-      toast.error("Error", { description: "Client not found" })
+      toast.error("Error", { description: resCloud.error?.message || resLocal.error })
     }
   }
 }))

@@ -13,16 +13,17 @@ import { Button } from "@/components/ui/button"
 import { CheckIcon, ChevronsUpDown, PlusCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { useSettingsStore } from "@/stores/settings-store"
 
 interface CourtComboboxProps {
   value: string
-  onChange: (value: string, isNew?: boolean) => void
-  options: string[]
+  onChange: (value: string) => void
 }
 
-export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) {
+export function CourtCombobox({ value, onChange }: CourtComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
+  const options = useSettingsStore.getState().courts
 
   const filteredCourts = React.useMemo(() => {
     const q = search.toLowerCase()
@@ -54,13 +55,26 @@ export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) 
               onValueChange={setSearch}
               className="h-9"
             />
-            <CommandEmpty>No court found.</CommandEmpty>
+            <CommandEmpty>
+              {search && !isExactMatch && <Button
+                variant="outline"
+                onClick={() => {
+                  onChange(search.trim())
+                  setOpen(false)
+                  setSearch("")
+                  useSettingsStore.getState().addCourt(search.trim())
+                }}
+              >
+                <PlusCircle className="mr-2 h-4 w-4 text-primary" />
+                <span>Add “{search.trim()}”</span>
+              </Button>}
+            </CommandEmpty>
             <CommandGroup>
               {filteredCourts.map((court) => (
                 <CommandItem
                   key={court}
                   onSelect={() => {
-                    onChange(court, false)
+                    onChange(court)
                     setOpen(false)
                   }}
                 >
@@ -73,17 +87,6 @@ export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) 
                   {court}
                 </CommandItem>
               ))}
-              {!isExactMatch && search.trim().length > 0 && (
-                <CommandItem
-                  onSelect={() => {
-                    onChange(search.trim(), true)
-                    setOpen(false)
-                  }}
-                >
-                  <PlusCircle className="mr-2 h-4 w-4 text-primary" />
-                  <span>Add “{search.trim()}”</span>
-                </CommandItem>
-              )}
             </CommandGroup>
           </Command>
         </PopoverContent>
