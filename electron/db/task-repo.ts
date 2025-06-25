@@ -4,8 +4,8 @@ import { db } from './db.ts'
 export const insertTask = (task: Task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, time, clientId, caseId, status, priority, note, updated_at, created_at, is_synced)
-    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
+    (id, title, dueDate, time, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
+    VALUES (@id, @title, @dueDate, @time, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
   `)
   const now = new Date().toISOString()
   const result = stmt.run({
@@ -42,7 +42,7 @@ export const updateTask = (task: Task): { success: boolean; error?: string } => 
       title = @title,
       dueDate = @dueDate,
       time = @time,
-      clientId = @clientId,
+      client_id = @client_id,
       caseId = @caseId,
       note = @note,
       status = @status,

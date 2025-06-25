@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 
 import { insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync, insertOrUpdateClients } from './db/client-repo.ts'
-import { insertCase, getAllCases, deleteCase, updateCase } from './db/case-repo.ts'
+import { insertCase, getAllCases, deleteCase, updateCase, unsyncedCases, updateCaseSync, insertOrUpdateCases } from './db/case-repo.ts'
 import { insertTask, getAllTasks, deleteTask, updateTask } from './db/task-repo.ts'
 
 import { fileURLToPath } from 'node:url'
@@ -183,6 +183,18 @@ app.whenReady().then(() => {
 
   ipcMain.handle('insert-or-update-clients', (_event, data)=>{
     return insertOrUpdateClients(data)
+  })
+
+  ipcMain.handle('unsynced-cases', ()=>{
+    return unsyncedCases()
+  })
+
+  ipcMain.handle('update-case-sync', (_event, id)=>{
+    return updateCaseSync(id)
+  })
+
+  ipcMain.handle('insert-or-update-cases', (_event, data)=>{
+    return insertOrUpdateCases(data)
   })
 })
 

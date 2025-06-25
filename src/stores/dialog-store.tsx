@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 interface DialogStore {
   // Client dialog
-  selectedClientId: string | null;
+  selectedclient_id: string | null;
   isClientDialogOpen: boolean;
   openClientDialog: (id: string) => void;
   closeClientDialog: () => void;
@@ -21,10 +21,10 @@ interface DialogStore {
 }
 
 export const useDialogStore = create<DialogStore>((set) => ({
-  selectedClientId: null,
+  selectedclient_id: null,
   isClientDialogOpen: false,
-  openClientDialog: (id) => set({ selectedClientId: id, isClientDialogOpen: true }),
-  closeClientDialog: () => set({ selectedClientId: null, isClientDialogOpen: false }),
+  openClientDialog: (id) => set({ selectedclient_id: id, isClientDialogOpen: true }),
+  closeClientDialog: () => set({ selectedclient_id: null, isClientDialogOpen: false }),
 
   selectedCaseId: null,
   isCaseDialogOpen: false,

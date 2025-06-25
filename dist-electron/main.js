@@ -43,7 +43,7 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS cases (
     id TEXT PRIMARY KEY,
-    clientId TEXT NOT NULL,
+    client_id TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
@@ -59,7 +59,7 @@ db.exec(`
     title TEXT NOT NULL,
     dueDate TEXT, -- ISO date (nullable if no due date)
     time TEXT, -- optional time
-    clientId TEXT NOT NULL,
+    client_id TEXT NOT NULL,
     caseId TEXT NOT NULL,
     note TEXT,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',
@@ -155,8 +155,8 @@ const insertCase = (legalCase) => {
   }
   const stmt = db.prepare(`
     INSERT INTO cases
-    (id, title, description, status, clientId, court, created_at, tags, updated_at, is_synced)
-    VALUES (@id, @title, @description, @status, @clientId, @court, @created_at, @tags, @updated_at, @is_synced)
+    (id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
+    VALUES (@id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
   `);
   const newCase = {
     ...legalCase,
@@ -203,11 +203,48 @@ const deleteCase = (id) => {
   }
   return { success: true };
 };
+const unsyncedCases = () => {
+  const result = db.prepare(`
+    SELECT * FROM cases WHERE is_synced = 0
+  `).all();
+  return result;
+};
+const updateCaseSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE cases SET is_synced = 1 WHERE id = ?
+  `);
+  return updateSyncStmt.run(id);
+};
+const insertOrUpdateCases = (data) => {
+  const insertOrUpdate = db.prepare(`
+    INSERT INTO cases (id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
+    VALUES (@id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
+    ON CONFLICT(id) DO UPDATE SET
+      title = excluded.title,
+      description = excluded.description,
+      status = excluded.status,
+      client_id = excluded.client_id,
+      court = excluded.court,
+      tags = excluded.tags,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at,
+      is_synced = 1
+  `);
+  const transaction = db.transaction(() => {
+    for (const kase of data) insertOrUpdate.run({
+      ...kase,
+      client_id: kase.client_id,
+      tags: kase.tags ?? ""
+      // store tags as JSON string
+    });
+  });
+  transaction();
+};
 const insertTask = (task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, time, clientId, caseId, status, priority, note, updated_at, created_at, is_synced)
-    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
+    (id, title, dueDate, time, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
+    VALUES (@id, @title, @dueDate, @time, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
   `);
   const now = (/* @__PURE__ */ new Date()).toISOString();
   const result = stmt.run({
@@ -239,7 +276,7 @@ const updateTask = (task) => {
       title = @title,
       dueDate = @dueDate,
       time = @time,
-      clientId = @clientId,
+      client_id = @client_id,
       caseId = @caseId,
       note = @note,
       status = @status,
@@ -16646,6 +16683,15 @@ app.whenReady().then(() => {
   });
   ipcMain.handle("insert-or-update-clients", (_event, data) => {
     return insertOrUpdateClients(data);
+  });
+  ipcMain.handle("unsynced-cases", () => {
+    return unsyncedCases();
+  });
+  ipcMain.handle("update-case-sync", (_event, id) => {
+    return updateCaseSync(id);
+  });
+  ipcMain.handle("insert-or-update-cases", (_event, data) => {
+    return insertOrUpdateCases(data);
   });
 });
 export {

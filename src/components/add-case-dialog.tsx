@@ -33,7 +33,7 @@ const onAdd = (data: CaseFormData) => {
     id: data.id,
     title: data.title,
     description: data.description,
-    clientId: data.client,
+    client_id: data.client,
     court: data.court,
     status: "Open", // default status on creation
     created_at: new Date().toISOString(),

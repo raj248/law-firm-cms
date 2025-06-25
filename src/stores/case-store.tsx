@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { Case } from '@/types'
 import { toast } from 'sonner'
+import { pushCases } from '@/supabase/push-cases'
 
 type CaseStore = {
   cases: Case[]
@@ -9,7 +10,7 @@ type CaseStore = {
   deleteCase: (id: string) => Promise<void>
   updateCase: (id: string, field: keyof Case, value: any) => Promise<void>
   getCaseById: (id: string) => Case | undefined
-  getCasesByClientId: (clientId: string) => Case[] | undefined
+  getCasesByclient_id: (client_id: string) => Case[] | undefined
 }
 
 export const useCaseStore = create<CaseStore>((set, get) => ({
@@ -17,7 +18,6 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
 
   fetchCases: async () => {
     const data = await window.database.getAllCases()
-    window.debug.log("Fetched cases: ", data)
     const parsed = data.map((c: any) => ({
       ...c,
       tags: c.tags ? JSON.parse(c.tags) : [],
@@ -31,6 +31,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     if (result.success && result.data) {
       set((state) => ({ cases: [...state.cases, result.data] }))
       toast.success("Case added", { description: legalCase.title })
+      pushCases()
 
     } else {
       toast.error("Error", { description: result.error })
@@ -39,11 +40,16 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
 
   deleteCase: async (id) => {
     const result = await window.database.deleteCase(id)
-    if (result.success) set((state) => ({
-      cases: state.cases.filter((c) => c.id !== id),
-    }))
-    result.success ? toast.success("Case deleted", { description: "Case has been deleted" }) : toast.error("Error", { description: "Case not found" })
-
+    if (result.success) {
+      set((state) => ({
+        cases: state.cases.filter((c) => c.id !== id),
+      }))
+      toast.success("Case deleted", { description: "Case has been deleted" })
+      pushCases()
+    }
+    else {
+      toast.error("Error", { description: "Case not found" })
+    }
   },
 
   updateCase: async (id: string, field: keyof Case, value: any) => {
@@ -65,11 +71,12 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
       toast.success("Case updated", {
         description: `${field} updated successfully`
       })
+      pushCases()
     } else {
       toast.error("Error", { description: result.error })
     }
   },
 
   getCaseById: (id) => get().cases.find((c) => c.id === id),
-  getCasesByClientId: (clientId) => get().cases.filter((c) => c.clientId === clientId),
+  getCasesByclient_id: (client_id) => get().cases.filter((c) => c.client_id === client_id),
 }))

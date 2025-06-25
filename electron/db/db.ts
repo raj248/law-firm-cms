@@ -32,7 +32,7 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS cases (
     id TEXT PRIMARY KEY,
-    clientId TEXT NOT NULL,
+    client_id TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
@@ -48,7 +48,7 @@ db.exec(`
     title TEXT NOT NULL,
     dueDate TEXT, -- ISO date (nullable if no due date)
     time TEXT, -- optional time
-    clientId TEXT NOT NULL,
+    client_id TEXT NOT NULL,
     caseId TEXT NOT NULL,
     note TEXT,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',

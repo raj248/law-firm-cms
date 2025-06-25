@@ -364,7 +364,7 @@ export function ClientTable() {
         <ClientDetailDialog
           open={open}
           setOpen={setOpen}
-          clientId={selectedClient}
+          client_id={selectedClient}
         />
       )}
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>

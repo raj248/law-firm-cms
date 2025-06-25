@@ -42,21 +42,25 @@ contextBridge.exposeInMainWorld('database', {
   // Cases
   insertCase: (legalCase: Case) => ipcRenderer.invoke('database:insert-case', legalCase),
   getAllCases: (): Promise<Case[]> => ipcRenderer.invoke('database:get-all-cases'),
-  getCasesByClient: (clientId: string): Promise<Case[]> =>
-    ipcRenderer.invoke('database:get-cases-by-client', clientId),
+  getCasesByClient: (client_id: string): Promise<Case[]> =>
+    ipcRenderer.invoke('database:get-cases-by-client', client_id),
   deleteCase: (id: string) => ipcRenderer.invoke('database:delete-case', id),
   updateCase: (id: string, field: keyof Case, value: any) => ipcRenderer.invoke('database:update-case', id, field, value),
 
   // Tasks
   insertTask: (task: Task) => ipcRenderer.invoke('database:insert-task', task),
   getAllTasks: (): Promise<Task[]> => ipcRenderer.invoke('database:get-all-tasks'),
-  getTasksByClient: (clientId: string): Promise<Task[]> =>
-    ipcRenderer.invoke('database:get-tasks-by-client', clientId),
+  getTasksByClient: (client_id: string): Promise<Task[]> =>
+    ipcRenderer.invoke('database:get-tasks-by-client', client_id),
   deleteTask: (id: string) => ipcRenderer.invoke('database:delete-task', id),
 
   // Sync
   unsyncedClients: (): Promise<Client[]> => ipcRenderer.invoke('unsynced-clients'),
   updateClientSync: (id: string): Promise<{ success: boolean; error?: string }> => ipcRenderer.invoke('update-client-sync', id),
-  insertOrUpdateClients: (data: Client[]) => ipcRenderer.invoke('insert-or-update-clients', data)
+  insertOrUpdateClients: (data: Client[]) => ipcRenderer.invoke('insert-or-update-clients', data),
+
+  unsyncedCases: (): Promise<Case[]> => ipcRenderer.invoke('unsynced-cases'),
+  updateCaseSync: (id: string): Promise<{ success: boolean; error?: string }> => ipcRenderer.invoke('update-case-sync', id),
+  insertOrUpdateCases: (data: Client[]) => ipcRenderer.invoke('insert-or-update-cases', data),
 
 })

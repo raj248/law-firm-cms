@@ -13,7 +13,7 @@ export function Debug() {
       variant="outline"
       size="icon"
       onClick={async () => {
-        window.debug.log(await window.database.getAllCases())
+        window.debug.log(await window.database.unsyncedCases())
       }}
       // onClick={() => {
       //   clear()

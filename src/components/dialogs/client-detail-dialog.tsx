@@ -10,7 +10,7 @@ import { CaseSection } from "../case-section";
 import { useClientStore } from "@/stores/client-store"
 
 type Props = {
-  clientId: string;
+  client_id: string;
   open: boolean;
   setOpen: (val: boolean) => void;
 };
@@ -21,8 +21,8 @@ const handleOnSave = (id: string, field: keyof Client, value: string) => {
 }
 
 
-export const ClientDetailDialog = ({ clientId, open = true, setOpen = () => { open = false; } }: Props) => {
-  const clientData = useClientStore.getState().clients.find(c => c.id === clientId)
+export const ClientDetailDialog = ({ client_id, open = true, setOpen = () => { open = false; } }: Props) => {
+  const clientData = useClientStore.getState().clients.find(c => c.id === client_id)
   if (!clientData) {
     setOpen(false)
     return null

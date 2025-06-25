@@ -1,26 +1,32 @@
 import { useEffect } from 'react'
-import { handleClientRealtimePayload, pullClients, pushClients } from '@/supabase/syncClients'
 import { useSyncStore } from '@/stores/sync-store'
 import { supabase } from '@/supabase/supabase'
 import { toast } from 'sonner'
+import { handleClientRealtimePayload, pullClients } from '@/supabase/syncClients'
+import { handleCaseRealtimePayload, pullCases } from '@/supabase/syncCases'
+import { pushClients } from '@/supabase/push-clients'
+import { pushCases } from '@/supabase/push-cases'
 
 export function useSyncHook() {
   useEffect(() => {
-    let subscription: ReturnType<typeof supabase.channel> | null = null
+    let subs_clients: ReturnType<typeof supabase.channel> | null = null
+    let subs_cases: ReturnType<typeof supabase.channel> | null = null
 
     const syncAndSubscribe = async () => {
       const { lastSyncedAt, setRealtimeActive } = useSyncStore.getState()
 
       toast.info('🔄 Syncing from Supabase...')
       await pullClients(lastSyncedAt)
+      await pullCases(lastSyncedAt)
 
-      toast.info('⏫ Pushing local changes...')
+      // toast.info('⏫ Pushing local changes...')
       await pushClients()
+      await pushCases()
 
       toast.success('✅ Sync complete. Subscribing to realtime...')
 
       // Subscribe to realtime
-      subscription = supabase
+      subs_clients = supabase
         .channel('realtime-clients')
         .on('postgres_changes', {
           event: '*',
@@ -35,6 +41,21 @@ export function useSyncHook() {
           setRealtimeActive(true)
           window.debug.log("Subsribed...")
         })
+
+      subs_cases = supabase
+        .channel('realtime-cases') // ✅ can be named anything
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'cases',
+        }, (payload) => {
+          window.debug.log('📡 Realtime case change:', payload)
+          handleCaseRealtimePayload(payload)
+        })
+        .subscribe(() => {
+          useSyncStore.getState().setRealtimeActive(true)
+          window.debug.log('✅ Subscribed to realtime-cases')
+        })
     }
 
     const handleOffline = () => {
@@ -42,7 +63,8 @@ export function useSyncHook() {
       const now = new Date().toISOString()
       useSyncStore.getState().setRealtimeActive(false)
       useSyncStore.getState().setLastSyncedAt(now)
-      if (subscription) supabase.removeChannel(subscription)
+      if (subs_clients) supabase.removeChannel(subs_clients)
+      if (subs_cases) supabase.removeChannel(subs_cases)
     }
 
     const handleReconnect = async () => {
@@ -63,7 +85,8 @@ export function useSyncHook() {
       window.removeEventListener('online', handleReconnect)
       window.removeEventListener('offline', handleOffline)
       window.removeEventListener('beforeunload', handleOffline)
-      if (subscription) supabase.removeChannel(subscription)
+      if (subs_clients) supabase.removeChannel(subs_clients)
+      if (subs_cases) supabase.removeChannel(subs_cases)
     }
   }, [])
 }

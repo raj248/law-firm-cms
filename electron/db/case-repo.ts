@@ -12,8 +12,8 @@ export const insertCase = (legalCase: Case) : { success: boolean; error?: string
 
   const stmt = db.prepare(`
     INSERT INTO cases
-    (id, title, description, status, clientId, court, created_at, tags, updated_at, is_synced)
-    VALUES (@id, @title, @description, @status, @clientId, @court, @created_at, @tags, @updated_at, @is_synced)
+    (id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
+    VALUES (@id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
   `)
   const newCase = {
     ...legalCase,
@@ -76,4 +76,45 @@ export const deleteCase = (id: string) => {
     }
 
     return { success: true }
+}
+
+export const unsyncedCases = () => {
+  const result = db.prepare(`
+    SELECT * FROM cases WHERE is_synced = 0
+  `).all() as Case[]
+  return result
+}
+
+export const updateCaseSync = (id: string) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE cases SET is_synced = 1 WHERE id = ?
+  `)
+  return updateSyncStmt.run(id)
+}
+
+export const insertOrUpdateCases = (data: Case[]) => {
+  const insertOrUpdate = db.prepare(`
+    INSERT INTO cases (id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
+    VALUES (@id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
+    ON CONFLICT(id) DO UPDATE SET
+      title = excluded.title,
+      description = excluded.description,
+      status = excluded.status,
+      client_id = excluded.client_id,
+      court = excluded.court,
+      tags = excluded.tags,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at,
+      is_synced = 1
+  `)
+
+  const transaction = db.transaction(() => {
+    for (const kase of data) insertOrUpdate.run({
+      ...kase,
+      client_id: kase.client_id,
+      tags: kase.tags ?? '', // store tags as JSON string
+    })
+  })
+
+  transaction()
 }

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { Client, NewClient } from '@/types'
 import { toast } from 'sonner'
+import { pushClients } from '@/supabase/push-clients'
 
 type ClientStore = {
   clients: Client[]
@@ -22,6 +23,7 @@ export const useClientStore = create<ClientStore>((set) => ({
 
       set((state) => ({ clients: [...state.clients, result.data] }))
       toast.success("Client added", { description: "Client has been added" })
+      pushClients()
     } else {
       toast.error("Error", { description: result.error })
     }
@@ -37,6 +39,7 @@ export const useClientStore = create<ClientStore>((set) => ({
       toast.success("Client updated", {
         description: `${field} updated successfully`
       })
+      pushClients()
     } else {
       toast.error("Update failed", {
         description: `Could not update ${field}`
@@ -45,11 +48,15 @@ export const useClientStore = create<ClientStore>((set) => ({
   },
   deleteClient: async (id) => {
     const result = await window.database.deleteClient(id)
-    if (result.success) set((state) => ({
-      clients: state.clients.filter((c) => c.id !== id)
-    }));
-
-    result.success ? toast.success("Client deleted", { description: "Client has been deleted" }) : toast.error("Error", { description: "Client not found" })
+    if (result.success) {
+      set((state) => ({
+        clients: state.clients.filter((c) => c.id !== id)
+      }))
+      toast.success("Client deleted", { description: "Client has been deleted" })
+      pushClients()
+    } else {
+      toast.error("Error", { description: "Client not found" })
+    }
   }
 }))
 

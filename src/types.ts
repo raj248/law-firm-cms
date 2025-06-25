@@ -30,7 +30,7 @@ export type Case = {
   title: string
   description: string
   status: typeof statusOptions[number]
-  clientId: string
+  client_id: string
   court: string
   tags?: string[]
   created_at: string
@@ -47,7 +47,7 @@ export type Task = {
   status: "Open" | "Pending" | "Closed"
   priority: "Low" | "Medium" | "High"
   caseId?: string
-  clientId?: string
+  client_id?: string
   updated_at?: string
   is_synced: number // 0 = not synced, 1 = synced
 }

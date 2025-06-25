@@ -34,7 +34,7 @@ const taskSchema = z.object({
   priority: z.enum(["Low", "Medium", "High"]),
   status: z.enum(["Open", "Pending", "Closed"]),
   caseId: z.string().optional(),
-  clientId: z.string().optional(),
+  client_id: z.string().optional(),
 })
 
 type TaskFormValues = z.infer<typeof taskSchema>
@@ -56,7 +56,7 @@ export function AddTaskDialog() {
       priority: "Low",
       status: "Open",
       caseId: "",
-      clientId: "",
+      client_id: "",
     }
   })
 
@@ -70,7 +70,7 @@ export function AddTaskDialog() {
       time: data.hour && data.minute ? `${data.hour}:${data.minute}` : '',
       status: data.status,
       priority: data.priority,
-      clientId: data.clientId,
+      client_id: data.client_id,
       caseId: data.caseId || "",
       updated_at: new Date().toISOString()
     }
@@ -166,7 +166,7 @@ export function AddTaskDialog() {
             <Label className="mb-2">Client</Label>
             <Controller
               control={form.control}
-              name="clientId"
+              name="client_id"
               render={({ field }) => (
                 <ClientCombobox
                   value={clients.find((c) => c.id === field.value)?.name || ""}

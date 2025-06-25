@@ -50,6 +50,10 @@ interface DB {
   unsyncedClients: () => Promise<Client[]>
   updateClientSync: (id: string) => Promise<{ success: boolean; error?: string }>
   insertOrUpdateClients: (data: Client[]) => void
+
+  unsyncedCases: () => Promise<Cases[]>
+  updateCaseSync: (id: string) => Promise<{ success: boolean; error?: string }>
+  insertOrUpdateCases: (data: Case[]) => void
 }
 interface Window {
   ipcRenderer: import('electron').IpcRenderer

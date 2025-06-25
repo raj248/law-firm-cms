@@ -12,7 +12,7 @@ type Props = {
 
 export const CaseSection = ({ id }: Props) => {
   const allCases = useCaseStore((s) => s.cases);
-  const clientCases = useMemo(() => allCases.filter(c => c.clientId === id), [allCases, id]);
+  const clientCases = useMemo(() => allCases.filter(c => c.client_id === id), [allCases, id]);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
