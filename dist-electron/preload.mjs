@@ -44,5 +44,6 @@ electron.contextBridge.exposeInMainWorld("database", {
   deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id),
   // Sync
   unsyncedClients: () => electron.ipcRenderer.invoke("unsynced-clients"),
-  updateClientSync: (id) => electron.ipcRenderer.invoke("update-client-sync", id)
+  updateClientSync: (id) => electron.ipcRenderer.invoke("update-client-sync", id),
+  insertOrUpdateClients: (data) => electron.ipcRenderer.invoke("insert-or-update-clients", data)
 });

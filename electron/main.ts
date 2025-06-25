@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 
-import { insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync } from './db/client-repo.ts'
+import { insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync, insertOrUpdateClients } from './db/client-repo.ts'
 import { insertCase, getAllCases, deleteCase, updateCase } from './db/case-repo.ts'
 import { insertTask, getAllTasks, deleteTask, updateTask } from './db/task-repo.ts'
 
@@ -179,6 +179,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('update-client-sync', (_event, id)=>{
     return updateClientSync(id)
+  })
+
+  ipcMain.handle('insert-or-update-clients', (_event, data)=>{
+    return insertOrUpdateClients(data)
   })
 })
 

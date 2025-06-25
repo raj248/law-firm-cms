@@ -15,6 +15,7 @@ import { useCaseStore } from "./stores/case-store"
 import { useTaskStore } from "./stores/task-store"
 import { DialogPortal } from "./components/dialogs/DialogPortal"
 import AuthPage from "@/components/pages/auth"
+import { useSyncHook } from "./hooks/useSyncHook"
 
 export default function App() {
   const fetchClients = useClientStore((s) => s.fetchClients)
@@ -32,7 +33,7 @@ export default function App() {
   }, [])
 
   const { theme } = useTheme()
-
+  useSyncHook()
   return (
     <ThemeProvider defaultTheme={theme} storageKey="vite-ui-theme">
       <Router>

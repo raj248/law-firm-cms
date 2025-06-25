@@ -75,3 +75,26 @@ export const updateClientSync = (id: string) => {
   `)
   return updateSyncStmt.run(id)
 }
+
+export const insertOrUpdateClients  = (data: Client[]) => {
+  const insertOrUpdate = db.prepare(`
+    INSERT INTO clients (id, name, phone, email, address, note, created_at, updated_at, is_synced)
+    VALUES (@id, @name, @phone, @email, @address, @note, @created_at, @updated_at, 1)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      phone = excluded.phone,
+      email = excluded.email,
+      address = excluded.address,
+      note = excluded.note,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at,
+      is_synced = 1
+  `)
+  
+  
+  const transaction = db.transaction(() => {
+    for (const client of data) insertOrUpdate.run(client)
+  })
+
+  transaction()
+}

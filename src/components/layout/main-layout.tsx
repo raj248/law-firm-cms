@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { Debug } from "../header/debug"
 import { GlobalSearch } from "@/components/header/global-search"
 import { Logout } from "../header/logout"
+import { PullCloudButton } from "../header/pull-cloud"
 
 export default function MainLayout() {
   const location = useLocation()
@@ -30,6 +31,7 @@ export default function MainLayout() {
           <ThemeToggle />
           <Debug />
           <Logout />
+          <PullCloudButton />
         </div>
       </header>
 
@@ -38,7 +40,10 @@ export default function MainLayout() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto hide-scrollbar p-4">
         <Outlet />
-        <Toaster richColors={true} />
+        <Toaster
+          richColors
+          closeButton
+          visibleToasts={10} />
       </main>
 
     </div>

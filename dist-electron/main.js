@@ -129,6 +129,25 @@ const updateClientSync = (id) => {
   `);
   return updateSyncStmt.run(id);
 };
+const insertOrUpdateClients = (data) => {
+  const insertOrUpdate = db.prepare(`
+    INSERT INTO clients (id, name, phone, email, address, note, created_at, updated_at, is_synced)
+    VALUES (@id, @name, @phone, @email, @address, @note, @created_at, @updated_at, 1)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      phone = excluded.phone,
+      email = excluded.email,
+      address = excluded.address,
+      note = excluded.note,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at,
+      is_synced = 1
+  `);
+  const transaction = db.transaction(() => {
+    for (const client of data) insertOrUpdate.run(client);
+  });
+  transaction();
+};
 const insertCase = (legalCase) => {
   const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(legalCase.id);
   if (exists) {
@@ -16624,6 +16643,9 @@ app.whenReady().then(() => {
   });
   ipcMain.handle("update-client-sync", (_event, id) => {
     return updateClientSync(id);
+  });
+  ipcMain.handle("insert-or-update-clients", (_event, data) => {
+    return insertOrUpdateClients(data);
   });
 });
 export {

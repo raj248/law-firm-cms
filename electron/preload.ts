@@ -57,6 +57,6 @@ contextBridge.exposeInMainWorld('database', {
   // Sync
   unsyncedClients: (): Promise<Client[]> => ipcRenderer.invoke('unsynced-clients'),
   updateClientSync: (id: string): Promise<{ success: boolean; error?: string }> => ipcRenderer.invoke('update-client-sync', id),
-
+  insertOrUpdateClients: (data: Client[]) => ipcRenderer.invoke('insert-or-update-clients', data)
 
 })
