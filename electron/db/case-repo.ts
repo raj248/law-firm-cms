@@ -47,7 +47,7 @@ export const updateCase = (
 
   const stmt = db.prepare(`
     UPDATE cases
-    SET ${field} = ?, updated_at = ?, is_synced = 0,
+    SET ${field} = ?, updated_at = ?, is_synced = 0
     WHERE id = ?
   `)
 

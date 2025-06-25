@@ -180,7 +180,7 @@ const updateCase = (id, field, value) => {
   const updated_at = (/* @__PURE__ */ new Date()).toISOString();
   const stmt = db.prepare(`
     UPDATE cases
-    SET ${field} = ?, updated_at = ?, is_synced = 0,
+    SET ${field} = ?, updated_at = ?, is_synced = 0
     WHERE id = ?
   `);
   const result = stmt.run(

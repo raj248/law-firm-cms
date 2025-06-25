@@ -3,7 +3,6 @@
 
 
 import { Button } from "@/components/ui/button"
-import { useSyncStore } from "@/stores/sync-store"
 import { Bug } from "lucide-react"
 export function Debug() {
   // const { resetLastSyncedAt, lastSyncedAt, clear } = useSyncStore.getState()

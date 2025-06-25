@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { CheckIcon, ChevronsUpDown } from "lucide-react"
+import { CheckIcon, ChevronsUpDown, PlusCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 
 interface CourtComboboxProps {
   value: string
-  onChange: (value: string) => void
+  onChange: (value: string, isNew?: boolean) => void
   options: string[]
 }
 
@@ -28,6 +28,10 @@ export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) 
     const q = search.toLowerCase()
     return options.filter(court => court.toLowerCase().includes(q))
   }, [search, options])
+
+  const isExactMatch = options.some(
+    court => court.toLowerCase() === search.toLowerCase()
+  )
 
   return (
     <div>
@@ -56,7 +60,7 @@ export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) 
                 <CommandItem
                   key={court}
                   onSelect={() => {
-                    onChange(court)
+                    onChange(court, false)
                     setOpen(false)
                   }}
                 >
@@ -69,6 +73,17 @@ export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) 
                   {court}
                 </CommandItem>
               ))}
+              {!isExactMatch && search.trim().length > 0 && (
+                <CommandItem
+                  onSelect={() => {
+                    onChange(search.trim(), true)
+                    setOpen(false)
+                  }}
+                >
+                  <PlusCircle className="mr-2 h-4 w-4 text-primary" />
+                  <span>Add “{search.trim()}”</span>
+                </CommandItem>
+              )}
             </CommandGroup>
           </Command>
         </PopoverContent>

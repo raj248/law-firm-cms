@@ -38,6 +38,7 @@ const onAdd = (data: CaseFormData) => {
     status: "Open", // default status on creation
     created_at: new Date().toISOString(),
     tags: data.tags || [],
+    is_synced: 0,
   }
 
   // Save to store or backend
