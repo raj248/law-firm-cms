@@ -44,7 +44,15 @@ export const updateClientField = (id: string, field: string, value: string) => {
   const validFields = ["name", "email", "phone", "address", "note"]
   if (!validFields.includes(field)) return false
 
-  const result = db.prepare(`UPDATE clients SET ${field} = ?,  is_synced = 0 WHERE id = ?`).run(value, id)
+  const now = new Date().toISOString()
+
+  const result = db.prepare(
+    `UPDATE clients SET ${field} = ?, 
+    is_synced = 0,
+    updated_at = ?
+    WHERE id = ?`
+  ).run(value, now, id)
+
   console.log("inside Client repo")
   if (result.changes === 0) {
       return { success: false, error: 'Update Failed: No idea what happend.' }

@@ -17,6 +17,7 @@ import { DialogPortal } from "./components/dialogs/DialogPortal"
 import AuthPage from "@/components/pages/auth"
 import { useSyncHook } from "./hooks/useSyncHook"
 import UserManagement from "./components/pages/admin/UserManagement"
+import { supabase } from "./supabase/supabase"
 
 export default function App() {
   const fetchClients = useClientStore((s) => s.fetchClients)
@@ -31,6 +32,13 @@ export default function App() {
     fetchCases()
     window.debug.log("Fetching tasks...")
     fetchTasks()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        window.debug.log("🔒 No valid session. Redirecting to login...")
+        supabase.auth.signOut()
+        // Redirect to login screen
+      }
+    })
   }, [])
 
   const { theme } = useTheme()
