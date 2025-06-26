@@ -3,11 +3,8 @@
 
 
 import { Button } from "@/components/ui/button"
-import { supabase } from "@/supabase/supabase"
 import { Bug } from "lucide-react"
 export function Debug() {
-  // const { resetLastSyncedAt, lastSyncedAt, clear } = useSyncStore.getState()
-
   return (
     <Button
       variant="outline"
