@@ -46,7 +46,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         cases: state.cases.filter((c) => c.id !== id),
       }))
       toast.success("Case deleted", { description: "Case has been deleted" })
-      pushCases()
+      // pushCases()
     }
     else {
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })

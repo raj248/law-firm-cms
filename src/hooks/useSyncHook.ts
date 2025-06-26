@@ -30,10 +30,17 @@ export function useSyncHook() {
       await pushSettings()
 
       toast.success('✅ Sync complete. Subscribing to realtime...')
+      const client_channel = supabase.channel('realtime-clients')
+      const case_channel = supabase.channel('realtime-cases')
+      const court_channel = supabase.channel('realtime-courts')
+      const tag_channel = supabase.channel('realtime-tags')
 
+      
       // Subscribe to realtime
-      subs_clients = supabase
-        .channel('realtime-clients')
+      client_channel.joinedOnce?
+      window.debug.log("Client Already subscribed")
+      :
+      subs_clients = client_channel
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
@@ -45,11 +52,13 @@ export function useSyncHook() {
         })
         .subscribe(() => {
           setRealtimeActive(true)
-          window.debug.log("Subsribed...")
+          window.debug.log("Subsribed Clients...")
         })
 
-      subs_cases = supabase
-        .channel('realtime-cases') // ✅ can be named anything
+      case_channel.joinedOnce?
+      window.debug.log("Case Already subscribed")
+      :
+       subs_cases = case_channel // ✅ can be named anything
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
@@ -60,11 +69,13 @@ export function useSyncHook() {
         })
         .subscribe(() => {
           useSyncStore.getState().setRealtimeActive(true)
-          window.debug.log('✅ Subscribed to realtime-cases')
+          window.debug.log('Subscribed Cases...')
         })
-      
-      subs_courts = supabase
-        .channel('realtime-courts')
+        
+        court_channel.joinedOnce ? 
+        window.debug.log("Court Already subscribed")
+        :
+        subs_courts = court_channel
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
@@ -76,11 +87,13 @@ export function useSyncHook() {
         })
         .subscribe(() => {
           setRealtimeActive(true)
-          window.debug.log("Subsribed...")
+          window.debug.log('Subscribed COurts...')
         })
 
-      subs_tags = supabase
-        .channel('realtime-tags')
+      tag_channel.joinedOnce? 
+      window.debug.log("Tag Already subscribed")
+      :
+      subs_tags = tag_channel
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
@@ -92,7 +105,7 @@ export function useSyncHook() {
         })
         .subscribe(() => {
           setRealtimeActive(true)
-          window.debug.log("Subsribed...")
+          window.debug.log("Subsribed Tags...")
         })
     }
 
