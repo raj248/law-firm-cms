@@ -1,7 +1,10 @@
 export type User = {
   id: string
-  username: string
-  password_hash: string
+  name: string
+  email: string
+  role: string
+  created_at: string
+  user_id: string
 }
 
 export type NewClient = {
@@ -76,13 +79,3 @@ export type Tag = {
 }
 
 export const statusOptions = ["Open", "Pending", "Closed"] as const;
-export const courtOptions = [
-  "Tis Hazari Court",
-  "Saket Court",
-  "Rohini Court",
-  "Dwarka Court",
-  "Karkardooma Court",
-  "Patiala House Court",
-  "Rouse Avenue Court",
-] as const;
-export const tagOptions = ["Urgent", "Criminal", "Civil", "Family", "Tax", "Custom"] as const;

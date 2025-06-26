@@ -66,8 +66,13 @@ interface DB {
   updateCaseSync: (id: string) => Promise<{ success: boolean; error?: string }>
   insertOrUpdateCases: (data: Case[]) => void
 }
+
+interface Admin {
+  deleteUser: (userId :string) => Promise<{ success: boolean; error?: string }>
+}
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
   electronAPI: ElectronAPI
   database: DB
+  admin: Admin
 }

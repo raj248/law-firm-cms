@@ -34,10 +34,7 @@ export async function signUp(email: string, password: string, name: string) {
     },
   })
   
-  const {data: loginData, error: loginError } = await signIn(email,password)
-
   if(error) return {data, error}
-  if(loginError) return {loginData, loginError}
   
   // 4. If success, update allowed_users with user_id
   if (data?.user?.id) {

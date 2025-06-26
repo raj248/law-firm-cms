@@ -11,6 +11,10 @@ import { createRequire } from 'node:module'
 import { autoUpdater } from "electron-updater"
 import log from "electron-log"
 import { getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyncedTags, updateCourtSync, updateTagSync } from './db/settings-repo.ts'
+import { deleteUser } from './supabaseAdmin.ts'
+
+import dotenv from 'dotenv'
+dotenv.config()
 
 const require = createRequire(import.meta.url)
 const __filename = fileURLToPath(import.meta.url)
@@ -229,6 +233,13 @@ app.whenReady().then(() => {
   ipcMain.handle('insert-or-update-cases', (_event, data)=>{
     return insertOrUpdateCases(data)
   })
+
+  ipcMain.handle('admin:delete-user', async (_event, userId: string) => {
+  // const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
+  const result  = await deleteUser(userId)
+  console.log(result)
+  return result
+})
 })
 
 

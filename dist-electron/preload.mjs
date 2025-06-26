@@ -59,3 +59,7 @@ electron.contextBridge.exposeInMainWorld("database", {
   updateCaseSync: (id) => electron.ipcRenderer.invoke("update-case-sync", id),
   insertOrUpdateCases: (data) => electron.ipcRenderer.invoke("insert-or-update-cases", data)
 });
+electron.contextBridge.exposeInMainWorld("admin", {
+  // Admin
+  deleteUser: (userId) => electron.ipcRenderer.invoke("admin:delete-user", userId)
+});

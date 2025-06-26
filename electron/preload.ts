@@ -75,3 +75,8 @@ contextBridge.exposeInMainWorld('database', {
   insertOrUpdateCases: (data: Client[]) => ipcRenderer.invoke('insert-or-update-cases', data),
 
 })
+
+contextBridge.exposeInMainWorld('admin',{
+  // Admin
+  deleteUser: (userId: string) => ipcRenderer.invoke('admin:delete-user', userId),
+})

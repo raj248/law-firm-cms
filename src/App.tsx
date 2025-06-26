@@ -16,6 +16,7 @@ import { useTaskStore } from "./stores/task-store"
 import { DialogPortal } from "./components/dialogs/DialogPortal"
 import AuthPage from "@/components/pages/auth"
 import { useSyncHook } from "./hooks/useSyncHook"
+import UserManagement from "./components/pages/admin/UserManagement"
 
 export default function App() {
   const fetchClients = useClientStore((s) => s.fetchClients)
@@ -58,6 +59,7 @@ export default function App() {
               <Route path="/cases" element={<Cases />} />
               <Route path="/task" element={<TaskPage />} />
               <Route path="/docs" element={<DocumentsPage />} />
+              <Route path="/user_management" element={<UserManagement />} />
             </Route>
           </Routes>
 
