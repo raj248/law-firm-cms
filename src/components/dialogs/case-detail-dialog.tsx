@@ -15,7 +15,7 @@ import { TagsCombobox } from "../tag-combo-box"
 import { useSettingsStore } from "@/stores/settings-store"
 
 type Props = {
-  caseId: string
+  file_id: string
   open: boolean
   setOpen: (val: boolean) => void
 }
@@ -24,8 +24,8 @@ const handleOnSave = (id: string, field: keyof Case, value: any) => {
   useCaseStore.getState().updateCase(id, field, value)
 }
 
-export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
-  const caseData = useCaseStore.getState().cases.find(c => c.id === caseId)
+export const CaseDetailDialog = ({ file_id, open, setOpen }: Props) => {
+  const caseData = useCaseStore.getState().cases.find(c => c.file_id === file_id)
   if (!caseData) {
     setOpen(false)
     return null
@@ -39,38 +39,38 @@ export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
 
   const handleTagUpdate = async (newTags: string[]) => {
     setTags(newTags)
-    await useCaseStore.getState().updateCase(caseData.id, "tags", newTags)
+    await useCaseStore.getState().updateCase(caseData.file_id, "tags", newTags)
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="!max-w-screen-md !w-full p-6">
         <DialogHeader>
-          <DialogTitle><EditableField value={caseData.title} onSave={(val) => handleOnSave(caseData.id, "title", val)} /></DialogTitle>
+          <DialogTitle><EditableField value={caseData.title} onSave={(val) => handleOnSave(caseData.file_id, "title", val)} /></DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-[110px_1fr] gap-y-3 gap-x-4 mt-4">
           <div className="font-medium pt-2">Description:</div>
           <EditableField
             value={caseData.description || "No Description"}
-            onSave={(val) => handleOnSave(caseData.id, "description", val)}
+            onSave={(val) => handleOnSave(caseData.file_id, "description", val)}
             multiline
           />
 
           <div className="font-medium pt-2">Status:</div>
-          {/* <EditableField value={caseData.status} onSave={(val) => handleOnSave(caseData.id,"status", val)} /> */}
+          {/* <EditableField value={caseData.status} onSave={(val) => handleOnSave(caseData.file_id,"status", val)} /> */}
           <DropdownEditableField
             value={caseData.status}
             options={statusOptions}
-            onChange={(val) => handleOnSave(caseData.id, "status", val)}
+            onChange={(val) => handleOnSave(caseData.file_id, "status", val)}
           />
 
           <div className="font-medium pt-2">Court:</div>
-          {/* <EditableField value={caseData.court} onSave={(val) => handleOnSave(caseData.id,"court", val)} /> */}
+          {/* <EditableField value={caseData.court} onSave={(val) => handleOnSave(caseData.file_id,"court", val)} /> */}
           <DropdownEditableField
             value={caseData.court}
             options={courts}
-            onChange={(val) => handleOnSave(caseData.id, "court", val)}
+            onChange={(val) => handleOnSave(caseData.file_id, "court", val)}
           />
 
           <div className="font-medium pt-2">Last Updated:</div>

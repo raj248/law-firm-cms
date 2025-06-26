@@ -185,7 +185,7 @@ export function AddTaskDialog() {
               name="caseId"
               render={({ field }) => (
                 <CaseCombobox
-                  value={cases.find((c) => c.id === field.value)?.title || ""}
+                  value={cases.find((c) => c.file_id === field.value)?.title || ""}
                   onChange={field.onChange}
                   cases={cases}
                 />

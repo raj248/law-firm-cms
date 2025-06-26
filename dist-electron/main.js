@@ -34,7 +34,7 @@ db.exec(`
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     phone TEXT NOT NULL UNIQUE,
-    email TEXT NOT NULL UNIQUE,
+    email TEXT,
     address TEXT,
     note TEXT,
     created_at TEXT NOT NULL,
@@ -43,10 +43,11 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS cases (
-    id TEXT PRIMARY KEY,
+    file_id TEXT PRIMARY KEY,
+    case_id TEXT,
     client_id TEXT NOT NULL,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
+    description TEXT,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
     court TEXT NOT NULL,
     tags TEXT,
@@ -86,9 +87,9 @@ db.exec(`
 
 `);
 const insertClient = (client) => {
-  const exists = db.prepare(`SELECT 1 FROM clients WHERE phone = ? OR email = ?`).get(client.phone, client.email);
+  const exists = db.prepare(`SELECT 1 FROM clients WHERE phone = ? `).get(client.phone);
   if (exists) {
-    return { success: false, error: "Client with same phone or email already exists." };
+    return { success: false, error: "Client with same phone already exists." };
   }
   const stmt = db.prepare(`
     INSERT INTO clients 
@@ -126,7 +127,6 @@ const updateClientField = (id, field, value) => {
     updated_at = ?
     WHERE id = ?`
   ).run(value, now, id);
-  console.log("inside Client repo");
   if (result.changes === 0) {
     return { success: false, error: "Update Failed: No idea what happend." };
   }
@@ -135,7 +135,10 @@ const updateClientField = (id, field, value) => {
 const deleteClient = (id) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
   console.log("Delete results: ", result);
-  return { success: true };
+  if (result.changes > 0) {
+    return { success: true };
+  }
+  return { success: false, error: "Delete Failed: Client not found." };
 };
 const unsyncedClients = () => {
   const result = db.prepare(`
@@ -169,14 +172,14 @@ const insertOrUpdateClients = (data) => {
   transaction();
 };
 const insertCase = (legalCase) => {
-  const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(legalCase.id);
+  const exists = db.prepare(`SELECT 1 FROM cases WHERE file_id = ?`).get(legalCase.file_id);
   if (exists) {
-    return { success: false, error: "Case with same CaseID already exists." };
+    return { success: false, error: "Case with same File ID already exists." };
   }
   const stmt = db.prepare(`
     INSERT INTO cases
-    (id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
-    VALUES (@id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
+    (file_id, case_id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
+    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
   `);
   const newCase = {
     ...legalCase,
@@ -194,14 +197,14 @@ const getAllCases = () => {
   return db.prepare(`SELECT * FROM cases`).all();
 };
 const updateCase = (id, field, value) => {
-  const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(id);
+  const exists = db.prepare(`SELECT 1 FROM cases WHERE file_id = ?`).get(id);
   if (!exists) return { success: false, error: "Case not found" };
   const isTags = field === "tags";
   const updated_at = (/* @__PURE__ */ new Date()).toISOString();
   const stmt = db.prepare(`
     UPDATE cases
     SET ${field} = ?, updated_at = ?, is_synced = 0
-    WHERE id = ?
+    WHERE file_id = ?
   `);
   const result = stmt.run(
     isTags ? JSON.stringify(value) : value,
@@ -209,7 +212,7 @@ const updateCase = (id, field, value) => {
     id
   );
   if (!result.changes) return { success: false, error: "Update failed: No idea what happend." };
-  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id);
+  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE file_id = ?`).get(id);
   const castCase = (c) => ({
     ...c,
     tags: c.tags ? JSON.parse(c.tags) : []
@@ -217,7 +220,7 @@ const updateCase = (id, field, value) => {
   return { success: true, updatedCase: castCase(modifiedCase) };
 };
 const deleteCase = (id) => {
-  const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id);
+  const result = db.prepare(`DELETE FROM cases WHERE file_id = ?`).run(id);
   if (result.changes === 0) {
     return { success: false, error: "Delete Failed: No idea what happend." };
   }
@@ -231,15 +234,16 @@ const unsyncedCases = () => {
 };
 const updateCaseSync = (id) => {
   const updateSyncStmt = db.prepare(`
-    UPDATE cases SET is_synced = 1 WHERE id = ?
+    UPDATE cases SET is_synced = 1 WHERE file_id = ?
   `);
   return updateSyncStmt.run(id);
 };
 const insertOrUpdateCases = (data) => {
   const insertOrUpdate = db.prepare(`
-    INSERT INTO cases (id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
-    VALUES (@id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
-    ON CONFLICT(id) DO UPDATE SET
+    INSERT INTO cases (file_id, case_id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
+    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
+    ON CONFLICT(file_id) DO UPDATE SET
+      case_id = excluded.case_id,
       title = excluded.title,
       description = excluded.description,
       status = excluded.status,

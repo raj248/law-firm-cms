@@ -64,8 +64,8 @@ export function TagsCombobox({
 
   return (
     <div>
-      {!iconPencil && (<Label className="mb-2 block">Case Tags</Label>)}
-      <Popover open={open} onOpenChange={setOpen}>
+      {!iconPencil && (<Label className="mb-2 block">Tags</Label>)}
+      <Popover open={open} onOpenChange={() => { setOpen(!open); setSearch('') }}>
         <PopoverTrigger asChild>
           {!iconPencil ? (
             <Button

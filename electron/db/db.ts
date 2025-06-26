@@ -22,7 +22,7 @@ db.exec(`
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     phone TEXT NOT NULL UNIQUE,
-    email TEXT NOT NULL UNIQUE,
+    email TEXT,
     address TEXT,
     note TEXT,
     created_at TEXT NOT NULL,
@@ -31,10 +31,11 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS cases (
-    id TEXT PRIMARY KEY,
+    file_id TEXT PRIMARY KEY,
+    case_id TEXT,
     client_id TEXT NOT NULL,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
+    description TEXT,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
     court TEXT NOT NULL,
     tags TEXT,

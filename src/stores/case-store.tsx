@@ -43,7 +43,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     const resLocal = await window.database.deleteCase(id)
     if (resCloud.success && resLocal.success) {
       set((state) => ({
-        cases: state.cases.filter((c) => c.id !== id),
+        cases: state.cases.filter((c) => c.file_id !== id),
       }))
       toast.success("Case deleted", { description: "Case has been deleted" })
       // pushCases()
@@ -54,7 +54,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
   },
 
   updateCase: async (id: string, field: keyof Case, value: any) => {
-    const caseToUpdate = get().cases.find(c => c.id === id)
+    const caseToUpdate = get().cases.find(c => c.file_id === id)
     if (!caseToUpdate) {
       toast.error("Error", { description: "Case not found" })
       return
@@ -65,7 +65,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     if (result.success && result.updatedCase) {
       set((state) => ({
         cases: state.cases.map((c) =>
-          c.id === id ? result.updatedCase : c
+          c.file_id === id ? result.updatedCase : c
         ),
       }))
       window.debug.log("Updated case: ", result.updatedCase)
@@ -78,6 +78,6 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     }
   },
 
-  getCaseById: (id) => get().cases.find((c) => c.id === id),
+  getCaseById: (id) => get().cases.find((c) => c.file_id === id),
   getCasesByclient_id: (client_id) => get().cases.filter((c) => c.client_id === client_id),
 }))

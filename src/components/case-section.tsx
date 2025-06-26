@@ -32,10 +32,10 @@ export const CaseSection = ({ id }: Props) => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {clientCases.map((c) => (
               <Card
-                key={c.id}
+                key={c.file_id}
                 className="cursor-pointer"
                 onClick={() => {
-                  setSelectedCaseId(c.id);
+                  setSelectedCaseId(c.file_id);
                   setOpenDialog(true);
                 }}
               >
@@ -75,7 +75,7 @@ export const CaseSection = ({ id }: Props) => {
         <CaseDetailDialog
           open={openDialog}
           setOpen={setOpenDialog}
-          caseId={selectedCaseId}
+          file_id={selectedCaseId}
         />
       )}
     </div>

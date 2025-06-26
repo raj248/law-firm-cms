@@ -22,7 +22,7 @@ export const DialogPortal = () => {
 
       {selectedCaseId && (
         <CaseDetailDialog
-          caseId={selectedCaseId}
+          file_id={selectedCaseId}
           open={isCaseDialogOpen}
           setOpen={closeCaseDialog}
         />

@@ -15,7 +15,6 @@ import {
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -52,28 +51,6 @@ const getInitialVisibility = (): VisibilityState => {
 export function ClientTable() {
   const columns: ColumnDef<Client>[] = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: true,
-    },
-    {
       accessorKey: "name",
       header: ({ column }) => (
         <Button
@@ -87,12 +64,6 @@ export function ClientTable() {
       filterFn: 'includesString',
     },
     {
-      accessorKey: "email",
-      header: "Email",
-      filterFn: 'includesString',
-      cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-    },
-    {
       accessorKey: "phone",
       header: ({ column }) => (
         <Button
@@ -104,6 +75,12 @@ export function ClientTable() {
       ),
       filterFn: 'includesString',
       cell: ({ row }) => <div>{row.getValue("phone")}</div>,
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      filterFn: 'includesString',
+      cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
     },
     {
       accessorKey: "address",
@@ -164,7 +141,7 @@ export function ClientTable() {
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem
+              {client.email && (<DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation()
                   navigator.clipboard.writeText(client.email)
@@ -172,7 +149,7 @@ export function ClientTable() {
                 }}
               >
                 Copy Email
-              </DropdownMenuItem>
+              </DropdownMenuItem>)}
 
               <DropdownMenuItem
                 onClick={(e) => {
@@ -194,27 +171,7 @@ export function ClientTable() {
                 Schedule Appointment
               </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation()
-                  // your send email logic
-                  toast("Email Sent", { description: "Email action triggered" })
-                }}
-              >
-                Send Email
-              </DropdownMenuItem>
-
               <DropdownMenuSeparator />
-
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation()
-                  // archive logic
-                  toast("Archived", { description: "Client archived successfully" })
-                }}
-              >
-                Archive
-              </DropdownMenuItem>
 
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"

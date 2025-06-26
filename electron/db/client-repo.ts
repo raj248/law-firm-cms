@@ -3,11 +3,11 @@ import { db } from './db.ts'
 
 export const insertClient = (client: Client): { success: boolean; error?: string; data?: Client } => {
   const exists = db
-    .prepare(`SELECT 1 FROM clients WHERE phone = ? OR email = ?`)
-    .get(client.phone, client.email)
+    .prepare(`SELECT 1 FROM clients WHERE phone = ? `)
+    .get(client.phone)
 
   if (exists) {
-    return { success: false, error: 'Client with same phone or email already exists.' }
+    return { success: false, error: 'Client with same phone already exists.' }
   }
 
   const stmt = db.prepare(`
@@ -24,7 +24,7 @@ export const insertClient = (client: Client): { success: boolean; error?: string
     address: client.address ?? '',
     updated_at: now,
     created_at: now,
-    note: client.note?? '',
+    note: client.note ?? '',
     is_synced: 0
   } as Client
   const result = stmt.run(newClient)
@@ -53,7 +53,6 @@ export const updateClientField = (id: string, field: string, value: string) => {
     WHERE id = ?`
   ).run(value, now, id)
 
-  console.log("inside Client repo")
   if (result.changes === 0) {
       return { success: false, error: 'Update Failed: No idea what happend.' }
     }

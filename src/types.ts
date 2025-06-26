@@ -29,7 +29,8 @@ export type Client = {
 }
 
 export type Case = {
-  id: string
+  file_id: string
+  case_id: string
   title: string
   description: string
   status: typeof statusOptions[number]

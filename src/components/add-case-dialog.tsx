@@ -2,11 +2,10 @@
 
 import {
   Dialog, DialogTrigger, DialogContent,
-  DialogHeader, DialogTitle, DialogFooter
+  DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { useForm, Controller } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useClientStore } from "@/stores/client-store"
@@ -15,57 +14,55 @@ import { TagsCombobox } from "./tag-combo-box"
 import { CourtCombobox } from "./court-combo-box"
 import { Case } from "@/types"
 import { useCaseStore } from "@/stores/case-store"
+import {
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 const caseSchema = z.object({
-  id: z.string().min(16),
-  title: z.string().min(1),
-  description: z.string().min(1).optional(),
-  client: z.string().min(1),
-  court: z.string().min(1),
+  file_id: z.string().min(1, "File ID is Required"),
+  case_id: z.string().optional(),
+  title: z.string().min(1, "Title is Required"),
+  description: z.string().optional(),
+  client: z.string().min(1, "Must Have a Client (someones gotta pay for this case)"),
+  court: z.string().min(1, "Must Have a Court"),
   tags: z.array(z.string()).optional(),
 })
-
 
 type CaseFormData = z.infer<typeof caseSchema>
 
 const onAdd = (data: CaseFormData) => {
   const newCase: Case = {
-    id: data.id,
+    file_id: data.file_id,
+    case_id: data.case_id ?? "",
     title: data.title,
     description: data.description ?? "Not Available",
     client_id: data.client,
     court: data.court,
-    status: "Open", // default status on creation
+    status: "Open",
     created_at: new Date().toISOString(),
     tags: data.tags || [],
     is_synced: 0,
   }
 
-  // Save to store or backend
-  // Example: useCaseStore.getState().addCase(newCase)
   useCaseStore.getState().addCase(newCase)
-  window.debug.log("Case created:", newCase)
 }
 
-export function AddCaseDialog({ id = "" }: {
-  id?: string
-}) {
+export function AddCaseDialog({ id = "" }: { id?: string }) {
   const clients = useClientStore((state) => state.clients)
   const client = clients.find((c) => c.id === id)
-
 
   const form = useForm<CaseFormData>({
     resolver: zodResolver(caseSchema),
     defaultValues: {
-      id: "",
+      file_id: "",
       title: "",
-      description: "Not Available",
       client: client?.id || "",
       court: "",
       tags: [],
     },
   })
-
 
   const onSubmit = (data: CaseFormData) => {
     onAdd(data)
@@ -73,106 +70,137 @@ export function AddCaseDialog({ id = "" }: {
   }
 
   return (
-    <Dialog onOpenChange={(open) => {
-      if (!open) {
-        form.reset()
-      }
-    }}
-    >
+    <Dialog onOpenChange={(open) => { if (!open) form.reset() }}>
       <DialogTrigger asChild>
         <Button>+ New Case</Button>
       </DialogTrigger>
-      <DialogContent className=" overflow-y-auto hide-scrollbar !max-w-screen-lg !w-full p-6">
+
+      <DialogContent className="!max-w-screen-md !w-full p-6 overflow-y-auto hide-scrollbar">
         <DialogHeader>
           <DialogTitle>Add New Case</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left: ID, Title, Description */}
-          <div className="flex flex-col gap-4">
-            <div>
-              <Label htmlFor="id">Case ID</Label>
-              <input
-                id="id"
-                {...form.register("id", { required: true })}
-                className="w-full rounded-md border px-3 py-2 text-sm"
-                placeholder="Enter Case ID (Required)"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <input
-                id="title"
-                {...form.register("title", { required: true })}
-                className="w-full rounded-md border px-3 py-2 text-sm"
-                placeholder="Enter case title (Required)"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <textarea
-                id="description"
-                {...form.register("description", { required: true })}
-                className="w-full rounded-md border px-3 py-2 text-sm h-32"
-                placeholder="Case details... (Required)"
-              />
-            </div>
-          </div>
-
-          {/* Right: Client, Court, Tags, Docs */}
-          <div className="flex flex-col gap-4">
-            <div>
-              <Label className="mb-2">Client</Label>
-              <Controller
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-4">
+              <FormField
                 control={form.control}
-                name="client"
+                name="file_id"
                 render={({ field }) => (
-                  <ClientCombobox
-                    value={clients.find((c) => c.id === field.value)?.name || ""}
-                    onChange={field.onChange}
-                    clients={clients}
-                  />
+                  <FormItem>
+                    <FormLabel>File ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="(Required) File ID" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="(Required) Case Title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="case_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Case ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="(Optional) Case ID" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="(Optional) Case Description" className="h-32" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>
 
-            <CourtCombobox
-              value={form.watch("court") || ""}
-              onChange={(val) => {
-                form.setValue("court", val, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-              }}
-            />
+            <div className="flex flex-col gap-4">
+              <FormField
+                control={form.control}
+                name="client"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Client</FormLabel>
+                    <FormControl>
+                      <ClientCombobox
+                        value={clients.find((c) => c.id === field.value)?.name || ""}
+                        onChange={field.onChange}
+                        clients={clients}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
+              <FormField
+                control={form.control}
+                name="court"
+                render={({ field }) => (
+                  <FormItem>
+                    {/* <FormLabel>Court</FormLabel> */}
+                    <FormControl>
+                      <CourtCombobox
+                        value={field.value}
+                        onChange={(val) => field.onChange(val)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <TagsCombobox
-              tags={form.watch("tags") || []}
-              setTags={(updated) =>
-                form.setValue("tags", updated, { shouldValidate: true, shouldDirty: true })
-              }
-            />
-
-            <div>
-              <Label className="mb-2">Documents</Label>
-              <Button variant="secondary" type="button" className="w-full">
-                Upload Files
-              </Button>
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    {/* <FormLabel>Tags</FormLabel> */}
+                    <FormControl>
+                      <TagsCombobox
+                        tags={field.value || []}
+                        setTags={(updated) => field.onChange(updated)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-          </div>
 
-          {/* Full Width Footer */}
-          <div className="col-span-full">
-            <DialogFooter className="pt-2">
-              <Button type="submit">Add Case</Button>
-            </DialogFooter>
-          </div>
-        </form>
-
-
+            <div className="col-span-full">
+              <DialogFooter className="pt-2">
+                <Button type="submit">Add Case</Button>
+              </DialogFooter>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

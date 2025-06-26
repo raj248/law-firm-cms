@@ -16,7 +16,8 @@ export async function pushCases(): Promise<void> {
 
   for (const kase of unsyncedCases) {
     const { error } = await supabase.from('cases').upsert({
-      id: kase.id,
+      file_id: kase.file_id,
+      case_id: kase.case_id,
       title: kase.title,
       description: kase.description,
       status: kase.status,
@@ -43,7 +44,7 @@ export const deleteCase = async (id:string): Promise<{success:boolean, error?: P
   const { error } = await supabase
     .from('cases')
     .delete()
-    .eq('id', id)
+    .eq('file_id', id)
   if(!error) return {success:true}
   else return {success: false, error: error}
 }

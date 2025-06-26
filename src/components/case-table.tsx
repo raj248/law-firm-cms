@@ -17,7 +17,6 @@ import {
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -57,8 +56,6 @@ const tagIncludes: FilterFn<Case> = (
   )
 }
 
-
-// Load from localStorage
 const getInitialVisibility = (): VisibilityState => {
   if (typeof window === "undefined") return {}
   const stored = localStorage.getItem(COLUMN_VISIBILITY_KEY)
@@ -68,35 +65,20 @@ const getInitialVisibility = (): VisibilityState => {
 export function CaseTable() {
   const columns: ColumnDef<Case>[] = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
+      accessorKey: "file_id",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(v) => row.toggleSelected(!!v)}
-            aria-label="Select row"
-          />
-        </div>
+          File ID <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       ),
-
-      enableSorting: false,
-      enableHiding: true,
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{row.getValue("file_id")}</div>,
     },
     {
-      accessorKey: "id",
+      accessorKey: "case_id",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -106,7 +88,7 @@ export function CaseTable() {
         </Button>
       ),
       filterFn: 'includesString',
-      cell: ({ row }) => <div>{row.getValue("id")}</div>,
+      cell: ({ row }) => <div>{row.getValue("case_id") ?? "---"}</div>,
     },
     {
       accessorKey: "title",
@@ -196,16 +178,17 @@ export function CaseTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="z-50">
 
-              <DropdownMenuItem
+              {row.original.case_id && (<DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation()
-                  navigator.clipboard.writeText(item.id)
+                  navigator.clipboard.writeText(item.case_id)
                   toast("Copied", { description: "Case ID copied" })
                 }
                 }
               >
                 Copy Case ID
-              </DropdownMenuItem>
+              </DropdownMenuItem>)}
+
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation()
@@ -220,20 +203,9 @@ export function CaseTable() {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation()
-                  // archive logic
-                  toast("Archived", { description: "Client archived successfully" })
-                }}
-              >
-                Archive
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
                 onClick={(e) => {
                   e.stopPropagation()
-                  // delete logic
                   setCaseToDelete(item)
                   setIsAlertDialogOpen(true)
                 }}
@@ -343,7 +315,7 @@ export function CaseTable() {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => {
-                    setSelectedCase(row.original.id);
+                    setSelectedCase(row.original.file_id);
                     setOpen(true);
                   }}
                 >
@@ -366,10 +338,10 @@ export function CaseTable() {
       </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
+        {/* <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} selected
-        </div>
+        </div> */}
         <div className="space-x-2">
           <Button
             variant="outline"
@@ -393,7 +365,7 @@ export function CaseTable() {
         <CaseDetailDialog
           open={open}
           setOpen={setOpen}
-          caseId={selectedCase}
+          file_id={selectedCase}
         />
       )}
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
@@ -412,7 +384,7 @@ export function CaseTable() {
             <AlertDialogAction
               onClick={() => {
                 if (caseToDelete) {
-                  useCaseStore.getState().deleteCase(caseToDelete.id)
+                  useCaseStore.getState().deleteCase(caseToDelete.file_id)
                   setCaseToDelete(null)
                   setIsAlertDialogOpen(false)
                 }

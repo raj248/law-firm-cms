@@ -3,17 +3,17 @@ import { db } from './db.ts'
 
 export const insertCase = (legalCase: Case) : { success: boolean; error?: string; data?: Case }=> {
   const exists = db
-    .prepare(`SELECT 1 FROM cases WHERE id = ?`)
-    .get(legalCase.id)
+    .prepare(`SELECT 1 FROM cases WHERE file_id = ?`)
+    .get(legalCase.file_id)
 
   if (exists) {
-    return { success: false, error: 'Case with same CaseID already exists.' }
+    return { success: false, error: 'Case with same File ID already exists.' }
   }
 
   const stmt = db.prepare(`
     INSERT INTO cases
-    (id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
-    VALUES (@id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
+    (file_id, case_id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
+    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
   `)
   const newCase = {
     ...legalCase,
@@ -39,7 +39,7 @@ export const updateCase = (
   field: keyof Case,
   value: any
 ): { success: boolean; updatedCase?: Case; error?: string } => {
-  const exists = db.prepare(`SELECT 1 FROM cases WHERE id = ?`).get(id)
+  const exists = db.prepare(`SELECT 1 FROM cases WHERE file_id = ?`).get(id)
   if (!exists) return { success: false, error: "Case not found" }
 
   const isTags = field === "tags"
@@ -48,7 +48,7 @@ export const updateCase = (
   const stmt = db.prepare(`
     UPDATE cases
     SET ${field} = ?, updated_at = ?, is_synced = 0
-    WHERE id = ?
+    WHERE file_id = ?
   `)
 
   const result = stmt.run(
@@ -59,7 +59,7 @@ export const updateCase = (
 
   if (!result.changes) return { success: false, error: "Update failed: No idea what happend." }
 
-  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE id = ?`).get(id)
+  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE file_id = ?`).get(id)
 
   const castCase = (c: any): Case => ({
     ...c,
@@ -70,7 +70,7 @@ export const updateCase = (
 
 
 export const deleteCase = (id: string) => {
-  const result = db.prepare(`DELETE FROM cases WHERE id = ?`).run(id)
+  const result = db.prepare(`DELETE FROM cases WHERE file_id = ?`).run(id)
   if (result.changes === 0) {
       return { success: false, error: 'Delete Failed: No idea what happend.' }
     }
@@ -87,16 +87,17 @@ export const unsyncedCases = () => {
 
 export const updateCaseSync = (id: string) => {
   const updateSyncStmt = db.prepare(`
-    UPDATE cases SET is_synced = 1 WHERE id = ?
+    UPDATE cases SET is_synced = 1 WHERE file_id = ?
   `)
   return updateSyncStmt.run(id)
 }
 
 export const insertOrUpdateCases = (data: Case[]) => {
   const insertOrUpdate = db.prepare(`
-    INSERT INTO cases (id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
-    VALUES (@id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
-    ON CONFLICT(id) DO UPDATE SET
+    INSERT INTO cases (file_id, case_id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
+    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
+    ON CONFLICT(file_id) DO UPDATE SET
+      case_id = excluded.case_id,
       title = excluded.title,
       description = excluded.description,
       status = excluded.status,

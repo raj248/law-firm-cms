@@ -41,7 +41,7 @@ export function CaseCombobox({ value, onChange, cases }: CaseComboboxProps) {
           role="combobox"
           className="w-full justify-between"
         >
-          {value ? cases.find(c => c.id === value)?.title : "Select case"}
+          {value ? cases.find(c => c.file_id === value)?.title : "Select case"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -56,16 +56,16 @@ export function CaseCombobox({ value, onChange, cases }: CaseComboboxProps) {
           <CommandGroup>
             {filteredCases.map((caseItem) => (
               <CommandItem
-                key={caseItem.id}
+                key={caseItem.file_id}
                 onSelect={() => {
-                  onChange(caseItem.id)
+                  onChange(caseItem.file_id)
                   setOpen(false)
                 }}
               >
                 <CheckIcon
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === caseItem.id ? "opacity-100" : "opacity-0"
+                    value === caseItem.file_id ? "opacity-100" : "opacity-0"
                   )}
                 />
                 <div>

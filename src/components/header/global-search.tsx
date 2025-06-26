@@ -14,10 +14,11 @@ import { useTaskStore } from "@/stores/task-store"
 import Fuse, { FuseResultMatch } from "fuse.js"
 import { Input } from "@/components/ui/input"
 import { useDialogStore } from "@/stores/dialog-store"
+import { Case, Client, Task } from "@/types"
 
-type Client = { id: string; name: string; email?: string; phone?: string }
-type Case = { id: string; title: string; description?: string; status: string }
-type Task = { id: string; title: string; description?: string }
+// type Client = { id: string; name: string; email?: string; phone?: string }
+// type Case = { id: string; title: string; description?: string; status: string }
+// type Task = { id: string; title: string; description?: string }
 
 type IndexedData =
   | ({ type: "Client"; matches?: FuseResultMatch[] } & Client)
@@ -133,17 +134,20 @@ export function GlobalSearch() {
         ? `${item.email || "No email"} | ${item.phone || "No phone"}`
         : item.type === "Case"
           ? `Status: ${item.status}`
-          : item.description ?? "No description"
-
+          : item.note ?? "No description"
+    const key_id = (item: IndexedData) => {
+      if (item.type !== 'Case') return item.id
+      return item.file_id
+    }
     return (
       <CommandItem
-        key={item.id}
+        key={key_id(item)}
         onMouseDown={() => {
           window.debug.log("item, needs router push")
           if (item.type === "Client") {
             handleClientClick(item.id)
           } else if (item.type === "Case") {
-            handleCaseClick(item.id)
+            handleCaseClick(item.file_id)
           } else if (item.type === "Task") {
             handleTaskClick(item.id)
           }
@@ -151,7 +155,7 @@ export function GlobalSearch() {
         className="group flex flex-col items-start cursor-pointer px-2 py-1.5 rounded-sm aria-selected:bg-muted/70"
       >
         {/* Inject a hidden id for uniqueness in the search system */}
-        <span className="sr-only">{item.id}</span>
+        <span className="sr-only">{key_id(item)}</span>
 
         <span className="font-medium group-aria-selected:text-primary">
           {label}
