@@ -72,7 +72,8 @@ export function AddTaskDialog() {
       priority: data.priority,
       client_id: data.client_id,
       caseId: data.caseId || "",
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      is_synced: 0,
     }
 
     useTaskStore.getState().addTask(newTask)

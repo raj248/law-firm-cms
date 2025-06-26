@@ -12,8 +12,6 @@ import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { supabase } from "@/supabase/supabase"
-import { toast } from "sonner"
 
 import { ColumnDef } from "@tanstack/react-table"
 import {
@@ -24,12 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 import {
   Select,
   SelectTrigger,
@@ -43,7 +36,7 @@ import { useEffect, useMemo, useState } from "react"
 import { User } from "@/types"
 import { addUser, deleteUser, loadUsers, updateRole } from "@/supabase/admin/user-management"
 import { formatDistanceToNow } from "date-fns"
-import { PencilIcon, Trash } from "lucide-react"
+import { Trash } from "lucide-react"
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([])

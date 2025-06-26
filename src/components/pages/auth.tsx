@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { supabase } from "@/supabase/supabase"
 import { useNavigate } from "react-router-dom"
 import {
   Tabs,
@@ -54,7 +53,7 @@ export default function AuthPage() {
   async function handleLogin(values: z.infer<typeof loginSchema>) {
     setLoading(true)
     setErrorMessage("")
-    const { data, error } = await signIn(values.email, values.password)
+    const { error } = await signIn(values.email, values.password)
     if (error) setErrorMessage(error.message)
     else navigate("/")
     setLoading(false)
@@ -63,7 +62,7 @@ export default function AuthPage() {
   async function handleRegister(values: z.infer<typeof registerSchema>) {
     setLoading(true)
     setErrorMessage("")
-    const { data, error } = await signUp(values.email, values.password, values.name)
+    const { error } = await signUp(values.email, values.password, values.name)
     if (error) setErrorMessage(error.message)
     else navigate("/")
     setLoading(false)
