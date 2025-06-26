@@ -64,10 +64,10 @@ export const updateClientField = (id: string, field: string, value: string) => {
 export const deleteClient = (id: string) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id)
   console.log("Delete results: ",result)
-  return { success: true }
-  // if (result.changes > 0) {
-  // }
-  // return { success: false, error: 'Delete Failed: Client not found.' }
+  if (result.changes > 0) {
+    return { success: true }
+  }
+  return { success: false, error: 'Delete Failed: Client not found.' }
 
 }
 
