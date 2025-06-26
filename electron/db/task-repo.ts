@@ -4,14 +4,16 @@ import { db } from './db.ts'
 export const insertTask = (task: Task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, time, clientId, caseId, status, priority, note, updatedAt)
-    VALUES (@id, @title, @dueDate, @time, @clientId, @caseId, @status, @priority, @note, @updatedAt)
+    (id, title, dueDate, time, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
+    VALUES (@id, @title, @dueDate, @time, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
   `)
-
+  const now = new Date().toISOString()
   const result = stmt.run({
     ...task,
     note: task.note ?? '',
-    updatedAt: new Date().toISOString(),
+    updated_at: now,
+    created_at: now,
+    is_synced: 0
   })
   if (result.changes === 0) {
       return { success: false, error: 'Insert failed: no rows affected.' }
@@ -40,19 +42,21 @@ export const updateTask = (task: Task): { success: boolean; error?: string } => 
       title = @title,
       dueDate = @dueDate,
       time = @time,
-      clientId = @clientId,
+      client_id = @client_id,
       caseId = @caseId,
       note = @note,
       status = @status,
       priority = @priority,
-      updatedAt = @updatedAt
+      updated_at = @updated_at,
+      is_synced = @is_synced,
     WHERE id = @id
   `)
 
   const result = stmt.run({
     ...task,
     note: task.note ?? '',
-    updatedAt: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    is_synced: 0,
   })
 
   if (result.changes === 0) {

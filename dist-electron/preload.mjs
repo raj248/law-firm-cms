@@ -22,7 +22,8 @@ electron.contextBridge.exposeInMainWorld("debug", {
   log: (...args) => electron.ipcRenderer.send("log", ...args)
 });
 electron.contextBridge.exposeInMainWorld("electronAPI", {
-  openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath)
+  openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath),
+  checkForUpdates: () => electron.ipcRenderer.invoke("check-for-update")
 });
 electron.contextBridge.exposeInMainWorld("database", {
   // Clients
@@ -33,12 +34,32 @@ electron.contextBridge.exposeInMainWorld("database", {
   // Cases
   insertCase: (legalCase) => electron.ipcRenderer.invoke("database:insert-case", legalCase),
   getAllCases: () => electron.ipcRenderer.invoke("database:get-all-cases"),
-  getCasesByClient: (clientId) => electron.ipcRenderer.invoke("database:get-cases-by-client", clientId),
+  getCasesByClient: (client_id) => electron.ipcRenderer.invoke("database:get-cases-by-client", client_id),
   deleteCase: (id) => electron.ipcRenderer.invoke("database:delete-case", id),
   updateCase: (id, field, value) => electron.ipcRenderer.invoke("database:update-case", id, field, value),
   // Tasks
   insertTask: (task) => electron.ipcRenderer.invoke("database:insert-task", task),
   getAllTasks: () => electron.ipcRenderer.invoke("database:get-all-tasks"),
-  getTasksByClient: (clientId) => electron.ipcRenderer.invoke("database:get-tasks-by-client", clientId),
-  deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id)
+  getTasksByClient: (client_id) => electron.ipcRenderer.invoke("database:get-tasks-by-client", client_id),
+  deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id),
+  // Settings
+  getAllCourts: () => electron.ipcRenderer.invoke("get-courts"),
+  getAllTags: () => electron.ipcRenderer.invoke("get-tags"),
+  unsyncedCourts: () => electron.ipcRenderer.invoke("unsynced-courts"),
+  unsyncedTags: () => electron.ipcRenderer.invoke("unsynced-tags"),
+  insertCourt: (name, id, is_synced) => electron.ipcRenderer.invoke("insert-court", name, id, is_synced),
+  insertTag: (name, id, is_synced) => electron.ipcRenderer.invoke("insert-tag", name, id, is_synced),
+  updateCourtSync: (id) => electron.ipcRenderer.invoke("update-court-sync", id),
+  updateTagSync: (id) => electron.ipcRenderer.invoke("update-tag-sync", id),
+  // Sync
+  unsyncedClients: () => electron.ipcRenderer.invoke("unsynced-clients"),
+  updateClientSync: (id) => electron.ipcRenderer.invoke("update-client-sync", id),
+  insertOrUpdateClients: (data) => electron.ipcRenderer.invoke("insert-or-update-clients", data),
+  unsyncedCases: () => electron.ipcRenderer.invoke("unsynced-cases"),
+  updateCaseSync: (id) => electron.ipcRenderer.invoke("update-case-sync", id),
+  insertOrUpdateCases: (data) => electron.ipcRenderer.invoke("insert-or-update-cases", data)
+});
+electron.contextBridge.exposeInMainWorld("admin", {
+  // Admin
+  deleteUser: (userId) => electron.ipcRenderer.invoke("admin:delete-user", userId)
 });

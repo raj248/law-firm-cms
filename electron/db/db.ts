@@ -7,8 +7,8 @@ import fs from 'fs'
 import { app } from 'electron'
 
 
-// const dbPath = path.join(app.getPath('userData'), 'lawfirm.db')
 console.log('App Name : ',app.getName())
+// const dbPath = path.join(app.getPath('userData'), 'lawfirm.db')
 const dbPath = path.join('./database', 'lawfirm.db')
 console.log("Databse Path : ",dbPath)
 // Ensure folder exists
@@ -25,19 +25,22 @@ db.exec(`
     email TEXT NOT NULL UNIQUE,
     address TEXT,
     note TEXT,
-    updatedAt TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
   );
 
   CREATE TABLE IF NOT EXISTS cases (
     id TEXT PRIMARY KEY,
-    clientId TEXT NOT NULL,
+    client_id TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
     court TEXT NOT NULL,
-    createdAt TEXT NOT NULL,
     tags TEXT,
-    updatedAt TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
     );
     
   CREATE TABLE IF NOT EXISTS tasks (
@@ -45,11 +48,28 @@ db.exec(`
     title TEXT NOT NULL,
     dueDate TEXT, -- ISO date (nullable if no due date)
     time TEXT, -- optional time
-    clientId TEXT NOT NULL,
+    client_id TEXT NOT NULL,
     caseId TEXT NOT NULL,
     note TEXT,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',
     priority TEXT CHECK(priority IN ('Low', 'Medium', 'High')) NOT NULL DEFAULT 'Medium',
-    updatedAt TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
   );
+
+  CREATE TABLE IF NOT EXISTS courts (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS tags (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
 `)

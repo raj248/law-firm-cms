@@ -34,7 +34,7 @@ const taskSchema = z.object({
   priority: z.enum(["Low", "Medium", "High"]),
   status: z.enum(["Open", "Pending", "Closed"]),
   caseId: z.string().optional(),
-  clientId: z.string().optional(),
+  client_id: z.string().optional(),
 })
 
 type TaskFormValues = z.infer<typeof taskSchema>
@@ -56,7 +56,7 @@ export function AddTaskDialog() {
       priority: "Low",
       status: "Open",
       caseId: "",
-      clientId: "",
+      client_id: "",
     }
   })
 
@@ -70,9 +70,10 @@ export function AddTaskDialog() {
       time: data.hour && data.minute ? `${data.hour}:${data.minute}` : '',
       status: data.status,
       priority: data.priority,
-      clientId: data.clientId,
+      client_id: data.client_id,
       caseId: data.caseId || "",
-      updatedAt: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      is_synced: 0,
     }
 
     useTaskStore.getState().addTask(newTask)
@@ -104,12 +105,12 @@ export function AddTaskDialog() {
             />
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex">
             <div className="flex flex-col gap-2">
               <Label>Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-32 justify-between font-normal">
+                  <Button variant="outline" className="w-38 justify-between font-normal">
                     {form.watch("dueDate")
                       ? format(new Date(form.watch("dueDate")!), "PPP")
                       : "Select date"}
@@ -132,9 +133,9 @@ export function AddTaskDialog() {
               </Popover>
             </div>
 
-            <div className="flex-1 flex gap-2">
+            <div className="flex-1 flex ml-12 ">
               <div className="flex-1">
-                <Label>Hour</Label>
+                <Label className="mb-2">Hour</Label>
                 <Controller
                   control={form.control}
                   name="hour"
@@ -147,7 +148,7 @@ export function AddTaskDialog() {
                 />
               </div>
               <div className="flex-1">
-                <Label>Minute</Label>
+                <Label className="mb-2">Minute</Label>
                 <Controller
                   control={form.control}
                   name="minute"
@@ -166,7 +167,7 @@ export function AddTaskDialog() {
             <Label className="mb-2">Client</Label>
             <Controller
               control={form.control}
-              name="clientId"
+              name="client_id"
               render={({ field }) => (
                 <ClientCombobox
                   value={clients.find((c) => c.id === field.value)?.name || ""}

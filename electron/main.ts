@@ -1,20 +1,26 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 
-import { insertClient, getAllClients, deleteClient, updateClientField } from './db/client-repo.ts'
-import { insertCase, getAllCases, deleteCase, updateCase } from './db/case-repo.ts'
+import { insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync, insertOrUpdateClients } from './db/client-repo.ts'
+import { insertCase, getAllCases, deleteCase, updateCase, unsyncedCases, updateCaseSync, insertOrUpdateCases } from './db/case-repo.ts'
 import { insertTask, getAllTasks, deleteTask, updateTask } from './db/task-repo.ts'
 
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 
-import { autoUpdater } from 'electron-updater'
+import { autoUpdater } from "electron-updater"
+import log from "electron-log"
+import { getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyncedTags, updateCourtSync, updateTagSync } from './db/settings-repo.ts'
+import { deleteUser } from './supabaseAdmin.ts'
+
+import dotenv from 'dotenv'
+dotenv.config()
 
 const require = createRequire(import.meta.url)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-console.log(require)
+{require}
 // The built directory structure
 //
 // ├─┬─┬ dist
@@ -43,16 +49,21 @@ function createWindow() {
     },
   })
 
+  console.log(path.join(__dirname, 'preload.mjs'))
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
+    // win?.webContents.send('main-process-message', VITE_DEV_SERVER_URL)
   })
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
+    console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL)
+
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+    console.log("RENDERER_DIST: ", path.join(RENDERER_DIST, 'index.html'))
   }
 }
 
@@ -77,21 +88,45 @@ app.on('activate', () => {
 app.whenReady().then(() => {
   createWindow()
 
-  autoUpdater.checkForUpdatesAndNotify()
+  autoUpdater.logger = log
+  // autoUpdater.logger.info("App starting from autoupdater logger.log() ")
+  log.info("App starting...")
+  autoUpdater.checkForUpdates()
+  autoUpdater.on("checking-for-update", () => {
+    log.info("Checking for update...")
+  })
 
-  autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall()
+  autoUpdater.on("update-available", (info) => {
+    log.info("Update available.", info)
+  })
+
+  autoUpdater.on("update-not-available", (info) => {
+    log.info("Update not available.", info)
+  })
+
+  autoUpdater.on("error", (err) => {
+    log.error("Error in auto-updater:", err)
+  })
+
+  autoUpdater.on("download-progress", (progress) => {
+    log.info(`Download speed: ${progress.bytesPerSecond}`)
+    log.info(`Downloaded ${progress.percent}%`)
+    log.info(`${progress.transferred}/${progress.total}`)
+  })
+
+  autoUpdater.on("update-downloaded", (info) => {
+    log.info("Update downloaded. Will install on quit.")
+    log.info(info.version)
   })
 
   ipcMain.on('log', (_event, ...args) => {
     console.log('\x1b[32m%s\x1b[0m', '[Renderer Log]:', ...args)
   })
-
-  // Shell
+  
+   // Shell
   ipcMain.handle('open-file', async (_event, filePath: string) => {
     return await shell.openPath(filePath)
   })
-
   // Clients
   ipcMain.handle('database:insert-client', (_event, client) => {
     return insertClient(client)
@@ -142,4 +177,76 @@ app.whenReady().then(() => {
   ipcMain.handle('database:update-task', (_event, task) => {
     return updateTask(task)
   })
+
+  ipcMain.handle('get-courts', () => {
+    return getAllCourts()
+  })
+
+  ipcMain.handle('get-tags', () => {
+    return getAllTags()
+  })
+
+  ipcMain.handle('insert-court', (_event, name, id, is_synced) => {
+    return insertCourt(name, id, is_synced)
+  })
+
+  ipcMain.handle('insert-tag', (_event, name, id, is_synced) => {
+    return insertTag(name, id, is_synced)
+  })
+
+  ipcMain.handle('update-court-sync', (_event, id) => {
+    return updateCourtSync(id)
+  })
+
+  ipcMain.handle('update-tag-sync', (_event, id) => {
+    return updateTagSync(id)
+  })
+
+  ipcMain.handle('unsynced-courts', ()=>{
+    return unsyncedCourts()
+  })
+
+  ipcMain.handle('unsynced-tags', ()=>{
+    return unsyncedTags()
+  })
+
+  ipcMain.handle('unsynced-clients', ()=>{
+    return unsyncedClients()
+  })
+
+  ipcMain.handle('update-client-sync', (_event, id)=>{
+    return updateClientSync(id)
+  })
+
+  ipcMain.handle('insert-or-update-clients', (_event, data)=>{
+    return insertOrUpdateClients(data)
+  })
+
+  ipcMain.handle('unsynced-cases', ()=>{
+    return unsyncedCases()
+  })
+
+  ipcMain.handle('update-case-sync', (_event, id)=>{
+    return updateCaseSync(id)
+  })
+
+  ipcMain.handle('insert-or-update-cases', (_event, data)=>{
+    return insertOrUpdateCases(data)
+  })
+
+  ipcMain.handle('admin:delete-user', async (_event, userId: string) => {
+  // const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
+  const result  = await deleteUser(userId)
+  console.log(result)
+  return result
 })
+})
+
+
+// dialog.showMessageBox({
+//       type: 'info',
+//       title: 'currentVersion',
+//       message: app.getVersion(),
+//       detail: 'This is the current version.',
+//       buttons: ['OK']
+//     })

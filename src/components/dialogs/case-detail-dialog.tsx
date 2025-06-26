@@ -6,12 +6,13 @@ import {
 } from "@/components/ui/dialog"
 import { EditableField } from "../editable-field"
 import { Badge } from "@/components/ui/badge"
-import { Case, courtOptions, statusOptions, tagOptions } from "@/types"
+import { Case, statusOptions } from "@/types"
 import { formatDistanceToNow } from "date-fns"
 import { DropdownEditableField } from "../dropdown-editable-field"
 import { useCaseStore } from "@/stores/case-store"
 import React from "react"
 import { TagsCombobox } from "../tag-combo-box"
+import { useSettingsStore } from "@/stores/settings-store"
 
 type Props = {
   caseId: string
@@ -31,6 +32,7 @@ export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
   }
 
   const [tags, setTags] = React.useState<string[]>(caseData.tags ?? [])
+  const courts = useSettingsStore.getState().courts
   React.useEffect(() => {
     setTags(caseData.tags ?? [])
   }, [caseData])
@@ -67,15 +69,15 @@ export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
           {/* <EditableField value={caseData.court} onSave={(val) => handleOnSave(caseData.id,"court", val)} /> */}
           <DropdownEditableField
             value={caseData.court}
-            options={courtOptions}
+            options={courts}
             onChange={(val) => handleOnSave(caseData.id, "court", val)}
           />
 
           <div className="font-medium pt-2">Last Updated:</div>
           <div className="pt-2 text-muted-foreground">
-            {caseData.updatedAt
-              ? formatDistanceToNow(new Date(caseData.updatedAt), { addSuffix: true })
-              : formatDistanceToNow(new Date(caseData.createdAt), { addSuffix: true })}
+            {caseData.updated_at
+              ? formatDistanceToNow(new Date(caseData.updated_at), { addSuffix: true })
+              : formatDistanceToNow(new Date(caseData.created_at), { addSuffix: true })}
           </div>
 
           <div className="font-medium pt-4">Tags:</div>
@@ -97,7 +99,6 @@ export const CaseDetailDialog = ({ caseId, open, setOpen }: Props) => {
               <TagsCombobox
                 tags={caseData.tags || []}
                 setTags={handleTagUpdate}
-                options={tagOptions.map(opt => opt)}
                 iconPencil
               />
             </div>

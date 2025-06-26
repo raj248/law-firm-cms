@@ -30,9 +30,9 @@ export function populateDummyData() {
       title: `Case for ${client.name}`,
       description: 'Some legal issue',
       status: 'Open' as const,
-      clientId: client.id,
+      client_id: client.id,
       court: 'High Court',
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
       tags: ['civil', 'urgent']
     }
 
@@ -43,7 +43,7 @@ export function populateDummyData() {
       title: `Meet ${client.name}`,
       date: new Date().toISOString().split('T')[0],
       time: '10:30',
-      clientId: client.id,
+      client_id: client.id,
       caseId: legalCase.id,
       notes: 'Prepare documents',
     }

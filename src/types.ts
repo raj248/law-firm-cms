@@ -1,7 +1,19 @@
 export type User = {
   id: string
-  username: string
-  password_hash: string
+  name: string
+  email: string
+  role: string
+  created_at: string
+  user_id: string
+}
+
+export type NewClient = {
+  id: string         // optional, generated
+  name: string
+  phone: string
+  email: string
+  address?: string
+  note?: string
 }
 
 export type Client = {
@@ -11,7 +23,9 @@ export type Client = {
   email: string
   address?: string
   note?: string
-  updatedAt? : string
+  created_at: string
+  updated_at: string
+  is_synced: number // 0 = not synced, 1 = synced
 }
 
 export type Case = {
@@ -19,11 +33,12 @@ export type Case = {
   title: string
   description: string
   status: typeof statusOptions[number]
-  clientId: string
+  client_id: string
   court: string
-  createdAt: string
   tags?: string[]
-  updatedAt? : string
+  created_at: string
+  updated_at? : string
+  is_synced: number // 0 = not synced, 1 = synced
 }
 
 export type Task = {
@@ -35,8 +50,9 @@ export type Task = {
   status: "Open" | "Pending" | "Closed"
   priority: "Low" | "Medium" | "High"
   caseId?: string
-  clientId?: string
-  updatedAt?: string
+  client_id?: string
+  updated_at?: string
+  is_synced: number // 0 = not synced, 1 = synced
 }
 
 
@@ -47,16 +63,19 @@ export type Document = {
   client_id: string
   case_id: string
   uploaded_at: string // ISO timestamp
+  is_synced: number // 0 = not synced, 1 = synced
+}
+
+export type Court = {
+  id: string
+  name: string
+  created_at: string
+}
+
+export type Tag = {
+  id: string
+  name: string
+  created_at: string
 }
 
 export const statusOptions = ["Open", "Pending", "Closed"] as const;
-export const courtOptions = [
-  "Tis Hazari Court",
-  "Saket Court",
-  "Rohini Court",
-  "Dwarka Court",
-  "Karkardooma Court",
-  "Patiala House Court",
-  "Rouse Avenue Court",
-] as const;
-export const tagOptions = ["Urgent", "Criminal", "Civil", "Family", "Tax", "Custom"] as const;

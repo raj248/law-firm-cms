@@ -3,16 +3,17 @@
 
 
 import { Button } from "@/components/ui/button"
-// import { populateDummyData } from "@/debug-scripts/db-test"
 import { Bug } from "lucide-react"
 export function Debug() {
+  // const { resetLastSyncedAt, lastSyncedAt, clear } = useSyncStore.getState()
 
   return (
     <Button
       variant="outline"
       size="icon"
-      onClick={() => window.debug.log("Debug button clicked")}
-      // onClick={() => populateDummyData()}
+      onClick={async () => {
+        window.admin.deleteUser('1cf000b0-2a8f-4953-80fb-d2fba1fb8b77')
+      }}
       className="rounded-full"
     >
       <Bug size={18} />

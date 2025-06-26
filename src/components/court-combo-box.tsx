@@ -10,24 +10,29 @@ import {
 } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { CheckIcon, ChevronsUpDown } from "lucide-react"
+import { CheckIcon, ChevronsUpDown, PlusCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { useSettingsStore } from "@/stores/settings-store"
 
 interface CourtComboboxProps {
   value: string
   onChange: (value: string) => void
-  options: string[]
 }
 
-export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) {
+export function CourtCombobox({ value, onChange }: CourtComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
+  const options = useSettingsStore.getState().courts
 
   const filteredCourts = React.useMemo(() => {
     const q = search.toLowerCase()
     return options.filter(court => court.toLowerCase().includes(q))
   }, [search, options])
+
+  const isExactMatch = options.some(
+    court => court.toLowerCase() === search.toLowerCase()
+  )
 
   return (
     <div>
@@ -50,7 +55,20 @@ export function CourtCombobox({ value, onChange, options }: CourtComboboxProps) 
               onValueChange={setSearch}
               className="h-9"
             />
-            <CommandEmpty>No court found.</CommandEmpty>
+            <CommandEmpty>
+              {search && !isExactMatch && <Button
+                variant="outline"
+                onClick={() => {
+                  onChange(search.trim())
+                  setOpen(false)
+                  setSearch("")
+                  useSettingsStore.getState().addCourt(search.trim())
+                }}
+              >
+                <PlusCircle className="mr-2 h-4 w-4 text-primary" />
+                <span>Add “{search.trim()}”</span>
+              </Button>}
+            </CommandEmpty>
             <CommandGroup>
               {filteredCourts.map((court) => (
                 <CommandItem

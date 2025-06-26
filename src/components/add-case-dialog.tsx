@@ -13,13 +13,13 @@ import { useClientStore } from "@/stores/client-store"
 import { ClientCombobox } from "./client-combo-box"
 import { TagsCombobox } from "./tag-combo-box"
 import { CourtCombobox } from "./court-combo-box"
-import { Case, courtOptions, tagOptions } from "@/types"
+import { Case } from "@/types"
 import { useCaseStore } from "@/stores/case-store"
 
 const caseSchema = z.object({
   id: z.string().min(16),
   title: z.string().min(1),
-  description: z.string().min(1),
+  description: z.string().min(1).optional(),
   client: z.string().min(1),
   court: z.string().min(1),
   tags: z.array(z.string()).optional(),
@@ -32,12 +32,13 @@ const onAdd = (data: CaseFormData) => {
   const newCase: Case = {
     id: data.id,
     title: data.title,
-    description: data.description,
-    clientId: data.client,
+    description: data.description ?? "Not Available",
+    client_id: data.client,
     court: data.court,
     status: "Open", // default status on creation
-    createdAt: new Date().toISOString(),
+    created_at: new Date().toISOString(),
     tags: data.tags || [],
+    is_synced: 0,
   }
 
   // Save to store or backend
@@ -58,7 +59,7 @@ export function AddCaseDialog({ id = "" }: {
     defaultValues: {
       id: "",
       title: "",
-      description: "",
+      description: "Not Available",
       client: client?.id || "",
       court: "",
       tags: [],
@@ -70,8 +71,6 @@ export function AddCaseDialog({ id = "" }: {
     onAdd(data)
     form.reset()
   }
-  const courts = courtOptions.map((c) => c)
-  const tags = tagOptions.map((t) => t)
 
   return (
     <Dialog onOpenChange={(open) => {
@@ -97,7 +96,7 @@ export function AddCaseDialog({ id = "" }: {
                 id="id"
                 {...form.register("id", { required: true })}
                 className="w-full rounded-md border px-3 py-2 text-sm"
-                placeholder="Enter Case ID"
+                placeholder="Enter Case ID (Required)"
               />
             </div>
 
@@ -107,7 +106,7 @@ export function AddCaseDialog({ id = "" }: {
                 id="title"
                 {...form.register("title", { required: true })}
                 className="w-full rounded-md border px-3 py-2 text-sm"
-                placeholder="Enter case title"
+                placeholder="Enter case title (Required)"
               />
             </div>
 
@@ -117,7 +116,7 @@ export function AddCaseDialog({ id = "" }: {
                 id="description"
                 {...form.register("description", { required: true })}
                 className="w-full rounded-md border px-3 py-2 text-sm h-32"
-                placeholder="Case details..."
+                placeholder="Case details... (Required)"
               />
             </div>
           </div>
@@ -141,18 +140,20 @@ export function AddCaseDialog({ id = "" }: {
 
             <CourtCombobox
               value={form.watch("court") || ""}
-              onChange={(val) =>
-                form.setValue("court", val, { shouldDirty: true, shouldValidate: true })
-              }
-              options={courts}
+              onChange={(val) => {
+                form.setValue("court", val, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }}
             />
+
 
             <TagsCombobox
               tags={form.watch("tags") || []}
               setTags={(updated) =>
                 form.setValue("tags", updated, { shouldValidate: true, shouldDirty: true })
               }
-              options={tags}
             />
 
             <div>

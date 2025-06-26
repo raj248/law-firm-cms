@@ -12,7 +12,7 @@ type Props = {
 
 export const CaseSection = ({ id }: Props) => {
   const allCases = useCaseStore((s) => s.cases);
-  const clientCases = useMemo(() => allCases.filter(c => c.clientId === id), [allCases, id]);
+  const clientCases = useMemo(() => allCases.filter(c => c.client_id === id), [allCases, id]);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
@@ -57,10 +57,10 @@ export const CaseSection = ({ id }: Props) => {
                       </Badge>
                     ))}
                   </div>
-                  {/* {(window.debug.log(`Case ${c.title} updated at:  ${formatDistanceToNow(new Date(c.updatedAt || c.createdAt), { addSuffix: true })}`))} */}
-                  {c.updatedAt && (
+                  {/* {(window.debug.log(`Case ${c.title} updated at:  ${formatDistanceToNow(new Date(c.updated_at || c.created_at), { addSuffix: true })}`))} */}
+                  {c.updated_at && (
                     <div className="text-xs italic">
-                      Last updated {formatDistanceToNow(new Date(c.updatedAt), { addSuffix: true })}
+                      Last updated {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
                     </div>
                   )}
                 </CardContent>

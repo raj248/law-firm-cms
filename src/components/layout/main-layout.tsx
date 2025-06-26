@@ -1,9 +1,11 @@
 import { Outlet, useLocation } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
-import { ThemeToggle } from "../theme-toggle"
+import { ThemeToggle } from "../header/theme-toggle"
 import { Toaster } from "@/components/ui/sonner"
-import { Debug } from "../debug"
-import { GlobalSearch } from "../global-search"
+import { Debug } from "../header/debug"
+import { GlobalSearch } from "@/components/header/global-search"
+import { Logout } from "../header/logout"
+import { PullCloudButton } from "../header/pull-cloud"
 
 export default function MainLayout() {
   const location = useLocation()
@@ -28,6 +30,8 @@ export default function MainLayout() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Debug />
+          <Logout />
+          <PullCloudButton />
         </div>
       </header>
 
@@ -36,7 +40,10 @@ export default function MainLayout() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto hide-scrollbar p-4">
         <Outlet />
-        <Toaster richColors={true} />
+        <Toaster
+          richColors
+          closeButton
+          visibleToasts={10} />
       </main>
 
     </div>

@@ -1,4 +1,4 @@
-import { Client, Case, Task } from '@/types'
+import { Client, Case, Task, Court, Tag } from '@/types'
 import { ipcRenderer, contextBridge } from 'electron'
 
 // --------- Expose APIs to the Renderer process ---------
@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('debug', {
 // --------- Expose shell.openPath ---------
 contextBridge.exposeInMainWorld('electronAPI', {
   openFile: (filePath: string) => ipcRenderer.invoke('open-file', filePath),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-update'),
 })
 
 contextBridge.exposeInMainWorld('database', {
@@ -41,15 +42,41 @@ contextBridge.exposeInMainWorld('database', {
   // Cases
   insertCase: (legalCase: Case) => ipcRenderer.invoke('database:insert-case', legalCase),
   getAllCases: (): Promise<Case[]> => ipcRenderer.invoke('database:get-all-cases'),
-  getCasesByClient: (clientId: string): Promise<Case[]> =>
-    ipcRenderer.invoke('database:get-cases-by-client', clientId),
+  getCasesByClient: (client_id: string): Promise<Case[]> =>
+    ipcRenderer.invoke('database:get-cases-by-client', client_id),
   deleteCase: (id: string) => ipcRenderer.invoke('database:delete-case', id),
   updateCase: (id: string, field: keyof Case, value: any) => ipcRenderer.invoke('database:update-case', id, field, value),
 
   // Tasks
   insertTask: (task: Task) => ipcRenderer.invoke('database:insert-task', task),
   getAllTasks: (): Promise<Task[]> => ipcRenderer.invoke('database:get-all-tasks'),
-  getTasksByClient: (clientId: string): Promise<Task[]> =>
-    ipcRenderer.invoke('database:get-tasks-by-client', clientId),
-  deleteTask: (id: string) => ipcRenderer.invoke('database:delete-task', id)
+  getTasksByClient: (client_id: string): Promise<Task[]> =>
+    ipcRenderer.invoke('database:get-tasks-by-client', client_id),
+  deleteTask: (id: string) => ipcRenderer.invoke('database:delete-task', id),
+
+  // Settings
+  getAllCourts: ()=> ipcRenderer.invoke('get-courts'),
+  getAllTags: ()=> ipcRenderer.invoke('get-tags'),
+  unsyncedCourts: (): Promise<Court[]> => ipcRenderer.invoke('unsynced-courts'),
+  unsyncedTags: (): Promise<Tag[]> => ipcRenderer.invoke('unsynced-tags'),
+
+  insertCourt:(name: string, id?: string, is_synced?: number) => ipcRenderer.invoke('insert-court', name, id, is_synced),
+  insertTag:(name: string, id?: string, is_synced?: number) => ipcRenderer.invoke('insert-tag', name, id, is_synced),
+  updateCourtSync: (id: string) => ipcRenderer.invoke('update-court-sync', id),
+  updateTagSync: (id: string) => ipcRenderer.invoke('update-tag-sync', id),
+
+  // Sync
+  unsyncedClients: (): Promise<Client[]> => ipcRenderer.invoke('unsynced-clients'),
+  updateClientSync: (id: string): Promise<{ success: boolean; error?: string }> => ipcRenderer.invoke('update-client-sync', id),
+  insertOrUpdateClients: (data: Client[]) => ipcRenderer.invoke('insert-or-update-clients', data),
+
+  unsyncedCases: (): Promise<Case[]> => ipcRenderer.invoke('unsynced-cases'),
+  updateCaseSync: (id: string): Promise<{ success: boolean; error?: string }> => ipcRenderer.invoke('update-case-sync', id),
+  insertOrUpdateCases: (data: Client[]) => ipcRenderer.invoke('insert-or-update-cases', data),
+
+})
+
+contextBridge.exposeInMainWorld('admin',{
+  // Admin
+  deleteUser: (userId: string) => ipcRenderer.invoke('admin:delete-user', userId),
 })

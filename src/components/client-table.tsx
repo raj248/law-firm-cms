@@ -39,6 +39,7 @@ import { ClientDetailDialog } from "./dialogs/client-detail-dialog"
 import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
 import { AddClientDialog } from "./add-client-dialog"
+import { formatDistanceToNow } from "date-fns"
 
 const COLUMN_VISIBILITY_KEY = "client-table-column-visibility"
 
@@ -93,7 +94,14 @@ export function ClientTable() {
     },
     {
       accessorKey: "phone",
-      header: "Phone",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Phone <ArrowUpDown />
+        </Button>
+      ),
       filterFn: 'includesString',
       cell: ({ row }) => <div>{row.getValue("phone")}</div>,
     },
@@ -114,6 +122,19 @@ export function ClientTable() {
           {row.getValue("note")}
         </div>
       ),
+    },
+    {
+      accessorKey: "updated_at",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Updated <ArrowUpDown />
+        </Button>
+      ),
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{formatDistanceToNow(new Date(row.getValue("updated_at")), { addSuffix: true })}</div>,
     },
     {
       id: "actions",
@@ -364,7 +385,7 @@ export function ClientTable() {
         <ClientDetailDialog
           open={open}
           setOpen={setOpen}
-          clientId={selectedClient}
+          client_id={selectedClient}
         />
       )}
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>

@@ -41,6 +41,7 @@ import { CaseDetailDialog } from "./dialogs/case-detail-dialog"
 import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
 import { AddCaseDialog } from "./add-case-dialog"
+import { formatDistanceToNow } from "date-fns"
 
 const COLUMN_VISIBILITY_KEY = "case-table-column-visibility"
 
@@ -166,6 +167,19 @@ export function CaseTable() {
           </div>
         )
       },
+    },
+    {
+      accessorKey: "updated_at",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Updated <ArrowUpDown />
+        </Button>
+      ),
+      filterFn: 'includesString',
+      cell: ({ row }) => <div>{formatDistanceToNow(new Date(row.getValue("updated_at")), { addSuffix: true })}</div>,
     },
     {
       id: "actions",
@@ -306,7 +320,7 @@ export function CaseTable() {
         </div>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto scrollbar-hide w-full">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (

@@ -24,17 +24,18 @@ declare namespace NodeJS {
 // Used in Renderer process, exposed via `preload.ts`
 interface ElectronAPI {
   openFile: (filePath: string) => Promise<string | null>
+  checkForUpdates: () => Promise<UpdateCheckResult | null>
 }
 
 interface DB {
   // Clients
-  insertClient: (client: Client) => Promise<{ success: boolean; error?: string }>
+  insertClient: (client: Client) => Promise<{ success: boolean; error?: string; data?: Client }>
   getAllClients: () => Promise<Client[]>
   deleteClient: (id: string) => Promise<{ success: boolean; error?: string }>
   updateClientField: (id: string, field: keyof Client, value: string) => Promise<{ success: boolean; error?: string }>
 
   // Cases
-  insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string }>
+  insertCase: (legalCase: Case) => Promise<{ success: boolean; error?: string; data?: Case}>
   getAllCases: () => Promise<Case[]>
   deleteCase: (id: string) => Promise<{ success: boolean; error?: string }>
   updateCase: (id: string, field: keyof Case, value: any) => Promise<{ success: boolean; updatedCase?: Case; error?: string }> 
@@ -44,9 +45,34 @@ interface DB {
   getAllTasks: () => Promise<Task[]>
   updateTask: (task: Task) => promises<{ success: boolean; error?: string }>
   deleteTask: (id: string) => Promise<{ success: boolean; error?: string }>
+
+  // Settings
+  getAllCourts: () => Promise<Court[]>
+  getAllTags: () => Promise<Tag[]>
+  unsyncedCourts: () => Promise<Court[]>
+  unsyncedTags: () => Promise<Tag[]>
+
+  insertCourt:(name: string, id?: string, is_synced?: number) => boolean
+  insertTag:(name: string, id?: string, is_synced?: number) => boolean
+  updateCourtSync: (id: string) => void
+  updateTagSync: (id: string) => void
+
+  // Sync
+  unsyncedClients: () => Promise<Client[]>
+  updateClientSync: (id: string) => Promise<{ success: boolean; error?: string }>
+  insertOrUpdateClients: (data: Client[]) => void
+
+  unsyncedCases: () => Promise<Cases[]>
+  updateCaseSync: (id: string) => Promise<{ success: boolean; error?: string }>
+  insertOrUpdateCases: (data: Case[]) => void
+}
+
+interface Admin {
+  deleteUser: (userId :string) => Promise<{ success: boolean; error?: string }>
 }
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
   electronAPI: ElectronAPI
   database: DB
+  admin: Admin
 }

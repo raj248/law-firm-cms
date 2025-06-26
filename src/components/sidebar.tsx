@@ -8,6 +8,7 @@ import {
   Briefcase,
   Calendar,
   Files,
+  UserCog,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ const navItems = [
   { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
   { name: "Tasks", icon: <Calendar size={18} />, path: "/task" },
   { name: "Documents", icon: <Files size={18} />, path: "/docs" },
+  { name: "Users", icon: <UserCog size={18} />, path: "/user_management" },
 ];
 
 export default function Sidebar() {

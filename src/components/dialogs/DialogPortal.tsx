@@ -5,16 +5,16 @@ import { TaskDetailDialog } from "@/components/dialogs/task-detail-dialog"
 
 export const DialogPortal = () => {
   const {
-    selectedClientId, isClientDialogOpen, closeClientDialog,
+    selectedclient_id, isClientDialogOpen, closeClientDialog,
     selectedCaseId, isCaseDialogOpen, closeCaseDialog,
     selectedTaskId, isTaskDialogOpen, closeTaskDialog,
   } = useDialogStore()
 
   return (
     <>
-      {selectedClientId && (
+      {selectedclient_id && (
         <ClientDetailDialog
-          clientId={selectedClientId}
+          client_id={selectedclient_id}
           open={isClientDialogOpen}
           setOpen={closeClientDialog}
         />

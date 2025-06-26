@@ -1,11 +1,12 @@
 import { create } from 'zustand'
-import { Client } from '@/types'
+import { Client, NewClient } from '@/types'
 import { toast } from 'sonner'
+import { deleteClient, pushClients } from '@/supabase/cloud-clients'
 
 type ClientStore = {
   clients: Client[]
   fetchClients: () => Promise<void>
-  addClient: (client: Client) => Promise<void>
+  addClient: (client: NewClient) => Promise<void>
   deleteClient: (id: string) => Promise<void>
   updateClient: (id: string, field: keyof Client, value: string) => Promise<void>
 }
@@ -18,9 +19,11 @@ export const useClientStore = create<ClientStore>((set) => ({
   },
   addClient: async (client) => {
     const result = await window.database.insertClient(client)
-    if (result.success) {
-      set((state) => ({ clients: [...state.clients, client] }))
-      toast.success("Client added", { description: "Client has been added" })
+    if (result.success && result.data) {
+
+      set((state) => ({ clients: [...state.clients, result.data] }))
+      toast.success("Client added", { description: `${result.data.name} has been added` })
+      pushClients()
     } else {
       toast.error("Error", { description: result.error })
     }
@@ -36,6 +39,7 @@ export const useClientStore = create<ClientStore>((set) => ({
       toast.success("Client updated", {
         description: `${field} updated successfully`
       })
+      pushClients()
     } else {
       toast.error("Update failed", {
         description: `Could not update ${field}`
@@ -43,12 +47,16 @@ export const useClientStore = create<ClientStore>((set) => ({
     }
   },
   deleteClient: async (id) => {
-    const result = await window.database.deleteClient(id)
-    if (result.success) set((state) => ({
-      clients: state.clients.filter((c) => c.id !== id)
-    }));
-
-    result.success ? toast.success("Client deleted", { description: "Client has been deleted" }) : toast.error("Error", { description: "Client not found" })
+    const resCloud = await deleteClient(id)
+    const resLocal = await window.database.deleteClient(id)
+    if (resCloud.success && resLocal.success) {
+      set((state) => ({
+        clients: state.clients.filter((c) => c.id !== id)
+      }))
+      toast.success("Client deleted", { description: "Client has been deleted" })
+    } else {
+      toast.error("Error", { description: resCloud.error?.message || resLocal.error })
+    }
   }
 }))
 

@@ -20,7 +20,7 @@ export default defineConfig({
         input: path.join(__dirname, 'electron/preload.ts'),
         vite: {
           build: {
-            outDir: 'dist',
+            // outDir: 'dist',
           rollupOptions: {
             // Here are some C/C++ modules them can't be built properly
             external: [
