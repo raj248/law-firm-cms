@@ -119,7 +119,17 @@ const getAllClients = () => {
 const updateClientField = (id, field, value) => {
   const validFields = ["name", "email", "phone", "address", "note"];
   if (!validFields.includes(field)) return false;
+<<<<<<< HEAD
   const result = db.prepare(`UPDATE clients SET ${field} = ?,  is_synced = 0 WHERE id = ?`).run(value, id);
+=======
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const result = db.prepare(
+    `UPDATE clients SET ${field} = ?, 
+    is_synced = 0,
+    updated_at = ?
+    WHERE id = ?`
+  ).run(value, now, id);
+>>>>>>> 88515c7e787bb64d2ee4e7e8666dec028be8688c
   console.log("inside Client repo");
   if (result.changes === 0) {
     return { success: false, error: "Update Failed: No idea what happend." };
