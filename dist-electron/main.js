@@ -134,9 +134,7 @@ const updateClientField = (id, field, value) => {
 };
 const deleteClient = (id) => {
   const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
-  if (result.changes === 0) {
-    return { success: false, error: "Delete Failed: No idea what happend." };
-  }
+  console.log("Delete results: ", result);
   return { success: true };
 };
 const unsyncedClients = () => {
