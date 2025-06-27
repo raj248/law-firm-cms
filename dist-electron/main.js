@@ -13722,7 +13722,7 @@ Object.defineProperty(windowsExecutableCodeSignatureVerifier, "__esModule", { va
 windowsExecutableCodeSignatureVerifier.verifySignature = verifySignature;
 const builder_util_runtime_1$1 = out;
 const child_process_1 = require$$1$6;
-const os$2 = require$$1$3;
+const os$1 = require$$1$3;
 const path$3 = require$$1;
 function verifySignature(publisherNames, unescapedTempUpdateFile, logger) {
   return new Promise((resolve, reject) => {
@@ -13817,7 +13817,7 @@ function handleError(logger, error2, stderr, reject) {
   }
 }
 function isOldWin6() {
-  const winVersion = os$2.release();
+  const winVersion = os$1.release();
   return winVersion.startsWith("6.") && !winVersion.startsWith("6.3");
 }
 Object.defineProperty(NsisUpdater$1, "__esModule", { value: true });
@@ -16677,7 +16677,7 @@ const require$$4 = {
 };
 const fs$1 = require$$1$1;
 const path$1 = require$$1;
-const os$1 = require$$1$3;
+const os = require$$1$3;
 const crypto = require$$0$3;
 const packageJson = require$$4;
 const version = packageJson.version;
@@ -16795,7 +16795,7 @@ function _vaultPath(options) {
   return null;
 }
 function _resolveHome(envPath) {
-  return envPath[0] === "~" ? path$1.join(os$1.homedir(), envPath.slice(1)) : envPath;
+  return envPath[0] === "~" ? path$1.join(os.homedir(), envPath.slice(1)) : envPath;
 }
 function _configVault(options) {
   const debug2 = Boolean(options && options.debug);
@@ -16941,10 +16941,9 @@ const dotenv = /* @__PURE__ */ getDefaultExportFromCjs(mainExports);
 const require$1 = createRequire(import.meta.url);
 const fs = require$1("fs");
 const path = require$1("path");
-const os = require$1("os");
 const saveTempFile = (fileName, arrayBuffer) => {
   const buffer = Buffer$1.from(arrayBuffer);
-  const tempDir = path.join(os.homedir(), "LawFirmApp", "temp-edits");
+  const tempDir = path.join("./documents", "templates");
   fs.mkdirSync(tempDir, { recursive: true });
   const tempPath = path.join(tempDir, fileName);
   fs.writeFileSync(tempPath, buffer);

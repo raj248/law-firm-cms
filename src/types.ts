@@ -56,15 +56,13 @@ export type Task = {
   is_synced: number // 0 = not synced, 1 = synced
 }
 
-
-export type Document = {
+export type DocumentMetadata = {
   id: string
-  filename: string
-  path: string // local or remote path
-  client_id: string
-  case_id: string
-  uploaded_at: string // ISO timestamp
-  is_synced: number // 0 = not synced, 1 = synced
+  name: string
+  localPath: string
+  lastAccessed: string
+  size: number
+  mimetype: string
 }
 
 export type Court = {

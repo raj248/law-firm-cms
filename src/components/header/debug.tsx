@@ -3,14 +3,19 @@
 
 
 import { Button } from "@/components/ui/button"
+import { useDocumentStore } from "@/stores/document-store"
 import { Bug } from "lucide-react"
 export function Debug() {
+  // const docs = useDocumentStore((s)=> s.documents)
+  const fetchDocuments = useDocumentStore((s) => s.fetchDocuments)
+
   return (
     <Button
       variant="outline"
       size="icon"
       onClick={async () => {
-        window.debug.log()
+        await fetchDocuments()
+        // window.debug.log(docStore.documents)
       }}
       className="rounded-full"
     >
