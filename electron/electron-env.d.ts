@@ -70,8 +70,20 @@ interface DB {
 interface Admin {
   deleteUser: (userId :string) => Promise<{ success: boolean; error?: string }>
 }
+
+interface ElectronUpdater {
+  onUpdateAvailable : (callback: (event: any, info: {
+      version: string
+      releaseNotes: string
+      releaseName: string
+    }) => void) => void 
+  onDownloadProgress : (callback: (event: any, percent: number) => void ) => void
+  onUpdateDownloaded : (callback: () => void) => void
+  restartApp: () => void
+}
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
+  electronUpdater: ElectronUpdater
   electronAPI: ElectronAPI
   database: DB
   admin: Admin

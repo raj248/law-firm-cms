@@ -18,6 +18,12 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
     return electron.ipcRenderer.invoke(channel, ...omit);
   }
 });
+electron.contextBridge.exposeInMainWorld("electronUpdater", {
+  onUpdateAvailable: (cb) => electron.ipcRenderer.on("update_available", cb),
+  onDownloadProgress: (cb) => electron.ipcRenderer.on("update_download_progress", cb),
+  onUpdateDownloaded: (cb) => electron.ipcRenderer.on("update_downloaded", cb),
+  restartApp: () => electron.ipcRenderer.send("restart_app")
+});
 electron.contextBridge.exposeInMainWorld("debug", {
   log: (...args) => electron.ipcRenderer.send("log", ...args)
 });

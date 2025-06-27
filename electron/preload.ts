@@ -22,6 +22,18 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   
 })
 
+contextBridge.exposeInMainWorld('electronUpdater', {
+  onUpdateAvailable: (cb: (event: any, info: {
+      version: string
+      releaseNotes: string
+      releaseName: string
+    }) => void) => ipcRenderer.on('update_available', cb),
+  onDownloadProgress: (cb: (event: any, percent: number) => void) =>
+    ipcRenderer.on('update_download_progress', cb),
+  onUpdateDownloaded: (cb: () => void) => ipcRenderer.on('update_downloaded', cb),
+  restartApp: () => ipcRenderer.send('restart_app'),
+})
+
 contextBridge.exposeInMainWorld('debug', {
   log: (...args: any[]) => ipcRenderer.send('log', ...args),
 })

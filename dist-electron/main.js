@@ -16976,31 +16976,26 @@ app.on("activate", () => {
     createWindow();
   }
 });
+main$3.autoUpdater.logger = log;
+main$3.autoUpdater.on("update-available", (info) => {
+  win == null ? void 0 : win.webContents.send("update_available", {
+    version: info.version,
+    releaseNotes: info.releaseNotes || "",
+    releaseName: info.releaseName || ""
+  });
+});
+main$3.autoUpdater.on("download-progress", (progressObj) => {
+  win == null ? void 0 : win.webContents.send("update_download_progress", progressObj.percent);
+});
+main$3.autoUpdater.on("update-downloaded", () => {
+  win == null ? void 0 : win.webContents.send("update_downloaded");
+});
 app.whenReady().then(() => {
   createWindow();
-  main$3.autoUpdater.logger = log;
   log.info("App starting...");
   main$3.autoUpdater.checkForUpdates();
-  main$3.autoUpdater.on("checking-for-update", () => {
-    log.info("Checking for update...");
-  });
-  main$3.autoUpdater.on("update-available", (info) => {
-    log.info("Update available.", info);
-  });
-  main$3.autoUpdater.on("update-not-available", (info) => {
-    log.info("Update not available.", info);
-  });
-  main$3.autoUpdater.on("error", (err) => {
-    log.error("Error in auto-updater:", err);
-  });
-  main$3.autoUpdater.on("download-progress", (progress) => {
-    log.info(`Download speed: ${progress.bytesPerSecond}`);
-    log.info(`Downloaded ${progress.percent}%`);
-    log.info(`${progress.transferred}/${progress.total}`);
-  });
-  main$3.autoUpdater.on("update-downloaded", (info) => {
-    log.info("Update downloaded. Will install on quit.");
-    log.info(info.version);
+  ipcMain.on("restart_app", () => {
+    main$3.autoUpdater.quitAndInstall();
   });
   ipcMain.on("log", (_event, ...args) => {
     console.log("\x1B[32m%s\x1B[0m", "[Renderer Log]:", ...args);

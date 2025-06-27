@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { useSyncStore } from '@/stores/sync-store'
 import { supabase } from '@/supabase/supabase'
 import { toast } from 'sonner'
-import { handleClientRealtimePayload, pullClients } from '@/supabase/syncClients'
-import { handleCaseRealtimePayload, pullCases } from '@/supabase/syncCases'
+import { handleClientRealtimePayload, pullAllClients } from '@/supabase/syncClients'
+import { handleCaseRealtimePayload, pullAllCases } from '@/supabase/syncCases'
 import { pushClients } from '@/supabase/cloud-clients'
 import { pushCases } from '@/supabase/cloud-cases'
 import { handleSettingsRealtimePayload, pullAllSettings } from '@/supabase/syncSettings'
@@ -17,11 +17,11 @@ export function useSyncHook() {
     let subs_tags: ReturnType<typeof supabase.channel> | null = null
 
     const syncAndSubscribe = async () => {
-      const { lastSyncedAt, setRealtimeActive } = useSyncStore.getState()
+      const {  setRealtimeActive } = useSyncStore.getState()
 
       toast.info('🔄 Syncing from Supabase...')
-      await pullClients(lastSyncedAt)
-      await pullCases(lastSyncedAt)
+      await pullAllClients()
+      await pullAllCases()
       await pullAllSettings()
 
       // toast.info('⏫ Pushing local changes...')

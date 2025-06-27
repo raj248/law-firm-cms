@@ -18,6 +18,7 @@ import AuthPage from "@/components/pages/auth"
 import { useSyncHook } from "./hooks/useSyncHook"
 import UserManagement from "./components/pages/admin/UserManagement"
 import { supabase } from "./supabase/supabase"
+import { UpdateDialog } from "./components/update-banner"
 
 export default function App() {
   const fetchClients = useClientStore((s) => s.fetchClients)
@@ -48,6 +49,7 @@ export default function App() {
       <Router>
         <div className="w-screen h-screen flex flex-row ">
           <Sidebar />
+          <UpdateDialog />
 
           {/* Main content */}
           <Routes>

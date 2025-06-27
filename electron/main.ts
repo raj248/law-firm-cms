@@ -85,38 +85,34 @@ app.on('activate', () => {
   }
 })
 
+autoUpdater.logger = log
+
+autoUpdater.on('update-available', (info) => {
+  win?.webContents.send('update_available', {
+    version: info.version,
+    releaseNotes: info.releaseNotes || '',
+    releaseName: info.releaseName || '',
+  })
+})
+
+
+autoUpdater.on('download-progress', (progressObj) => {
+  win?.webContents.send('update_download_progress', progressObj.percent)
+})
+
+autoUpdater.on('update-downloaded', () => {
+  win?.webContents.send('update_downloaded')
+})
+
+
 app.whenReady().then(() => {
   createWindow()
 
-  autoUpdater.logger = log
-  // autoUpdater.logger.info("App starting from autoupdater logger.log() ")
   log.info("App starting...")
   autoUpdater.checkForUpdates()
-  autoUpdater.on("checking-for-update", () => {
-    log.info("Checking for update...")
-  })
-
-  autoUpdater.on("update-available", (info) => {
-    log.info("Update available.", info)
-  })
-
-  autoUpdater.on("update-not-available", (info) => {
-    log.info("Update not available.", info)
-  })
-
-  autoUpdater.on("error", (err) => {
-    log.error("Error in auto-updater:", err)
-  })
-
-  autoUpdater.on("download-progress", (progress) => {
-    log.info(`Download speed: ${progress.bytesPerSecond}`)
-    log.info(`Downloaded ${progress.percent}%`)
-    log.info(`${progress.transferred}/${progress.total}`)
-  })
-
-  autoUpdater.on("update-downloaded", (info) => {
-    log.info("Update downloaded. Will install on quit.")
-    log.info(info.version)
+  
+  ipcMain.on('restart_app', () => {
+    autoUpdater.quitAndInstall()
   })
 
   ipcMain.on('log', (_event, ...args) => {

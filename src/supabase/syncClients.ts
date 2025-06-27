@@ -27,26 +27,47 @@ export async function pullClients(lastSyncTime: string): Promise<void> {
   return
 }
 
-export async function pullAllClients(){
+export async function pullAllClients() {
+  const { data: clients, error } = await supabase.from('clients').select('*')
 
-const { data: clients, error } = await supabase
-  .from('clients')
-  .select('*')
-if (error) {
-    toast.error('❌ Pull failed', {description: error.message})
+  if (error) {
+    toast.error('❌ Pull failed', { description: error.message })
     return
   }
-  window.debug.log(clients)
 
-  if(!clients) return
+  if (!clients) return
+
+  const remoteClientIds = clients.map(c => c.id)
+  
+  // 🔽 STEP 1: Get all local client IDs
+  const localClients = await window.database.getAllClients() // You need to define this
+  const localClientIds = localClients.map(c => c.id)
+
+  // 🔽 STEP 2: Find local clients that were deleted remotely
+  const deletedClientIds = localClientIds.filter(id => !remoteClientIds.includes(id))
+  // window.debug.log(remoteClientIds, localClientIds, deletedClientIds)
+
+  // 🔽 STEP 3: Delete them from local DB
+  if (deletedClientIds.length > 0) {
+    for(const id of deletedClientIds) {
+      window.debug.log("Id to delete: ",id)
+      const res = await window.database.deleteClient(id)
+      window.debug.log("Deleted clients locally:", id, " : ", res)
+      
+    }
+  }
+
+  // 🔽 STEP 4: Upsert remaining clients
   window.database.insertOrUpdateClients(clients as Client[])
 
+  // 🔽 Final update
+  useClientStore.getState().fetchClients()
   const newSyncTime = new Date().toISOString()
   useSyncStore.getState().setLastSyncedAt(newSyncTime)
-  useClientStore.getState().fetchClients()
   toast.success(`✅ Pulled ${clients.length} client(s)`)
-  return
 }
+
+
 export function handleClientRealtimePayload(payload: any) {
   const { eventType, new: newClient, old: oldClient } = payload
 

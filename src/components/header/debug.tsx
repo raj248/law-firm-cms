@@ -10,7 +10,7 @@ export function Debug() {
       variant="outline"
       size="icon"
       onClick={async () => {
-        window.debug.log(await window.database.getAllClients())
+        window.debug.log()
       }}
       className="rounded-full"
     >
