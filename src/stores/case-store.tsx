@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { Case } from '@/types'
 import { toast } from 'sonner'
-import { deleteCase, pushCases } from '@/supabase/cloud-cases'
+import { deleteCase as deleteCaseFromCloud, pushCases as pushCasesToCloud } from '@/supabase/cloud-cases'
 
 type CaseStore = {
   cases: Case[]
@@ -31,7 +31,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     if (result.success && result.data) {
       set((state) => ({ cases: [...state.cases, result.data] }))
       toast.success("Case added", { description: legalCase.title })
-      pushCases()
+      pushCasesToCloud()
 
     } else {
       toast.error("Error", { description: result.error })
@@ -39,14 +39,14 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
   },
 
   deleteCase: async (id) => {
-    const resCloud = await deleteCase(id)
+    const resCloud = await deleteCaseFromCloud(id)
     const resLocal = await window.database.deleteCase(id)
     if (resCloud.success && resLocal.success) {
       set((state) => ({
         cases: state.cases.filter((c) => c.file_id !== id),
       }))
       toast.success("Case deleted", { description: "Case has been deleted" })
-      // pushCases()
+      // pushCasesToCloud()
     }
     else {
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })
@@ -74,7 +74,8 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
       toast.success("Case updated", {
         description: `${field} updated successfully`
       })
-      pushCases()
+      deleteCaseFromCloud(file_id)
+      pushCasesToCloud()
     } else {
       toast.error("Error", { description: result.error })
     }
