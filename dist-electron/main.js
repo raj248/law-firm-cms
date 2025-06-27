@@ -16943,11 +16943,12 @@ const fs = require$1("fs");
 const path = require$1("path");
 const saveTempFile = (fileName, arrayBuffer) => {
   const buffer = Buffer$1.from(arrayBuffer);
-  const tempDir = path.join("./documents", "templates");
+  const tempDir = path.join(app.getAppPath(), "documents", "templates");
   fs.mkdirSync(tempDir, { recursive: true });
   const tempPath = path.join(tempDir, fileName);
   fs.writeFileSync(tempPath, buffer);
-  return tempPath;
+  const fullPath = path.resolve(tempPath);
+  return fullPath;
 };
 dotenv.config();
 createRequire(import.meta.url);
