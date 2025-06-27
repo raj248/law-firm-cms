@@ -50,6 +50,12 @@ export const CaseDetailDialog = ({ file_id, open, setOpen }: Props) => {
         </DialogHeader>
 
         <div className="grid grid-cols-[110px_1fr] gap-y-3 gap-x-4 mt-4">
+          <div className="font-medium pt-2">File ID:</div>
+          <EditableField
+            value={caseData.file_id}
+            onSave={(val) => handleOnSave(caseData.file_id, "file_id", val)}
+          />
+
           <div className="font-medium pt-2">Description:</div>
           <EditableField
             value={caseData.description || "No Description"}
@@ -58,7 +64,6 @@ export const CaseDetailDialog = ({ file_id, open, setOpen }: Props) => {
           />
 
           <div className="font-medium pt-2">Status:</div>
-          {/* <EditableField value={caseData.status} onSave={(val) => handleOnSave(caseData.file_id,"status", val)} /> */}
           <DropdownEditableField
             value={caseData.status}
             options={statusOptions}
@@ -66,7 +71,6 @@ export const CaseDetailDialog = ({ file_id, open, setOpen }: Props) => {
           />
 
           <div className="font-medium pt-2">Court:</div>
-          {/* <EditableField value={caseData.court} onSave={(val) => handleOnSave(caseData.file_id,"court", val)} /> */}
           <DropdownEditableField
             value={caseData.court}
             options={courts}

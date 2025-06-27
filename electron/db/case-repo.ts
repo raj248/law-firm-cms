@@ -58,8 +58,8 @@ export const updateCase = (
   )
 
   if (!result.changes) return { success: false, error: "Update failed: No idea what happend." }
-
-  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE file_id = ?`).get(id)
+  const new_id = field === 'file_id' ? value : id
+  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE file_id = ?`).get(new_id)
 
   const castCase = (c: any): Case => ({
     ...c,

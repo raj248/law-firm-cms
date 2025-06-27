@@ -53,19 +53,21 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     }
   },
 
-  updateCase: async (id: string, field: keyof Case, value: any) => {
-    const caseToUpdate = get().cases.find(c => c.file_id === id)
+  updateCase: async (file_id: string, field: keyof Case, value: any) => {
+    const caseToUpdate = get().cases.find(c => c.file_id === file_id)
     if (!caseToUpdate) {
       toast.error("Error", { description: "Case not found" })
       return
     }
 
-    const result = await window.database.updateCase(id, field, value) // INSERT OR REPLACE
-
+    const result = await window.database.updateCase(file_id, field, value) // INSERT OR REPLACE
+    const id = field === 'file_id' ? value : file_id
     if (result.success && result.updatedCase) {
       set((state) => ({
         cases: state.cases.map((c) =>
-          c.file_id === id ? result.updatedCase : c
+          c.file_id === id
+            ? result.updatedCase
+            : c
         ),
       }))
       window.debug.log("Updated case: ", result.updatedCase)
