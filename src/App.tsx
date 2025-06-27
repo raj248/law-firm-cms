@@ -19,13 +19,19 @@ import { useSyncHook } from "./hooks/useSyncHook"
 import UserManagement from "./components/pages/admin/UserManagement"
 import { supabase } from "./supabase/supabase"
 import { UpdateDialog } from "./components/update-banner"
+import { useUserStore } from "./stores/user-store"
 
 export default function App() {
   const fetchClients = useClientStore((s) => s.fetchClients)
   const fetchCases = useCaseStore((s) => s.fetchCases)
   const fetchTasks = useTaskStore((s) => s.fetchTasks)
 
+  const { fetchCurrentUser, fetchAllowedUsers, isCurrentUserAdmin } = useUserStore()
 
+  useEffect(() => {
+    fetchCurrentUser()
+    fetchAllowedUsers()
+  }, [])
   useEffect(() => {
     window.debug.log("Fetching clients...")
     fetchClients()
@@ -69,7 +75,7 @@ export default function App() {
               <Route path="/cases" element={<Cases />} />
               <Route path="/task" element={<TaskPage />} />
               <Route path="/docs" element={<DocumentsPage />} />
-              <Route path="/user_management" element={<UserManagement />} />
+              {isCurrentUserAdmin() && (<Route path="/user_management" element={<UserManagement />} />)}
             </Route>
           </Routes>
 

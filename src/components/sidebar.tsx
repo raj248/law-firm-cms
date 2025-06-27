@@ -12,26 +12,27 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-const navItems = [
-  { name: "Dashboard", icon: <Home size={18} />, path: "/" },
-  { name: "Clients", icon: <Users size={18} />, path: "/clients" },
-  { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
-  { name: "Tasks", icon: <Calendar size={18} />, path: "/task" },
-  { name: "Documents", icon: <Files size={18} />, path: "/docs" },
-  { name: "Users", icon: <UserCog size={18} />, path: "/user_management" },
-];
+import { useUserStore } from "@/stores/user-store";
 
 export default function Sidebar() {
   const location = useLocation();
+  const { isCurrentUserAdmin } = useUserStore();
+
+  const navItems = [
+    { name: "Dashboard", icon: <Home size={18} />, path: "/" },
+    { name: "Clients", icon: <Users size={18} />, path: "/clients" },
+    { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
+    { name: "Tasks", icon: <Calendar size={18} />, path: "/task" },
+    { name: "Documents", icon: <Files size={18} />, path: "/docs" },
+    // Only include the Users nav item if the user is admin
+    ...(isCurrentUserAdmin() ? [
+      { name: "Users", icon: <UserCog size={18} />, path: "/user_management" }
+    ] : [])
+  ];
 
   return (
-    <div
-      className="relative h-1/2 translate-y-1/2 z-10"
-      dir="rtl"
-    >
-      <div
-        className="group absolute left-0 top-0 h-full w-14 hover:w-36 transition-all duration-300 bg-[var(--color-sidebar)] rounded-r-lg border-2 flex flex-col py-4 overflow-hidden z-10"
-      >
+    <div className="relative h-1/2 translate-y-1/2 z-10" dir="rtl">
+      <div className="group absolute left-0 top-0 h-full w-14 hover:w-36 transition-all duration-300 bg-[var(--color-sidebar)] rounded-r-lg border-2 flex flex-col py-4 overflow-hidden z-10">
         <NavigationMenu orientation="vertical">
           <NavigationMenuList className="flex flex-col items-start ml-4 space-y-2">
             {navItems.map((item) => (
@@ -43,10 +44,14 @@ export default function Sidebar() {
                   location.pathname === item.path && "bg-muted font-semibold"
                 )}
               >
-                <div className={cn(
-                  "min-w-[20px] flex justify-center transition-all duration-300",
-                  "ml-20 group-hover:ml-0"
-                )}>{item.icon}</div>
+                <div
+                  className={cn(
+                    "min-w-[20px] flex justify-center transition-all duration-300",
+                    "ml-20 group-hover:ml-0"
+                  )}
+                >
+                  {item.icon}
+                </div>
                 <span
                   className={cn(
                     "transform transition-all duration-300 whitespace-nowrap mr-2",
