@@ -14,6 +14,7 @@ import { getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyn
 import { deleteUser } from './supabaseAdmin.ts'
 
 import dotenv from 'dotenv'
+import { saveTempFile } from './file-handler.ts'
 dotenv.config()
 
 const require = createRequire(import.meta.url)
@@ -122,6 +123,10 @@ app.whenReady().then(() => {
    // Shell
   ipcMain.handle('open-file', async (_event, filePath: string) => {
     return await shell.openPath(filePath)
+  })
+
+  ipcMain.handle('save-temp-file', async (_event, filename, buffer)=>{
+    return await saveTempFile(filename, buffer)
   })
   // Clients
   ipcMain.handle('database:insert-client', (_event, client) => {

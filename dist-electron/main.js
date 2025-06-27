@@ -6,7 +6,7 @@ import { createRequire } from "node:module";
 import require$$1 from "path";
 import require$$1$1 from "fs";
 import { fileURLToPath } from "node:url";
-import path$n from "node:path";
+import path$o from "node:path";
 import require$$0 from "constants";
 import require$$0$1 from "stream";
 import require$$4$1 from "util";
@@ -22,8 +22,9 @@ import require$$14 from "zlib";
 import require$$4$3 from "http";
 import require$$1$7 from "https";
 import { randomUUID } from "node:crypto";
-const require$1 = createRequire(import.meta.url);
-const Database = require$1("better-sqlite3");
+import { Buffer as Buffer$1 } from "buffer";
+const require$2 = createRequire(import.meta.url);
+const Database = require$2("better-sqlite3");
 console.log("App Name : ", app.getName());
 const dbPath = require$$1.join("./database", "lawfirm.db");
 console.log("Databse Path : ", dbPath);
@@ -326,7 +327,7 @@ function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
 }
 var main$3 = {};
-var fs$j = {};
+var fs$k = {};
 var universalify$1 = {};
 universalify$1.fromCallback = function(fn) {
   return Object.defineProperty(function(...args) {
@@ -736,7 +737,7 @@ function clone$1(obj) {
   });
   return copy2;
 }
-var fs$i = require$$1$1;
+var fs$j = require$$1$1;
 var polyfills = polyfills$1;
 var legacy = legacyStreams;
 var clone = clone_1;
@@ -768,12 +769,12 @@ else if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || ""))
     m = "GFS4: " + m.split(/\n/).join("\nGFS4: ");
     console.error(m);
   };
-if (!fs$i[gracefulQueue]) {
+if (!fs$j[gracefulQueue]) {
   var queue = commonjsGlobal[gracefulQueue] || [];
-  publishQueue(fs$i, queue);
-  fs$i.close = function(fs$close) {
+  publishQueue(fs$j, queue);
+  fs$j.close = function(fs$close) {
     function close(fd, cb) {
-      return fs$close.call(fs$i, fd, function(err) {
+      return fs$close.call(fs$j, fd, function(err) {
         if (!err) {
           resetQueue();
         }
@@ -785,31 +786,31 @@ if (!fs$i[gracefulQueue]) {
       value: fs$close
     });
     return close;
-  }(fs$i.close);
-  fs$i.closeSync = function(fs$closeSync) {
+  }(fs$j.close);
+  fs$j.closeSync = function(fs$closeSync) {
     function closeSync(fd) {
-      fs$closeSync.apply(fs$i, arguments);
+      fs$closeSync.apply(fs$j, arguments);
       resetQueue();
     }
     Object.defineProperty(closeSync, previousSymbol, {
       value: fs$closeSync
     });
     return closeSync;
-  }(fs$i.closeSync);
+  }(fs$j.closeSync);
   if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || "")) {
     process.on("exit", function() {
-      debug$3(fs$i[gracefulQueue]);
-      require$$5.equal(fs$i[gracefulQueue].length, 0);
+      debug$3(fs$j[gracefulQueue]);
+      require$$5.equal(fs$j[gracefulQueue].length, 0);
     });
   }
 }
 if (!commonjsGlobal[gracefulQueue]) {
-  publishQueue(commonjsGlobal, fs$i[gracefulQueue]);
+  publishQueue(commonjsGlobal, fs$j[gracefulQueue]);
 }
-var gracefulFs = patch$2(clone(fs$i));
-if (process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs$i.__patched) {
-  gracefulFs = patch$2(fs$i);
-  fs$i.__patched = true;
+var gracefulFs = patch$2(clone(fs$j));
+if (process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs$j.__patched) {
+  gracefulFs = patch$2(fs$j);
+  fs$j.__patched = true;
 }
 function patch$2(fs2) {
   polyfills(fs2);
@@ -1051,16 +1052,16 @@ function patch$2(fs2) {
 }
 function enqueue(elem) {
   debug$3("ENQUEUE", elem[0].name, elem[1]);
-  fs$i[gracefulQueue].push(elem);
+  fs$j[gracefulQueue].push(elem);
   retry$2();
 }
 var retryTimer;
 function resetQueue() {
   var now = Date.now();
-  for (var i = 0; i < fs$i[gracefulQueue].length; ++i) {
-    if (fs$i[gracefulQueue][i].length > 2) {
-      fs$i[gracefulQueue][i][3] = now;
-      fs$i[gracefulQueue][i][4] = now;
+  for (var i = 0; i < fs$j[gracefulQueue].length; ++i) {
+    if (fs$j[gracefulQueue][i].length > 2) {
+      fs$j[gracefulQueue][i][3] = now;
+      fs$j[gracefulQueue][i][4] = now;
     }
   }
   retry$2();
@@ -1068,9 +1069,9 @@ function resetQueue() {
 function retry$2() {
   clearTimeout(retryTimer);
   retryTimer = void 0;
-  if (fs$i[gracefulQueue].length === 0)
+  if (fs$j[gracefulQueue].length === 0)
     return;
-  var elem = fs$i[gracefulQueue].shift();
+  var elem = fs$j[gracefulQueue].shift();
   var fn = elem[0];
   var args = elem[1];
   var err = elem[2];
@@ -1092,7 +1093,7 @@ function retry$2() {
       debug$3("RETRY", fn.name, args);
       fn.apply(null, args.concat([startTime]));
     } else {
-      fs$i[gracefulQueue].push(elem);
+      fs$j[gracefulQueue].push(elem);
     }
   }
   if (retryTimer === void 0) {
@@ -1196,13 +1197,13 @@ function retry$2() {
       "fs-extra-WARN0003"
     );
   }
-})(fs$j);
+})(fs$k);
 var makeDir$1 = {};
 var utils$1 = {};
-const path$m = require$$1;
+const path$n = require$$1;
 utils$1.checkPath = function checkPath(pth) {
   if (process.platform === "win32") {
-    const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path$m.parse(pth).root, ""));
+    const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path$n.parse(pth).root, ""));
     if (pathHasInvalidWinCharacters) {
       const error2 = new Error(`Path contains invalid characters: ${pth}`);
       error2.code = "EINVAL";
@@ -1210,7 +1211,7 @@ utils$1.checkPath = function checkPath(pth) {
     }
   }
 };
-const fs$h = fs$j;
+const fs$i = fs$k;
 const { checkPath: checkPath2 } = utils$1;
 const getMode = (options) => {
   const defaults2 = { mode: 511 };
@@ -1219,14 +1220,14 @@ const getMode = (options) => {
 };
 makeDir$1.makeDir = async (dir, options) => {
   checkPath2(dir);
-  return fs$h.mkdir(dir, {
+  return fs$i.mkdir(dir, {
     mode: getMode(options),
     recursive: true
   });
 };
 makeDir$1.makeDirSync = (dir, options) => {
   checkPath2(dir);
-  return fs$h.mkdirSync(dir, {
+  return fs$i.mkdirSync(dir, {
     mode: getMode(options),
     recursive: true
   });
@@ -1244,39 +1245,39 @@ var mkdirs$2 = {
   ensureDirSync: makeDirSync
 };
 const u$9 = universalify$1.fromPromise;
-const fs$g = fs$j;
+const fs$h = fs$k;
 function pathExists$6(path2) {
-  return fs$g.access(path2).then(() => true).catch(() => false);
+  return fs$h.access(path2).then(() => true).catch(() => false);
 }
 var pathExists_1 = {
   pathExists: u$9(pathExists$6),
-  pathExistsSync: fs$g.existsSync
+  pathExistsSync: fs$h.existsSync
 };
-const fs$f = gracefulFs;
+const fs$g = gracefulFs;
 function utimesMillis$1(path2, atime, mtime, callback) {
-  fs$f.open(path2, "r+", (err, fd) => {
+  fs$g.open(path2, "r+", (err, fd) => {
     if (err) return callback(err);
-    fs$f.futimes(fd, atime, mtime, (futimesErr) => {
-      fs$f.close(fd, (closeErr) => {
+    fs$g.futimes(fd, atime, mtime, (futimesErr) => {
+      fs$g.close(fd, (closeErr) => {
         if (callback) callback(futimesErr || closeErr);
       });
     });
   });
 }
 function utimesMillisSync$1(path2, atime, mtime) {
-  const fd = fs$f.openSync(path2, "r+");
-  fs$f.futimesSync(fd, atime, mtime);
-  return fs$f.closeSync(fd);
+  const fd = fs$g.openSync(path2, "r+");
+  fs$g.futimesSync(fd, atime, mtime);
+  return fs$g.closeSync(fd);
 }
 var utimes = {
   utimesMillis: utimesMillis$1,
   utimesMillisSync: utimesMillisSync$1
 };
-const fs$e = fs$j;
-const path$l = require$$1;
+const fs$f = fs$k;
+const path$m = require$$1;
 const util$1 = require$$4$1;
 function getStats$2(src2, dest, opts) {
-  const statFunc = opts.dereference ? (file2) => fs$e.stat(file2, { bigint: true }) : (file2) => fs$e.lstat(file2, { bigint: true });
+  const statFunc = opts.dereference ? (file2) => fs$f.stat(file2, { bigint: true }) : (file2) => fs$f.lstat(file2, { bigint: true });
   return Promise.all([
     statFunc(src2),
     statFunc(dest).catch((err) => {
@@ -1287,7 +1288,7 @@ function getStats$2(src2, dest, opts) {
 }
 function getStatsSync(src2, dest, opts) {
   let destStat;
-  const statFunc = opts.dereference ? (file2) => fs$e.statSync(file2, { bigint: true }) : (file2) => fs$e.lstatSync(file2, { bigint: true });
+  const statFunc = opts.dereference ? (file2) => fs$f.statSync(file2, { bigint: true }) : (file2) => fs$f.lstatSync(file2, { bigint: true });
   const srcStat = statFunc(src2);
   try {
     destStat = statFunc(dest);
@@ -1303,8 +1304,8 @@ function checkPaths(src2, dest, funcName, opts, cb) {
     const { srcStat, destStat } = stats;
     if (destStat) {
       if (areIdentical$2(srcStat, destStat)) {
-        const srcBaseName = path$l.basename(src2);
-        const destBaseName = path$l.basename(dest);
+        const srcBaseName = path$m.basename(src2);
+        const destBaseName = path$m.basename(dest);
         if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
           return cb(null, { srcStat, destStat, isChangingCase: true });
         }
@@ -1327,8 +1328,8 @@ function checkPathsSync(src2, dest, funcName, opts) {
   const { srcStat, destStat } = getStatsSync(src2, dest, opts);
   if (destStat) {
     if (areIdentical$2(srcStat, destStat)) {
-      const srcBaseName = path$l.basename(src2);
-      const destBaseName = path$l.basename(dest);
+      const srcBaseName = path$m.basename(src2);
+      const destBaseName = path$m.basename(dest);
       if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
         return { srcStat, destStat, isChangingCase: true };
       }
@@ -1347,10 +1348,10 @@ function checkPathsSync(src2, dest, funcName, opts) {
   return { srcStat, destStat };
 }
 function checkParentPaths(src2, srcStat, dest, funcName, cb) {
-  const srcParent = path$l.resolve(path$l.dirname(src2));
-  const destParent = path$l.resolve(path$l.dirname(dest));
-  if (destParent === srcParent || destParent === path$l.parse(destParent).root) return cb();
-  fs$e.stat(destParent, { bigint: true }, (err, destStat) => {
+  const srcParent = path$m.resolve(path$m.dirname(src2));
+  const destParent = path$m.resolve(path$m.dirname(dest));
+  if (destParent === srcParent || destParent === path$m.parse(destParent).root) return cb();
+  fs$f.stat(destParent, { bigint: true }, (err, destStat) => {
     if (err) {
       if (err.code === "ENOENT") return cb();
       return cb(err);
@@ -1362,12 +1363,12 @@ function checkParentPaths(src2, srcStat, dest, funcName, cb) {
   });
 }
 function checkParentPathsSync(src2, srcStat, dest, funcName) {
-  const srcParent = path$l.resolve(path$l.dirname(src2));
-  const destParent = path$l.resolve(path$l.dirname(dest));
-  if (destParent === srcParent || destParent === path$l.parse(destParent).root) return;
+  const srcParent = path$m.resolve(path$m.dirname(src2));
+  const destParent = path$m.resolve(path$m.dirname(dest));
+  if (destParent === srcParent || destParent === path$m.parse(destParent).root) return;
   let destStat;
   try {
-    destStat = fs$e.statSync(destParent, { bigint: true });
+    destStat = fs$f.statSync(destParent, { bigint: true });
   } catch (err) {
     if (err.code === "ENOENT") return;
     throw err;
@@ -1381,8 +1382,8 @@ function areIdentical$2(srcStat, destStat) {
   return destStat.ino && destStat.dev && destStat.ino === srcStat.ino && destStat.dev === srcStat.dev;
 }
 function isSrcSubdir(src2, dest) {
-  const srcArr = path$l.resolve(src2).split(path$l.sep).filter((i) => i);
-  const destArr = path$l.resolve(dest).split(path$l.sep).filter((i) => i);
+  const srcArr = path$m.resolve(src2).split(path$m.sep).filter((i) => i);
+  const destArr = path$m.resolve(dest).split(path$m.sep).filter((i) => i);
   return srcArr.reduce((acc, cur, i) => acc && destArr[i] === cur, true);
 }
 function errMsg(src2, dest, funcName) {
@@ -1396,8 +1397,8 @@ var stat$4 = {
   isSrcSubdir,
   areIdentical: areIdentical$2
 };
-const fs$d = gracefulFs;
-const path$k = require$$1;
+const fs$e = gracefulFs;
+const path$l = require$$1;
 const mkdirs$1 = mkdirs$2.mkdirs;
 const pathExists$5 = pathExists_1.pathExists;
 const utimesMillis = utimes.utimesMillis;
@@ -1432,7 +1433,7 @@ function copy$2(src2, dest, opts, cb) {
   });
 }
 function checkParentDir(destStat, src2, dest, opts, cb) {
-  const destParent = path$k.dirname(dest);
+  const destParent = path$l.dirname(dest);
   pathExists$5(destParent, (err, dirExists) => {
     if (err) return cb(err);
     if (dirExists) return getStats$1(destStat, src2, dest, opts, cb);
@@ -1453,7 +1454,7 @@ function startCopy$1(destStat, src2, dest, opts, cb) {
   return getStats$1(destStat, src2, dest, opts, cb);
 }
 function getStats$1(destStat, src2, dest, opts, cb) {
-  const stat2 = opts.dereference ? fs$d.stat : fs$d.lstat;
+  const stat2 = opts.dereference ? fs$e.stat : fs$e.lstat;
   stat2(src2, (err, srcStat) => {
     if (err) return cb(err);
     if (srcStat.isDirectory()) return onDir$1(srcStat, destStat, src2, dest, opts, cb);
@@ -1470,7 +1471,7 @@ function onFile$1(srcStat, destStat, src2, dest, opts, cb) {
 }
 function mayCopyFile$1(srcStat, src2, dest, opts, cb) {
   if (opts.overwrite) {
-    fs$d.unlink(dest, (err) => {
+    fs$e.unlink(dest, (err) => {
       if (err) return cb(err);
       return copyFile$1(srcStat, src2, dest, opts, cb);
     });
@@ -1479,7 +1480,7 @@ function mayCopyFile$1(srcStat, src2, dest, opts, cb) {
   } else return cb();
 }
 function copyFile$1(srcStat, src2, dest, opts, cb) {
-  fs$d.copyFile(src2, dest, (err) => {
+  fs$e.copyFile(src2, dest, (err) => {
     if (err) return cb(err);
     if (opts.preserveTimestamps) return handleTimestampsAndMode(srcStat.mode, src2, dest, cb);
     return setDestMode$1(dest, srcStat.mode, cb);
@@ -1507,10 +1508,10 @@ function setDestTimestampsAndMode(srcMode, src2, dest, cb) {
   });
 }
 function setDestMode$1(dest, srcMode, cb) {
-  return fs$d.chmod(dest, srcMode, cb);
+  return fs$e.chmod(dest, srcMode, cb);
 }
 function setDestTimestamps$1(src2, dest, cb) {
-  fs$d.stat(src2, (err, updatedSrcStat) => {
+  fs$e.stat(src2, (err, updatedSrcStat) => {
     if (err) return cb(err);
     return utimesMillis(dest, updatedSrcStat.atime, updatedSrcStat.mtime, cb);
   });
@@ -1520,7 +1521,7 @@ function onDir$1(srcStat, destStat, src2, dest, opts, cb) {
   return copyDir$1(src2, dest, opts, cb);
 }
 function mkDirAndCopy$1(srcMode, src2, dest, opts, cb) {
-  fs$d.mkdir(dest, (err) => {
+  fs$e.mkdir(dest, (err) => {
     if (err) return cb(err);
     copyDir$1(src2, dest, opts, (err2) => {
       if (err2) return cb(err2);
@@ -1529,7 +1530,7 @@ function mkDirAndCopy$1(srcMode, src2, dest, opts, cb) {
   });
 }
 function copyDir$1(src2, dest, opts, cb) {
-  fs$d.readdir(src2, (err, items) => {
+  fs$e.readdir(src2, (err, items) => {
     if (err) return cb(err);
     return copyDirItems(items, src2, dest, opts, cb);
   });
@@ -1540,8 +1541,8 @@ function copyDirItems(items, src2, dest, opts, cb) {
   return copyDirItem$1(items, item, src2, dest, opts, cb);
 }
 function copyDirItem$1(items, item, src2, dest, opts, cb) {
-  const srcItem = path$k.join(src2, item);
-  const destItem = path$k.join(dest, item);
+  const srcItem = path$l.join(src2, item);
+  const destItem = path$l.join(dest, item);
   stat$3.checkPaths(srcItem, destItem, "copy", opts, (err, stats) => {
     if (err) return cb(err);
     const { destStat } = stats;
@@ -1552,21 +1553,21 @@ function copyDirItem$1(items, item, src2, dest, opts, cb) {
   });
 }
 function onLink$1(destStat, src2, dest, opts, cb) {
-  fs$d.readlink(src2, (err, resolvedSrc) => {
+  fs$e.readlink(src2, (err, resolvedSrc) => {
     if (err) return cb(err);
     if (opts.dereference) {
-      resolvedSrc = path$k.resolve(process.cwd(), resolvedSrc);
+      resolvedSrc = path$l.resolve(process.cwd(), resolvedSrc);
     }
     if (!destStat) {
-      return fs$d.symlink(resolvedSrc, dest, cb);
+      return fs$e.symlink(resolvedSrc, dest, cb);
     } else {
-      fs$d.readlink(dest, (err2, resolvedDest) => {
+      fs$e.readlink(dest, (err2, resolvedDest) => {
         if (err2) {
-          if (err2.code === "EINVAL" || err2.code === "UNKNOWN") return fs$d.symlink(resolvedSrc, dest, cb);
+          if (err2.code === "EINVAL" || err2.code === "UNKNOWN") return fs$e.symlink(resolvedSrc, dest, cb);
           return cb(err2);
         }
         if (opts.dereference) {
-          resolvedDest = path$k.resolve(process.cwd(), resolvedDest);
+          resolvedDest = path$l.resolve(process.cwd(), resolvedDest);
         }
         if (stat$3.isSrcSubdir(resolvedSrc, resolvedDest)) {
           return cb(new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`));
@@ -1580,14 +1581,14 @@ function onLink$1(destStat, src2, dest, opts, cb) {
   });
 }
 function copyLink$1(resolvedSrc, dest, cb) {
-  fs$d.unlink(dest, (err) => {
+  fs$e.unlink(dest, (err) => {
     if (err) return cb(err);
-    return fs$d.symlink(resolvedSrc, dest, cb);
+    return fs$e.symlink(resolvedSrc, dest, cb);
   });
 }
 var copy_1 = copy$2;
-const fs$c = gracefulFs;
-const path$j = require$$1;
+const fs$d = gracefulFs;
+const path$k = require$$1;
 const mkdirsSync$1 = mkdirs$2.mkdirsSync;
 const utimesMillisSync = utimes.utimesMillisSync;
 const stat$2 = stat$4;
@@ -1611,8 +1612,8 @@ function copySync$1(src2, dest, opts) {
 }
 function handleFilterAndCopy(destStat, src2, dest, opts) {
   if (opts.filter && !opts.filter(src2, dest)) return;
-  const destParent = path$j.dirname(dest);
-  if (!fs$c.existsSync(destParent)) mkdirsSync$1(destParent);
+  const destParent = path$k.dirname(dest);
+  if (!fs$d.existsSync(destParent)) mkdirsSync$1(destParent);
   return getStats(destStat, src2, dest, opts);
 }
 function startCopy(destStat, src2, dest, opts) {
@@ -1620,7 +1621,7 @@ function startCopy(destStat, src2, dest, opts) {
   return getStats(destStat, src2, dest, opts);
 }
 function getStats(destStat, src2, dest, opts) {
-  const statSync = opts.dereference ? fs$c.statSync : fs$c.lstatSync;
+  const statSync = opts.dereference ? fs$d.statSync : fs$d.lstatSync;
   const srcStat = statSync(src2);
   if (srcStat.isDirectory()) return onDir(srcStat, destStat, src2, dest, opts);
   else if (srcStat.isFile() || srcStat.isCharacterDevice() || srcStat.isBlockDevice()) return onFile(srcStat, destStat, src2, dest, opts);
@@ -1635,14 +1636,14 @@ function onFile(srcStat, destStat, src2, dest, opts) {
 }
 function mayCopyFile(srcStat, src2, dest, opts) {
   if (opts.overwrite) {
-    fs$c.unlinkSync(dest);
+    fs$d.unlinkSync(dest);
     return copyFile(srcStat, src2, dest, opts);
   } else if (opts.errorOnExist) {
     throw new Error(`'${dest}' already exists`);
   }
 }
 function copyFile(srcStat, src2, dest, opts) {
-  fs$c.copyFileSync(src2, dest);
+  fs$d.copyFileSync(src2, dest);
   if (opts.preserveTimestamps) handleTimestamps(srcStat.mode, src2, dest);
   return setDestMode(dest, srcStat.mode);
 }
@@ -1657,10 +1658,10 @@ function makeFileWritable(dest, srcMode) {
   return setDestMode(dest, srcMode | 128);
 }
 function setDestMode(dest, srcMode) {
-  return fs$c.chmodSync(dest, srcMode);
+  return fs$d.chmodSync(dest, srcMode);
 }
 function setDestTimestamps(src2, dest) {
-  const updatedSrcStat = fs$c.statSync(src2);
+  const updatedSrcStat = fs$d.statSync(src2);
   return utimesMillisSync(dest, updatedSrcStat.atime, updatedSrcStat.mtime);
 }
 function onDir(srcStat, destStat, src2, dest, opts) {
@@ -1668,49 +1669,49 @@ function onDir(srcStat, destStat, src2, dest, opts) {
   return copyDir(src2, dest, opts);
 }
 function mkDirAndCopy(srcMode, src2, dest, opts) {
-  fs$c.mkdirSync(dest);
+  fs$d.mkdirSync(dest);
   copyDir(src2, dest, opts);
   return setDestMode(dest, srcMode);
 }
 function copyDir(src2, dest, opts) {
-  fs$c.readdirSync(src2).forEach((item) => copyDirItem(item, src2, dest, opts));
+  fs$d.readdirSync(src2).forEach((item) => copyDirItem(item, src2, dest, opts));
 }
 function copyDirItem(item, src2, dest, opts) {
-  const srcItem = path$j.join(src2, item);
-  const destItem = path$j.join(dest, item);
+  const srcItem = path$k.join(src2, item);
+  const destItem = path$k.join(dest, item);
   const { destStat } = stat$2.checkPathsSync(srcItem, destItem, "copy", opts);
   return startCopy(destStat, srcItem, destItem, opts);
 }
 function onLink(destStat, src2, dest, opts) {
-  let resolvedSrc = fs$c.readlinkSync(src2);
+  let resolvedSrc = fs$d.readlinkSync(src2);
   if (opts.dereference) {
-    resolvedSrc = path$j.resolve(process.cwd(), resolvedSrc);
+    resolvedSrc = path$k.resolve(process.cwd(), resolvedSrc);
   }
   if (!destStat) {
-    return fs$c.symlinkSync(resolvedSrc, dest);
+    return fs$d.symlinkSync(resolvedSrc, dest);
   } else {
     let resolvedDest;
     try {
-      resolvedDest = fs$c.readlinkSync(dest);
+      resolvedDest = fs$d.readlinkSync(dest);
     } catch (err) {
-      if (err.code === "EINVAL" || err.code === "UNKNOWN") return fs$c.symlinkSync(resolvedSrc, dest);
+      if (err.code === "EINVAL" || err.code === "UNKNOWN") return fs$d.symlinkSync(resolvedSrc, dest);
       throw err;
     }
     if (opts.dereference) {
-      resolvedDest = path$j.resolve(process.cwd(), resolvedDest);
+      resolvedDest = path$k.resolve(process.cwd(), resolvedDest);
     }
     if (stat$2.isSrcSubdir(resolvedSrc, resolvedDest)) {
       throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
     }
-    if (fs$c.statSync(dest).isDirectory() && stat$2.isSrcSubdir(resolvedDest, resolvedSrc)) {
+    if (fs$d.statSync(dest).isDirectory() && stat$2.isSrcSubdir(resolvedDest, resolvedSrc)) {
       throw new Error(`Cannot overwrite '${resolvedDest}' with '${resolvedSrc}'.`);
     }
     return copyLink(resolvedSrc, dest);
   }
 }
 function copyLink(resolvedSrc, dest) {
-  fs$c.unlinkSync(dest);
-  return fs$c.symlinkSync(resolvedSrc, dest);
+  fs$d.unlinkSync(dest);
+  return fs$d.symlinkSync(resolvedSrc, dest);
 }
 var copySync_1 = copySync$1;
 const u$8 = universalify$1.fromCallback;
@@ -1718,8 +1719,8 @@ var copy$1 = {
   copy: u$8(copy_1),
   copySync: copySync_1
 };
-const fs$b = gracefulFs;
-const path$i = require$$1;
+const fs$c = gracefulFs;
+const path$j = require$$1;
 const assert = require$$5;
 const isWindows = process.platform === "win32";
 function defaults(options) {
@@ -1732,9 +1733,9 @@ function defaults(options) {
     "readdir"
   ];
   methods.forEach((m) => {
-    options[m] = options[m] || fs$b[m];
+    options[m] = options[m] || fs$c[m];
     m = m + "Sync";
-    options[m] = options[m] || fs$b[m];
+    options[m] = options[m] || fs$c[m];
   });
   options.maxBusyTries = options.maxBusyTries || 3;
 }
@@ -1864,7 +1865,7 @@ function rmkids(p, options, cb) {
     let errState;
     if (n === 0) return options.rmdir(p, cb);
     files.forEach((f) => {
-      rimraf$1(path$i.join(p, f), options, (er2) => {
+      rimraf$1(path$j.join(p, f), options, (er2) => {
         if (errState) {
           return;
         }
@@ -1929,7 +1930,7 @@ function rmdirSync(p, options, originalEr) {
 function rmkidsSync(p, options) {
   assert(p);
   assert(options);
-  options.readdirSync(p).forEach((f) => rimrafSync(path$i.join(p, f), options));
+  options.readdirSync(p).forEach((f) => rimrafSync(path$j.join(p, f), options));
   if (isWindows) {
     const startTime = Date.now();
     do {
@@ -1946,15 +1947,15 @@ function rmkidsSync(p, options) {
 }
 var rimraf_1 = rimraf$1;
 rimraf$1.sync = rimrafSync;
-const fs$a = gracefulFs;
+const fs$b = gracefulFs;
 const u$7 = universalify$1.fromCallback;
 const rimraf = rimraf_1;
 function remove$2(path2, callback) {
-  if (fs$a.rm) return fs$a.rm(path2, { recursive: true, force: true }, callback);
+  if (fs$b.rm) return fs$b.rm(path2, { recursive: true, force: true }, callback);
   rimraf(path2, callback);
 }
 function removeSync$1(path2) {
-  if (fs$a.rmSync) return fs$a.rmSync(path2, { recursive: true, force: true });
+  if (fs$b.rmSync) return fs$b.rmSync(path2, { recursive: true, force: true });
   rimraf.sync(path2);
 }
 var remove_1 = {
@@ -1962,28 +1963,28 @@ var remove_1 = {
   removeSync: removeSync$1
 };
 const u$6 = universalify$1.fromPromise;
-const fs$9 = fs$j;
-const path$h = require$$1;
+const fs$a = fs$k;
+const path$i = require$$1;
 const mkdir$3 = mkdirs$2;
 const remove$1 = remove_1;
 const emptyDir = u$6(async function emptyDir2(dir) {
   let items;
   try {
-    items = await fs$9.readdir(dir);
+    items = await fs$a.readdir(dir);
   } catch {
     return mkdir$3.mkdirs(dir);
   }
-  return Promise.all(items.map((item) => remove$1.remove(path$h.join(dir, item))));
+  return Promise.all(items.map((item) => remove$1.remove(path$i.join(dir, item))));
 });
 function emptyDirSync(dir) {
   let items;
   try {
-    items = fs$9.readdirSync(dir);
+    items = fs$a.readdirSync(dir);
   } catch {
     return mkdir$3.mkdirsSync(dir);
   }
   items.forEach((item) => {
-    item = path$h.join(dir, item);
+    item = path$i.join(dir, item);
     remove$1.removeSync(item);
   });
 }
@@ -1994,20 +1995,20 @@ var empty = {
   emptydir: emptyDir
 };
 const u$5 = universalify$1.fromCallback;
-const path$g = require$$1;
-const fs$8 = gracefulFs;
+const path$h = require$$1;
+const fs$9 = gracefulFs;
 const mkdir$2 = mkdirs$2;
 function createFile$1(file2, callback) {
   function makeFile() {
-    fs$8.writeFile(file2, "", (err) => {
+    fs$9.writeFile(file2, "", (err) => {
       if (err) return callback(err);
       callback();
     });
   }
-  fs$8.stat(file2, (err, stats) => {
+  fs$9.stat(file2, (err, stats) => {
     if (!err && stats.isFile()) return callback();
-    const dir = path$g.dirname(file2);
-    fs$8.stat(dir, (err2, stats2) => {
+    const dir = path$h.dirname(file2);
+    fs$9.stat(dir, (err2, stats2) => {
       if (err2) {
         if (err2.code === "ENOENT") {
           return mkdir$2.mkdirs(dir, (err3) => {
@@ -2019,7 +2020,7 @@ function createFile$1(file2, callback) {
       }
       if (stats2.isDirectory()) makeFile();
       else {
-        fs$8.readdir(dir, (err3) => {
+        fs$9.readdir(dir, (err3) => {
           if (err3) return callback(err3);
         });
       }
@@ -2029,46 +2030,46 @@ function createFile$1(file2, callback) {
 function createFileSync$1(file2) {
   let stats;
   try {
-    stats = fs$8.statSync(file2);
+    stats = fs$9.statSync(file2);
   } catch {
   }
   if (stats && stats.isFile()) return;
-  const dir = path$g.dirname(file2);
+  const dir = path$h.dirname(file2);
   try {
-    if (!fs$8.statSync(dir).isDirectory()) {
-      fs$8.readdirSync(dir);
+    if (!fs$9.statSync(dir).isDirectory()) {
+      fs$9.readdirSync(dir);
     }
   } catch (err) {
     if (err && err.code === "ENOENT") mkdir$2.mkdirsSync(dir);
     else throw err;
   }
-  fs$8.writeFileSync(file2, "");
+  fs$9.writeFileSync(file2, "");
 }
 var file$1 = {
   createFile: u$5(createFile$1),
   createFileSync: createFileSync$1
 };
 const u$4 = universalify$1.fromCallback;
-const path$f = require$$1;
-const fs$7 = gracefulFs;
+const path$g = require$$1;
+const fs$8 = gracefulFs;
 const mkdir$1 = mkdirs$2;
 const pathExists$4 = pathExists_1.pathExists;
 const { areIdentical: areIdentical$1 } = stat$4;
 function createLink$1(srcpath, dstpath, callback) {
   function makeLink(srcpath2, dstpath2) {
-    fs$7.link(srcpath2, dstpath2, (err) => {
+    fs$8.link(srcpath2, dstpath2, (err) => {
       if (err) return callback(err);
       callback(null);
     });
   }
-  fs$7.lstat(dstpath, (_, dstStat) => {
-    fs$7.lstat(srcpath, (err, srcStat) => {
+  fs$8.lstat(dstpath, (_, dstStat) => {
+    fs$8.lstat(srcpath, (err, srcStat) => {
       if (err) {
         err.message = err.message.replace("lstat", "ensureLink");
         return callback(err);
       }
       if (dstStat && areIdentical$1(srcStat, dstStat)) return callback(null);
-      const dir = path$f.dirname(dstpath);
+      const dir = path$g.dirname(dstpath);
       pathExists$4(dir, (err2, dirExists) => {
         if (err2) return callback(err2);
         if (dirExists) return makeLink(srcpath, dstpath);
@@ -2083,32 +2084,32 @@ function createLink$1(srcpath, dstpath, callback) {
 function createLinkSync$1(srcpath, dstpath) {
   let dstStat;
   try {
-    dstStat = fs$7.lstatSync(dstpath);
+    dstStat = fs$8.lstatSync(dstpath);
   } catch {
   }
   try {
-    const srcStat = fs$7.lstatSync(srcpath);
+    const srcStat = fs$8.lstatSync(srcpath);
     if (dstStat && areIdentical$1(srcStat, dstStat)) return;
   } catch (err) {
     err.message = err.message.replace("lstat", "ensureLink");
     throw err;
   }
-  const dir = path$f.dirname(dstpath);
-  const dirExists = fs$7.existsSync(dir);
-  if (dirExists) return fs$7.linkSync(srcpath, dstpath);
+  const dir = path$g.dirname(dstpath);
+  const dirExists = fs$8.existsSync(dir);
+  if (dirExists) return fs$8.linkSync(srcpath, dstpath);
   mkdir$1.mkdirsSync(dir);
-  return fs$7.linkSync(srcpath, dstpath);
+  return fs$8.linkSync(srcpath, dstpath);
 }
 var link = {
   createLink: u$4(createLink$1),
   createLinkSync: createLinkSync$1
 };
-const path$e = require$$1;
-const fs$6 = gracefulFs;
+const path$f = require$$1;
+const fs$7 = gracefulFs;
 const pathExists$3 = pathExists_1.pathExists;
 function symlinkPaths$1(srcpath, dstpath, callback) {
-  if (path$e.isAbsolute(srcpath)) {
-    return fs$6.lstat(srcpath, (err) => {
+  if (path$f.isAbsolute(srcpath)) {
+    return fs$7.lstat(srcpath, (err) => {
       if (err) {
         err.message = err.message.replace("lstat", "ensureSymlink");
         return callback(err);
@@ -2119,8 +2120,8 @@ function symlinkPaths$1(srcpath, dstpath, callback) {
       });
     });
   } else {
-    const dstdir = path$e.dirname(dstpath);
-    const relativeToDst = path$e.join(dstdir, srcpath);
+    const dstdir = path$f.dirname(dstpath);
+    const relativeToDst = path$f.join(dstdir, srcpath);
     return pathExists$3(relativeToDst, (err, exists) => {
       if (err) return callback(err);
       if (exists) {
@@ -2129,14 +2130,14 @@ function symlinkPaths$1(srcpath, dstpath, callback) {
           toDst: srcpath
         });
       } else {
-        return fs$6.lstat(srcpath, (err2) => {
+        return fs$7.lstat(srcpath, (err2) => {
           if (err2) {
             err2.message = err2.message.replace("lstat", "ensureSymlink");
             return callback(err2);
           }
           return callback(null, {
             toCwd: srcpath,
-            toDst: path$e.relative(dstdir, srcpath)
+            toDst: path$f.relative(dstdir, srcpath)
           });
         });
       }
@@ -2145,28 +2146,28 @@ function symlinkPaths$1(srcpath, dstpath, callback) {
 }
 function symlinkPathsSync$1(srcpath, dstpath) {
   let exists;
-  if (path$e.isAbsolute(srcpath)) {
-    exists = fs$6.existsSync(srcpath);
+  if (path$f.isAbsolute(srcpath)) {
+    exists = fs$7.existsSync(srcpath);
     if (!exists) throw new Error("absolute srcpath does not exist");
     return {
       toCwd: srcpath,
       toDst: srcpath
     };
   } else {
-    const dstdir = path$e.dirname(dstpath);
-    const relativeToDst = path$e.join(dstdir, srcpath);
-    exists = fs$6.existsSync(relativeToDst);
+    const dstdir = path$f.dirname(dstpath);
+    const relativeToDst = path$f.join(dstdir, srcpath);
+    exists = fs$7.existsSync(relativeToDst);
     if (exists) {
       return {
         toCwd: relativeToDst,
         toDst: srcpath
       };
     } else {
-      exists = fs$6.existsSync(srcpath);
+      exists = fs$7.existsSync(srcpath);
       if (!exists) throw new Error("relative srcpath does not exist");
       return {
         toCwd: srcpath,
-        toDst: path$e.relative(dstdir, srcpath)
+        toDst: path$f.relative(dstdir, srcpath)
       };
     }
   }
@@ -2175,12 +2176,12 @@ var symlinkPaths_1 = {
   symlinkPaths: symlinkPaths$1,
   symlinkPathsSync: symlinkPathsSync$1
 };
-const fs$5 = gracefulFs;
+const fs$6 = gracefulFs;
 function symlinkType$1(srcpath, type2, callback) {
   callback = typeof type2 === "function" ? type2 : callback;
   type2 = typeof type2 === "function" ? false : type2;
   if (type2) return callback(null, type2);
-  fs$5.lstat(srcpath, (err, stats) => {
+  fs$6.lstat(srcpath, (err, stats) => {
     if (err) return callback(null, "file");
     type2 = stats && stats.isDirectory() ? "dir" : "file";
     callback(null, type2);
@@ -2190,7 +2191,7 @@ function symlinkTypeSync$1(srcpath, type2) {
   let stats;
   if (type2) return type2;
   try {
-    stats = fs$5.lstatSync(srcpath);
+    stats = fs$6.lstatSync(srcpath);
   } catch {
     return "file";
   }
@@ -2201,8 +2202,8 @@ var symlinkType_1 = {
   symlinkTypeSync: symlinkTypeSync$1
 };
 const u$3 = universalify$1.fromCallback;
-const path$d = require$$1;
-const fs$4 = fs$j;
+const path$e = require$$1;
+const fs$5 = fs$k;
 const _mkdirs = mkdirs$2;
 const mkdirs = _mkdirs.mkdirs;
 const mkdirsSync = _mkdirs.mkdirsSync;
@@ -2217,11 +2218,11 @@ const { areIdentical } = stat$4;
 function createSymlink$1(srcpath, dstpath, type2, callback) {
   callback = typeof type2 === "function" ? type2 : callback;
   type2 = typeof type2 === "function" ? false : type2;
-  fs$4.lstat(dstpath, (err, stats) => {
+  fs$5.lstat(dstpath, (err, stats) => {
     if (!err && stats.isSymbolicLink()) {
       Promise.all([
-        fs$4.stat(srcpath),
-        fs$4.stat(dstpath)
+        fs$5.stat(srcpath),
+        fs$5.stat(dstpath)
       ]).then(([srcStat, dstStat]) => {
         if (areIdentical(srcStat, dstStat)) return callback(null);
         _createSymlink(srcpath, dstpath, type2, callback);
@@ -2235,13 +2236,13 @@ function _createSymlink(srcpath, dstpath, type2, callback) {
     srcpath = relative.toDst;
     symlinkType(relative.toCwd, type2, (err2, type3) => {
       if (err2) return callback(err2);
-      const dir = path$d.dirname(dstpath);
+      const dir = path$e.dirname(dstpath);
       pathExists$2(dir, (err3, dirExists) => {
         if (err3) return callback(err3);
-        if (dirExists) return fs$4.symlink(srcpath, dstpath, type3, callback);
+        if (dirExists) return fs$5.symlink(srcpath, dstpath, type3, callback);
         mkdirs(dir, (err4) => {
           if (err4) return callback(err4);
-          fs$4.symlink(srcpath, dstpath, type3, callback);
+          fs$5.symlink(srcpath, dstpath, type3, callback);
         });
       });
     });
@@ -2250,22 +2251,22 @@ function _createSymlink(srcpath, dstpath, type2, callback) {
 function createSymlinkSync$1(srcpath, dstpath, type2) {
   let stats;
   try {
-    stats = fs$4.lstatSync(dstpath);
+    stats = fs$5.lstatSync(dstpath);
   } catch {
   }
   if (stats && stats.isSymbolicLink()) {
-    const srcStat = fs$4.statSync(srcpath);
-    const dstStat = fs$4.statSync(dstpath);
+    const srcStat = fs$5.statSync(srcpath);
+    const dstStat = fs$5.statSync(dstpath);
     if (areIdentical(srcStat, dstStat)) return;
   }
   const relative = symlinkPathsSync(srcpath, dstpath);
   srcpath = relative.toDst;
   type2 = symlinkTypeSync(relative.toCwd, type2);
-  const dir = path$d.dirname(dstpath);
-  const exists = fs$4.existsSync(dir);
-  if (exists) return fs$4.symlinkSync(srcpath, dstpath, type2);
+  const dir = path$e.dirname(dstpath);
+  const exists = fs$5.existsSync(dir);
+  if (exists) return fs$5.symlinkSync(srcpath, dstpath, type2);
   mkdirsSync(dir);
-  return fs$4.symlinkSync(srcpath, dstpath, type2);
+  return fs$5.symlinkSync(srcpath, dstpath, type2);
 }
 var symlink = {
   createSymlink: u$3(createSymlink$1),
@@ -2377,8 +2378,8 @@ var jsonfile = {
   writeJsonSync: jsonFile$1.writeFileSync
 };
 const u$2 = universalify$1.fromCallback;
-const fs$3 = gracefulFs;
-const path$c = require$$1;
+const fs$4 = gracefulFs;
+const path$d = require$$1;
 const mkdir = mkdirs$2;
 const pathExists$1 = pathExists_1.pathExists;
 function outputFile$1(file2, data, encoding, callback) {
@@ -2386,23 +2387,23 @@ function outputFile$1(file2, data, encoding, callback) {
     callback = encoding;
     encoding = "utf8";
   }
-  const dir = path$c.dirname(file2);
+  const dir = path$d.dirname(file2);
   pathExists$1(dir, (err, itDoes) => {
     if (err) return callback(err);
-    if (itDoes) return fs$3.writeFile(file2, data, encoding, callback);
+    if (itDoes) return fs$4.writeFile(file2, data, encoding, callback);
     mkdir.mkdirs(dir, (err2) => {
       if (err2) return callback(err2);
-      fs$3.writeFile(file2, data, encoding, callback);
+      fs$4.writeFile(file2, data, encoding, callback);
     });
   });
 }
 function outputFileSync$1(file2, ...args) {
-  const dir = path$c.dirname(file2);
-  if (fs$3.existsSync(dir)) {
-    return fs$3.writeFileSync(file2, ...args);
+  const dir = path$d.dirname(file2);
+  if (fs$4.existsSync(dir)) {
+    return fs$4.writeFileSync(file2, ...args);
   }
   mkdir.mkdirsSync(dir);
-  fs$3.writeFileSync(file2, ...args);
+  fs$4.writeFileSync(file2, ...args);
 }
 var outputFile_1 = {
   outputFile: u$2(outputFile$1),
@@ -2433,8 +2434,8 @@ jsonFile.writeJSONSync = jsonFile.writeJsonSync;
 jsonFile.readJSON = jsonFile.readJson;
 jsonFile.readJSONSync = jsonFile.readJsonSync;
 var json$1 = jsonFile;
-const fs$2 = gracefulFs;
-const path$b = require$$1;
+const fs$3 = gracefulFs;
+const path$c = require$$1;
 const copy = copy$1.copy;
 const remove = remove_1.remove;
 const mkdirp = mkdirs$2.mkdirp;
@@ -2453,7 +2454,7 @@ function move$1(src2, dest, opts, cb) {
     stat$1.checkParentPaths(src2, srcStat, dest, "move", (err2) => {
       if (err2) return cb(err2);
       if (isParentRoot$1(dest)) return doRename$1(src2, dest, overwrite, isChangingCase, cb);
-      mkdirp(path$b.dirname(dest), (err3) => {
+      mkdirp(path$c.dirname(dest), (err3) => {
         if (err3) return cb(err3);
         return doRename$1(src2, dest, overwrite, isChangingCase, cb);
       });
@@ -2461,8 +2462,8 @@ function move$1(src2, dest, opts, cb) {
   });
 }
 function isParentRoot$1(dest) {
-  const parent = path$b.dirname(dest);
-  const parsedPath = path$b.parse(parent);
+  const parent = path$c.dirname(dest);
+  const parsedPath = path$c.parse(parent);
   return parsedPath.root === parent;
 }
 function doRename$1(src2, dest, overwrite, isChangingCase, cb) {
@@ -2480,7 +2481,7 @@ function doRename$1(src2, dest, overwrite, isChangingCase, cb) {
   });
 }
 function rename$1(src2, dest, overwrite, cb) {
-  fs$2.rename(src2, dest, (err) => {
+  fs$3.rename(src2, dest, (err) => {
     if (!err) return cb();
     if (err.code !== "EXDEV") return cb(err);
     return moveAcrossDevice$1(src2, dest, overwrite, cb);
@@ -2497,8 +2498,8 @@ function moveAcrossDevice$1(src2, dest, overwrite, cb) {
   });
 }
 var move_1 = move$1;
-const fs$1 = gracefulFs;
-const path$a = require$$1;
+const fs$2 = gracefulFs;
+const path$b = require$$1;
 const copySync = copy$1.copySync;
 const removeSync = remove_1.removeSync;
 const mkdirpSync = mkdirs$2.mkdirpSync;
@@ -2508,12 +2509,12 @@ function moveSync(src2, dest, opts) {
   const overwrite = opts.overwrite || opts.clobber || false;
   const { srcStat, isChangingCase = false } = stat.checkPathsSync(src2, dest, "move", opts);
   stat.checkParentPathsSync(src2, srcStat, dest, "move");
-  if (!isParentRoot(dest)) mkdirpSync(path$a.dirname(dest));
+  if (!isParentRoot(dest)) mkdirpSync(path$b.dirname(dest));
   return doRename(src2, dest, overwrite, isChangingCase);
 }
 function isParentRoot(dest) {
-  const parent = path$a.dirname(dest);
-  const parsedPath = path$a.parse(parent);
+  const parent = path$b.dirname(dest);
+  const parsedPath = path$b.parse(parent);
   return parsedPath.root === parent;
 }
 function doRename(src2, dest, overwrite, isChangingCase) {
@@ -2522,12 +2523,12 @@ function doRename(src2, dest, overwrite, isChangingCase) {
     removeSync(dest);
     return rename(src2, dest, overwrite);
   }
-  if (fs$1.existsSync(dest)) throw new Error("dest already exists.");
+  if (fs$2.existsSync(dest)) throw new Error("dest already exists.");
   return rename(src2, dest, overwrite);
 }
 function rename(src2, dest, overwrite) {
   try {
-    fs$1.renameSync(src2, dest);
+    fs$2.renameSync(src2, dest);
   } catch (err) {
     if (err.code !== "EXDEV") throw err;
     return moveAcrossDevice(src2, dest, overwrite);
@@ -2549,7 +2550,7 @@ var move = {
 };
 var lib = {
   // Export promiseified graceful-fs:
-  ...fs$j,
+  ...fs$k,
   // Export extra methods:
   ...copy$1,
   ...empty,
@@ -10778,7 +10779,7 @@ const crypto_1$2 = require$$0$3;
 const fs_1$4 = require$$1$1;
 const isEqual = lodash_isequalExports;
 const fs_extra_1$6 = lib;
-const path$9 = require$$1;
+const path$a = require$$1;
 class DownloadedUpdateHelper {
   constructor(cacheDir) {
     this.cacheDir = cacheDir;
@@ -10798,7 +10799,7 @@ class DownloadedUpdateHelper {
     return this._packageFile;
   }
   get cacheDirForPendingUpdate() {
-    return path$9.join(this.cacheDir, "pending");
+    return path$a.join(this.cacheDir, "pending");
   }
   async validateDownloadedPath(updateFile, updateInfo, fileInfo, logger) {
     if (this.versionInfo != null && this.file === updateFile && this.fileInfo != null) {
@@ -10877,7 +10878,7 @@ class DownloadedUpdateHelper {
       await this.cleanCacheDirForPendingUpdate();
       return null;
     }
-    const updateFile = path$9.join(this.cacheDirForPendingUpdate, cachedInfo.fileName);
+    const updateFile = path$a.join(this.cacheDirForPendingUpdate, cachedInfo.fileName);
     if (!await (0, fs_extra_1$6.pathExists)(updateFile)) {
       logger.info("Cached update file doesn't exist");
       return null;
@@ -10892,7 +10893,7 @@ class DownloadedUpdateHelper {
     return updateFile;
   }
   getUpdateInfoFile() {
-    return path$9.join(this.cacheDirForPendingUpdate, "update-info.json");
+    return path$a.join(this.cacheDirForPendingUpdate, "update-info.json");
   }
 }
 DownloadedUpdateHelper$1.DownloadedUpdateHelper = DownloadedUpdateHelper;
@@ -10912,7 +10913,7 @@ function hashFile(file2, algorithm = "sha512", encoding = "base64", options) {
 }
 async function createTempUpdateFile(name, cacheDir, log2) {
   let nameCounter = 0;
-  let result = path$9.join(cacheDir, name);
+  let result = path$a.join(cacheDir, name);
   for (let i = 0; i < 3; i++) {
     try {
       await (0, fs_extra_1$6.unlink)(result);
@@ -10922,7 +10923,7 @@ async function createTempUpdateFile(name, cacheDir, log2) {
         return result;
       }
       log2.warn(`Error on remove temp update file: ${e}`);
-      result = path$9.join(cacheDir, `${nameCounter++}-${name}`);
+      result = path$a.join(cacheDir, `${nameCounter++}-${name}`);
     }
   }
   return result;
@@ -10931,23 +10932,23 @@ var ElectronAppAdapter$1 = {};
 var AppAdapter = {};
 Object.defineProperty(AppAdapter, "__esModule", { value: true });
 AppAdapter.getAppCacheDir = getAppCacheDir;
-const path$8 = require$$1;
+const path$9 = require$$1;
 const os_1$1 = require$$1$3;
 function getAppCacheDir() {
   const homedir = (0, os_1$1.homedir)();
   let result;
   if (process.platform === "win32") {
-    result = process.env["LOCALAPPDATA"] || path$8.join(homedir, "AppData", "Local");
+    result = process.env["LOCALAPPDATA"] || path$9.join(homedir, "AppData", "Local");
   } else if (process.platform === "darwin") {
-    result = path$8.join(homedir, "Library", "Caches");
+    result = path$9.join(homedir, "Library", "Caches");
   } else {
-    result = process.env["XDG_CACHE_HOME"] || path$8.join(homedir, ".cache");
+    result = process.env["XDG_CACHE_HOME"] || path$9.join(homedir, ".cache");
   }
   return result;
 }
 Object.defineProperty(ElectronAppAdapter$1, "__esModule", { value: true });
 ElectronAppAdapter$1.ElectronAppAdapter = void 0;
-const path$7 = require$$1;
+const path$8 = require$$1;
 const AppAdapter_1 = AppAdapter;
 class ElectronAppAdapter {
   constructor(app2 = require$$1$5.app) {
@@ -10966,7 +10967,7 @@ class ElectronAppAdapter {
     return this.app.isPackaged === true;
   }
   get appUpdateConfigPath() {
-    return this.isPackaged ? path$7.join(process.resourcesPath, "app-update.yml") : path$7.join(this.app.getAppPath(), "dev-app-update.yml");
+    return this.isPackaged ? path$8.join(process.resourcesPath, "app-update.yml") : path$8.join(this.app.getAppPath(), "dev-app-update.yml");
   }
   get userDataPath() {
     return this.app.getPath("userData");
@@ -11560,7 +11561,7 @@ Object.defineProperty(PrivateGitHubProvider$1, "__esModule", { value: true });
 PrivateGitHubProvider$1.PrivateGitHubProvider = void 0;
 const builder_util_runtime_1$9 = out;
 const js_yaml_1$1 = jsYaml;
-const path$6 = require$$1;
+const path$7 = require$$1;
 const url_1$2 = require$$4$2;
 const util_1$1 = util;
 const GitHubProvider_1$1 = GitHubProvider$1;
@@ -11629,7 +11630,7 @@ class PrivateGitHubProvider extends GitHubProvider_1$1.BaseGitHubProvider {
   }
   resolveFiles(updateInfo) {
     return (0, Provider_1$6.getFileList)(updateInfo).map((it) => {
-      const name = path$6.posix.basename(it.url).replace(/ /g, "-");
+      const name = path$7.posix.basename(it.url).replace(/ /g, "-");
       const asset = updateInfo.assets.find((it2) => it2 != null && it2.name === name);
       if (asset == null) {
         throw (0, builder_util_runtime_1$9.newError)(`Cannot find asset "${name}" in: ${JSON.stringify(updateInfo.assets, null, 2)}`, "ERR_UPDATER_ASSET_NOT_FOUND");
@@ -12489,7 +12490,7 @@ const events_1 = require$$0$2;
 const fs_extra_1$4 = lib;
 const js_yaml_1 = jsYaml;
 const lazy_val_1 = main$2;
-const path$5 = require$$1;
+const path$6 = require$$1;
 const semver_1 = semver$1;
 const DownloadedUpdateHelper_1 = DownloadedUpdateHelper$1;
 const ElectronAppAdapter_1 = ElectronAppAdapter$1;
@@ -12873,7 +12874,7 @@ class AppUpdater extends events_1.EventEmitter {
     return this.computeFinalHeaders({ accept: "*/*" });
   }
   async getOrCreateStagingUserId() {
-    const file2 = path$5.join(this.app.userDataPath, ".updaterId");
+    const file2 = path$6.join(this.app.userDataPath, ".updaterId");
     try {
       const id2 = await (0, fs_extra_1$4.readFile)(file2, "utf-8");
       if (builder_util_runtime_1$4.UUID.check(id2)) {
@@ -12917,7 +12918,7 @@ class AppUpdater extends events_1.EventEmitter {
       if (dirName == null) {
         logger.error("updaterCacheDirName is not specified in app-update.yml Was app build using at least electron-builder 20.34.0?");
       }
-      const cacheDir = path$5.join(this.app.baseCachePath, dirName || this.app.name);
+      const cacheDir = path$6.join(this.app.baseCachePath, dirName || this.app.name);
       if (logger.debug != null) {
         logger.debug(`updater cache dir: ${cacheDir}`);
       }
@@ -12943,7 +12944,7 @@ class AppUpdater extends events_1.EventEmitter {
     function getCacheUpdateFileName() {
       const urlPath = decodeURIComponent(taskOptions.fileInfo.url.pathname);
       if (urlPath.endsWith(`.${taskOptions.fileExtension}`)) {
-        return path$5.basename(urlPath);
+        return path$6.basename(urlPath);
       } else {
         return taskOptions.fileInfo.info.url;
       }
@@ -12952,8 +12953,8 @@ class AppUpdater extends events_1.EventEmitter {
     const cacheDir = downloadedUpdateHelper.cacheDirForPendingUpdate;
     await (0, fs_extra_1$4.mkdir)(cacheDir, { recursive: true });
     const updateFileName = getCacheUpdateFileName();
-    let updateFile = path$5.join(cacheDir, updateFileName);
-    const packageFile = packageInfo == null ? null : path$5.join(cacheDir, `package-${version2}${path$5.extname(packageInfo.path) || ".7z"}`);
+    let updateFile = path$6.join(cacheDir, updateFileName);
+    const packageFile = packageInfo == null ? null : path$6.join(cacheDir, `package-${version2}${path$6.extname(packageInfo.path) || ".7z"}`);
     const done = async (isSaveCache) => {
       await downloadedUpdateHelper.setDownloadedFile(updateFile, packageFile, updateInfo, fileInfo, updateFileName, isSaveCache);
       await taskOptions.done({
@@ -13012,7 +13013,7 @@ class AppUpdater extends events_1.EventEmitter {
       };
       const downloadOptions = {
         newUrl: fileInfo.url,
-        oldFile: path$5.join(this.downloadedUpdateHelper.cacheDir, oldInstallerFileName),
+        oldFile: path$6.join(this.downloadedUpdateHelper.cacheDir, oldInstallerFileName),
         logger: this._logger,
         newFile: installerPath,
         isUseMultipleRangeRequest: provider.isUseMultipleRangeRequest,
@@ -13235,7 +13236,7 @@ const builder_util_runtime_1$3 = out;
 const child_process_1$2 = require$$1$6;
 const fs_extra_1$2 = lib;
 const fs_1$1 = require$$1$1;
-const path$4 = require$$1;
+const path$5 = require$$1;
 const BaseUpdater_1$4 = BaseUpdater$1;
 const FileWithEmbeddedBlockMapDifferentialDownloader_1$1 = FileWithEmbeddedBlockMapDifferentialDownloader$1;
 const Provider_1$5 = Provider$1;
@@ -13303,16 +13304,16 @@ class AppImageUpdater extends BaseUpdater_1$4.BaseUpdater {
     }
     (0, fs_1$1.unlinkSync)(appImageFile);
     let destination;
-    const existingBaseName = path$4.basename(appImageFile);
+    const existingBaseName = path$5.basename(appImageFile);
     const installerPath = this.installerPath;
     if (installerPath == null) {
       this.dispatchError(new Error("No valid update available, can't quit and install"));
       return false;
     }
-    if (path$4.basename(installerPath) === existingBaseName || !/\d+\.\d+\.\d+/.test(existingBaseName)) {
+    if (path$5.basename(installerPath) === existingBaseName || !/\d+\.\d+\.\d+/.test(existingBaseName)) {
       destination = appImageFile;
     } else {
-      destination = path$4.join(path$4.dirname(appImageFile), path$4.basename(installerPath));
+      destination = path$5.join(path$5.dirname(appImageFile), path$5.basename(installerPath));
     }
     (0, child_process_1$2.execFileSync)("mv", ["-f", installerPath, destination]);
     if (destination !== appImageFile) {
@@ -13486,7 +13487,7 @@ MacUpdater$1.MacUpdater = void 0;
 const builder_util_runtime_1$2 = out;
 const fs_extra_1$1 = lib;
 const fs_1 = require$$1$1;
-const path$3 = require$$1;
+const path$4 = require$$1;
 const http_1 = require$$4$3;
 const AppUpdater_1 = AppUpdater$1;
 const Provider_1$1 = Provider$1;
@@ -13565,7 +13566,7 @@ class MacUpdater extends AppUpdater_1.AppUpdater {
       fileInfo: zipFileInfo,
       downloadUpdateOptions,
       task: async (destinationFile, downloadOptions) => {
-        const cachedUpdateFilePath = path$3.join(this.downloadedUpdateHelper.cacheDir, CURRENT_MAC_APP_ZIP_FILE_NAME);
+        const cachedUpdateFilePath = path$4.join(this.downloadedUpdateHelper.cacheDir, CURRENT_MAC_APP_ZIP_FILE_NAME);
         const canDifferentialDownload = () => {
           if (!(0, fs_extra_1$1.pathExistsSync)(cachedUpdateFilePath)) {
             log2.info("Unable to locate previous update.zip for differential download (is this first install?), falling back to full download");
@@ -13584,7 +13585,7 @@ class MacUpdater extends AppUpdater_1.AppUpdater {
       done: async (event) => {
         if (!downloadUpdateOptions.disableDifferentialDownload) {
           try {
-            const cachedUpdateFilePath = path$3.join(this.downloadedUpdateHelper.cacheDir, CURRENT_MAC_APP_ZIP_FILE_NAME);
+            const cachedUpdateFilePath = path$4.join(this.downloadedUpdateHelper.cacheDir, CURRENT_MAC_APP_ZIP_FILE_NAME);
             await (0, fs_extra_1$1.copyFile)(event.downloadedFile, cachedUpdateFilePath);
           } catch (error2) {
             this._logger.warn(`Unable to copy file for caching for future differential downloads: ${error2.message}`);
@@ -13721,8 +13722,8 @@ Object.defineProperty(windowsExecutableCodeSignatureVerifier, "__esModule", { va
 windowsExecutableCodeSignatureVerifier.verifySignature = verifySignature;
 const builder_util_runtime_1$1 = out;
 const child_process_1 = require$$1$6;
-const os$1 = require$$1$3;
-const path$2 = require$$1;
+const os$2 = require$$1$3;
+const path$3 = require$$1;
 function verifySignature(publisherNames, unescapedTempUpdateFile, logger) {
   return new Promise((resolve, reject) => {
     const tempUpdateFile = unescapedTempUpdateFile.replace(/'/g, "''");
@@ -13741,8 +13742,8 @@ function verifySignature(publisherNames, unescapedTempUpdateFile, logger) {
         const data = parseOut(stdout);
         if (data.Status === 0) {
           try {
-            const normlaizedUpdateFilePath = path$2.normalize(data.Path);
-            const normalizedTempUpdateFile = path$2.normalize(unescapedTempUpdateFile);
+            const normlaizedUpdateFilePath = path$3.normalize(data.Path);
+            const normalizedTempUpdateFile = path$3.normalize(unescapedTempUpdateFile);
             logger.info(`LiteralPath: ${normlaizedUpdateFilePath}. Update Path: ${normalizedTempUpdateFile}`);
             if (normlaizedUpdateFilePath !== normalizedTempUpdateFile) {
               handleError(logger, new Error(`LiteralPath of ${normlaizedUpdateFilePath} is different than ${normalizedTempUpdateFile}`), stderr, reject);
@@ -13816,13 +13817,13 @@ function handleError(logger, error2, stderr, reject) {
   }
 }
 function isOldWin6() {
-  const winVersion = os$1.release();
+  const winVersion = os$2.release();
   return winVersion.startsWith("6.") && !winVersion.startsWith("6.3");
 }
 Object.defineProperty(NsisUpdater$1, "__esModule", { value: true });
 NsisUpdater$1.NsisUpdater = void 0;
 const builder_util_runtime_1 = out;
-const path$1 = require$$1;
+const path$2 = require$$1;
 const BaseUpdater_1 = BaseUpdater$1;
 const FileWithEmbeddedBlockMapDifferentialDownloader_1 = FileWithEmbeddedBlockMapDifferentialDownloader$1;
 const types_1 = types;
@@ -13931,7 +13932,7 @@ class NsisUpdater extends BaseUpdater_1.BaseUpdater {
       args.push(`--package-file=${packagePath}`);
     }
     const callUsingElevation = () => {
-      this.spawnLog(path$1.join(process.resourcesPath, "elevate.exe"), [installerPath].concat(args)).catch((e) => this.dispatchError(e));
+      this.spawnLog(path$2.join(process.resourcesPath, "elevate.exe"), [installerPath].concat(args)).catch((e) => this.dispatchError(e));
     };
     if (options.isAdminRightsRequired) {
       this._logger.info("isAdminRightsRequired is set to true, run installer using elevate.exe");
@@ -13958,7 +13959,7 @@ class NsisUpdater extends BaseUpdater_1.BaseUpdater {
     try {
       const downloadOptions = {
         newUrl: new url_1.URL(packageInfo.path),
-        oldFile: path$1.join(this.downloadedUpdateHelper.cacheDir, builder_util_runtime_1.CURRENT_APP_PACKAGE_FILE_NAME),
+        oldFile: path$2.join(this.downloadedUpdateHelper.cacheDir, builder_util_runtime_1.CURRENT_APP_PACKAGE_FILE_NAME),
         logger: this._logger,
         newFile: packagePath,
         requestHeaders: this.requestHeaders,
@@ -16674,9 +16675,9 @@ const version$1 = "16.5.0";
 const require$$4 = {
   version: version$1
 };
-const fs = require$$1$1;
-const path = require$$1;
-const os = require$$1$3;
+const fs$1 = require$$1$1;
+const path$1 = require$$1;
+const os$1 = require$$1$3;
 const crypto = require$$0$3;
 const packageJson = require$$4;
 const version = packageJson.version;
@@ -16778,7 +16779,7 @@ function _vaultPath(options) {
   if (options && options.path && options.path.length > 0) {
     if (Array.isArray(options.path)) {
       for (const filepath of options.path) {
-        if (fs.existsSync(filepath)) {
+        if (fs$1.existsSync(filepath)) {
           possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
         }
       }
@@ -16786,15 +16787,15 @@ function _vaultPath(options) {
       possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
     }
   } else {
-    possibleVaultPath = path.resolve(process.cwd(), ".env.vault");
+    possibleVaultPath = path$1.resolve(process.cwd(), ".env.vault");
   }
-  if (fs.existsSync(possibleVaultPath)) {
+  if (fs$1.existsSync(possibleVaultPath)) {
     return possibleVaultPath;
   }
   return null;
 }
 function _resolveHome(envPath) {
-  return envPath[0] === "~" ? path.join(os.homedir(), envPath.slice(1)) : envPath;
+  return envPath[0] === "~" ? path$1.join(os$1.homedir(), envPath.slice(1)) : envPath;
 }
 function _configVault(options) {
   const debug2 = Boolean(options && options.debug);
@@ -16810,7 +16811,7 @@ function _configVault(options) {
   return { parsed };
 }
 function configDotenv(options) {
-  const dotenvPath = path.resolve(process.cwd(), ".env");
+  const dotenvPath = path$1.resolve(process.cwd(), ".env");
   let encoding = "utf8";
   const debug2 = Boolean(options && options.debug);
   if (options && options.encoding) {
@@ -16835,7 +16836,7 @@ function configDotenv(options) {
   const parsedAll = {};
   for (const path2 of optionPaths) {
     try {
-      const parsed = DotenvModule.parse(fs.readFileSync(path2, { encoding }));
+      const parsed = DotenvModule.parse(fs$1.readFileSync(path2, { encoding }));
       DotenvModule.populate(parsedAll, parsed, options);
     } catch (e) {
       if (debug2) {
@@ -16937,24 +16938,36 @@ main.exports.populate = DotenvModule.populate;
 main.exports = DotenvModule;
 var mainExports = main.exports;
 const dotenv = /* @__PURE__ */ getDefaultExportFromCjs(mainExports);
+const require$1 = createRequire(import.meta.url);
+const fs = require$1("fs");
+const path = require$1("path");
+const os = require$1("os");
+const saveTempFile = (fileName, arrayBuffer) => {
+  const buffer = Buffer$1.from(arrayBuffer);
+  const tempDir = path.join(os.homedir(), "LawFirmApp", "temp-edits");
+  fs.mkdirSync(tempDir, { recursive: true });
+  const tempPath = path.join(tempDir, fileName);
+  fs.writeFileSync(tempPath, buffer);
+  return tempPath;
+};
 dotenv.config();
 createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
-const __dirname$1 = path$n.dirname(__filename);
-process.env.APP_ROOT = path$n.join(__dirname$1, "..");
+const __dirname$1 = path$o.dirname(__filename);
+process.env.APP_ROOT = path$o.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-const MAIN_DIST = path$n.join(process.env.APP_ROOT, "dist-electron");
-const RENDERER_DIST = path$n.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path$n.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
+const MAIN_DIST = path$o.join(process.env.APP_ROOT, "dist-electron");
+const RENDERER_DIST = path$o.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path$o.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
 let win;
 function createWindow() {
   win = new BrowserWindow({
-    icon: path$n.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: path$o.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
-      preload: path$n.join(__dirname$1, "preload.mjs")
+      preload: path$o.join(__dirname$1, "preload.mjs")
     }
   });
-  console.log(path$n.join(__dirname$1, "preload.mjs"));
+  console.log(path$o.join(__dirname$1, "preload.mjs"));
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
   });
@@ -16962,8 +16975,8 @@ function createWindow() {
     win.loadURL(VITE_DEV_SERVER_URL);
     console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL);
   } else {
-    win.loadFile(path$n.join(RENDERER_DIST, "index.html"));
-    console.log("RENDERER_DIST: ", path$n.join(RENDERER_DIST, "index.html"));
+    win.loadFile(path$o.join(RENDERER_DIST, "index.html"));
+    console.log("RENDERER_DIST: ", path$o.join(RENDERER_DIST, "index.html"));
   }
 }
 app.on("window-all-closed", () => {
@@ -17003,6 +17016,9 @@ app.whenReady().then(() => {
   });
   ipcMain.handle("open-file", async (_event, filePath) => {
     return await shell.openPath(filePath);
+  });
+  ipcMain.handle("save-temp-file", async (_event, filename, buffer) => {
+    return await saveTempFile(filename, buffer);
   });
   ipcMain.handle("database:insert-client", (_event, client) => {
     return insertClient(client);

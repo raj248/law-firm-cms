@@ -25,6 +25,7 @@ declare namespace NodeJS {
 interface ElectronAPI {
   openFile: (filePath: string) => Promise<string | null>
   checkForUpdates: () => Promise<UpdateCheckResult | null>
+  saveTempFile: (fileName: string, buffer: ArrayBuffer) => Promise<string | null>
 }
 
 interface DB {
