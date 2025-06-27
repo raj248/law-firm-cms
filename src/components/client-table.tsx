@@ -264,8 +264,8 @@ export function ClientTable() {
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border overflow-x-auto scrollbar-custom">
+        <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

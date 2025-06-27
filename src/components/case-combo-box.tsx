@@ -41,7 +41,7 @@ export function CaseCombobox({ value, onChange, cases }: CaseComboboxProps) {
           role="combobox"
           className="w-full justify-between"
         >
-          {value ? cases.find(c => c.file_id === value)?.title : "Select case"}
+          {value || "Select case"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

@@ -47,13 +47,12 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS tasks (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
-    dueDate TEXT, -- ISO date (nullable if no due date)
-    time TEXT, -- optional time
-    client_id TEXT NOT NULL,
-    caseId TEXT NOT NULL,
     note TEXT,
-    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',
-    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High')) NOT NULL DEFAULT 'Medium',
+    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending', 'Deffered')) NOT NULL DEFAULT 'Open',
+    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High', 'Urgent')) NOT NULL DEFAULT 'Medium',
+    dueDate TEXT, -- ISO date (nullable if no due date)
+    caseId TEXT,
+    client_id TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     is_synced INTEGER DEFAULT 1

@@ -19,14 +19,15 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 
 const caseSchema = z.object({
-  file_id: z.string().min(1, "File ID is Required"),
+  file_id: z.string().min(1, "File ID is required"),
   case_id: z.string().optional(),
-  title: z.string().min(1, "Title is Required"),
+  title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  client: z.string().min(1, "Must Have a Client (someones gotta pay for this case)"),
-  court: z.string().min(1, "Must Have a Court"),
+  client: z.string().min(1, "Client is required"),
+  court: z.string().min(1, "Court is required"),
   tags: z.array(z.string()).optional(),
 })
 
@@ -45,7 +46,6 @@ const onAdd = (data: CaseFormData) => {
     tags: data.tags || [],
     is_synced: 0,
   }
-
   useCaseStore.getState().addCase(newCase)
 }
 
@@ -72,67 +72,40 @@ export function AddCaseDialog({ id = "" }: { id?: string }) {
   return (
     <Dialog onOpenChange={(open) => { if (!open) form.reset() }}>
       <DialogTrigger asChild>
-        <Button>+ New Case</Button>
+        <Button size="sm">+ New Case</Button>
       </DialogTrigger>
 
-      <DialogContent className="!max-w-screen-md !w-full p-6 overflow-y-auto hide-scrollbar">
+      <DialogContent className="sm:max-w-lg max-w-[90vw] max-h-[80vh] overflow-y-auto scrollbar-custom">
         <DialogHeader>
-          <DialogTitle>Add New Case</DialogTitle>
+          <DialogTitle className="text-lg">Add New Case</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
+            {/* File ID + Title */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <FormField
                 control={form.control}
                 name="file_id"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel>File ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="(Required) File ID" {...field} />
+                      <Input placeholder="File ID" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="(Required) Case Title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="case_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Case ID</FormLabel>
-                    <FormControl>
-                      <Input placeholder="(Optional) Case ID" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="(Optional) Case Description" className="h-32" {...field} />
+                      <Input placeholder="Case Title" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -140,12 +113,13 @@ export function AddCaseDialog({ id = "" }: { id?: string }) {
               />
             </div>
 
-            <div className="flex flex-col gap-4">
+            {/* Client + Court */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <FormField
                 control={form.control}
                 name="client"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel>Client</FormLabel>
                     <FormControl>
                       <ClientCombobox
@@ -158,34 +132,15 @@ export function AddCaseDialog({ id = "" }: { id?: string }) {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="court"
                 render={({ field }) => (
-                  <FormItem>
-                    {/* <FormLabel>Court</FormLabel> */}
+                  <FormItem className="flex-1">
                     <FormControl>
                       <CourtCombobox
                         value={field.value}
-                        onChange={(val) => field.onChange(val)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem>
-                    {/* <FormLabel>Tags</FormLabel> */}
-                    <FormControl>
-                      <TagsCombobox
-                        tags={field.value || []}
-                        setTags={(updated) => field.onChange(updated)}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
@@ -194,11 +149,67 @@ export function AddCaseDialog({ id = "" }: { id?: string }) {
               />
             </div>
 
-            <div className="col-span-full">
-              <DialogFooter className="pt-2">
-                <Button type="submit">Add Case</Button>
-              </DialogFooter>
-            </div>
+            {/* Tags */}
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <TagsCombobox
+                      tags={field.value || []}
+                      setTags={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Optional Fields */}
+            <Accordion type="single" collapsible>
+              <AccordionItem value="optional-fields">
+                <AccordionTrigger>Optional Fields</AccordionTrigger>
+                <AccordionContent className="space-y-2 mt-2">
+                  <FormField
+                    control={form.control}
+                    name="case_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Case ID</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Case ID (optional)" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Case description (optional)"
+                            className="h-24"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <DialogFooter>
+              <Button type="submit" className="w-full">Add Case</Button>
+            </DialogFooter>
+
           </form>
         </Form>
       </DialogContent>

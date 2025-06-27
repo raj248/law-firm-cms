@@ -49,23 +49,24 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.mjs'),
     },
   })
-
+  
   console.log(path.join(__dirname, 'preload.mjs'))
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
     // win?.webContents.send('main-process-message', VITE_DEV_SERVER_URL)
   })
-
+  
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
     console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL)
-
+    
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
     console.log("RENDERER_DIST: ", path.join(RENDERER_DIST, 'index.html'))
   }
+  win?.setAutoHideMenuBar(true)
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -85,6 +86,7 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
 
 autoUpdater.logger = log
 

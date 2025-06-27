@@ -65,6 +65,8 @@ contextBridge.exposeInMainWorld('database', {
   getAllTasks: (): Promise<Task[]> => ipcRenderer.invoke('database:get-all-tasks'),
   getTasksByClient: (client_id: string): Promise<Task[]> =>
     ipcRenderer.invoke('database:get-tasks-by-client', client_id),
+  updateTask: (task: Task): Promise<{ success: boolean; error?: string }>=> ipcRenderer.invoke('database:update-task', task),
+
   deleteTask: (id: string) => ipcRenderer.invoke('database:delete-task', id),
 
   // Settings

@@ -60,13 +60,12 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS tasks (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
-    dueDate TEXT, -- ISO date (nullable if no due date)
-    time TEXT, -- optional time
-    client_id TEXT NOT NULL,
-    caseId TEXT NOT NULL,
     note TEXT,
-    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL DEFAULT 'Open',
-    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High')) NOT NULL DEFAULT 'Medium',
+    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending', 'Deffered')) NOT NULL DEFAULT 'Open',
+    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High', 'Urgent')) NOT NULL DEFAULT 'Medium',
+    dueDate TEXT, -- ISO date (nullable if no due date)
+    caseId TEXT,
+    client_id TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     is_synced INTEGER DEFAULT 1
@@ -269,8 +268,8 @@ const insertOrUpdateCases = (data) => {
 const insertTask = (task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, time, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
-    VALUES (@id, @title, @dueDate, @time, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
+    (id, title, dueDate, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
+    VALUES (@id, @title, @dueDate, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
   `);
   const now = (/* @__PURE__ */ new Date()).toISOString();
   const result = stmt.run({
@@ -300,15 +299,14 @@ const updateTask = (task) => {
     UPDATE tasks
     SET 
       title = @title,
-      dueDate = @dueDate,
-      time = @time,
-      client_id = @client_id,
-      caseId = @caseId,
       note = @note,
       status = @status,
       priority = @priority,
+      dueDate = @dueDate,
+      caseId = @caseId,
+      client_id = @client_id,
       updated_at = @updated_at,
-      is_synced = @is_synced,
+      is_synced = @is_synced
     WHERE id = @id
   `);
   const result = stmt.run({
@@ -317,6 +315,7 @@ const updateTask = (task) => {
     updated_at: (/* @__PURE__ */ new Date()).toISOString(),
     is_synced: 0
   });
+  console.log(result);
   if (result.changes === 0) {
     return { success: false, error: "Update failed: No such task found (or i have no idea what happend)." };
   }
@@ -16978,6 +16977,7 @@ function createWindow() {
     win.loadFile(path$o.join(RENDERER_DIST, "index.html"));
     console.log("RENDERER_DIST: ", path$o.join(RENDERER_DIST, "index.html"));
   }
+  win == null ? void 0 : win.setAutoHideMenuBar(true);
 }
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

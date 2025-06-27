@@ -292,7 +292,7 @@ export function CaseTable() {
         </div>
       </div>
 
-      <div className="rounded-md border overflow-x-auto scrollbar-hide w-full">
+      <div className="rounded-md border overflow-x-auto scrollbar-custom">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (

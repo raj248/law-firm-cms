@@ -46,12 +46,12 @@ export type Task = {
   id: string
   title: string
   note?: string
+  status: "Open" | "Pending" | "Closed" | "Deffered"
+  priority: "Low" | "Medium" | "High" | "Urgent"
   dueDate?: string // ISO format
-  time?: string // "14:00"
-  status: "Open" | "Pending" | "Closed"
-  priority: "Low" | "Medium" | "High"
   caseId?: string
   client_id?: string
+  created_at: string
   updated_at?: string
   is_synced: number // 0 = not synced, 1 = synced
 }

@@ -4,8 +4,8 @@ import { db } from './db.ts'
 export const insertTask = (task: Task) => {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, time, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
-    VALUES (@id, @title, @dueDate, @time, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
+    (id, title, dueDate, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
+    VALUES (@id, @title, @dueDate, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
   `)
   const now = new Date().toISOString()
   const result = stmt.run({
@@ -40,15 +40,14 @@ export const updateTask = (task: Task): { success: boolean; error?: string } => 
     UPDATE tasks
     SET 
       title = @title,
-      dueDate = @dueDate,
-      time = @time,
-      client_id = @client_id,
-      caseId = @caseId,
       note = @note,
       status = @status,
       priority = @priority,
+      dueDate = @dueDate,
+      caseId = @caseId,
+      client_id = @client_id,
       updated_at = @updated_at,
-      is_synced = @is_synced,
+      is_synced = @is_synced
     WHERE id = @id
   `)
 
@@ -58,7 +57,7 @@ export const updateTask = (task: Task): { success: boolean; error?: string } => 
     updated_at: new Date().toISOString(),
     is_synced: 0,
   })
-
+  console.log(result)
   if (result.changes === 0) {
     return { success: false, error: 'Update failed: No such task found (or i have no idea what happend).' }
   }

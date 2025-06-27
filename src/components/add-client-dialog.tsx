@@ -1,6 +1,5 @@
-'use client'
+"use client"
 
-import { useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -16,8 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useClientStore } from "@/stores/client-store"
 
 const clientSchema = z.object({
@@ -42,8 +40,6 @@ const onAdd = (data: ClientFormData) => {
 }
 
 export function AddClientDialog() {
-  const [showAdvanced, setShowAdvanced] = useState(false)
-
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
@@ -58,29 +54,25 @@ export function AddClientDialog() {
   const onSubmit = (data: ClientFormData) => {
     onAdd(data)
     form.reset()
-    setShowAdvanced(false)
   }
 
   return (
     <Dialog onOpenChange={(open) => {
-      if (!open) {
-        form.reset()
-        setShowAdvanced(false)
-      }
+      if (!open) form.reset()
     }}>
       <DialogTrigger asChild>
-        <Button>+ New Client</Button>
+        <Button size="sm">+ New Client</Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm max-w-[90vw]">
         <DialogHeader>
-          <DialogTitle>Add New Client</DialogTitle>
+          <DialogTitle className="text-lg">Add New Client</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
 
-            {/* Required */}
+            {/* Name */}
             <FormField
               control={form.control}
               name="name"
@@ -95,6 +87,7 @@ export function AddClientDialog() {
               )}
             />
 
+            {/* Phone */}
             <FormField
               control={form.control}
               name="phone"
@@ -102,28 +95,20 @@ export function AddClientDialog() {
                 <FormItem>
                   <FormLabel>Phone</FormLabel>
                   <FormControl>
-                    <Input placeholder="+91 1234567890" {...field} />
+                    <Input placeholder="+91 9876543210" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Toggle */}
-            <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
-              <div className="pt-2">
-                <CollapsibleTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="text-xs text-muted-foreground flex items-center gap-1"
-                  >
-                    {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    {showAdvanced ? "Hide Advanced Options" : "Show Advanced Options"}
-                  </Button>
-                </CollapsibleTrigger>
+            {/* Accordion for Optional Fields */}
+            <Accordion type="single" collapsible>
+              <AccordionItem value="optional-fields">
+                <AccordionTrigger>Optional Details</AccordionTrigger>
+                <AccordionContent className="space-y-3 mt-2">
 
-                <CollapsibleContent className="space-y-4 mt-4">
+                  {/* Email */}
                   <FormField
                     control={form.control}
                     name="email"
@@ -138,6 +123,7 @@ export function AddClientDialog() {
                     )}
                   />
 
+                  {/* Address */}
                   <FormField
                     control={form.control}
                     name="address"
@@ -152,25 +138,27 @@ export function AddClientDialog() {
                     )}
                   />
 
+                  {/* Note */}
                   <FormField
                     control={form.control}
                     name="note"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Note</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Optional notes..." {...field} />
+                          <Textarea placeholder="Optional notes about the client..." {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </CollapsibleContent>
-              </div>
-            </Collapsible>
+
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             <DialogFooter>
-              <Button type="submit">Add Client</Button>
+              <Button type="submit" className="w-full">Add Client</Button>
             </DialogFooter>
           </form>
         </Form>

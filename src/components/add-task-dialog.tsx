@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Task } from "@/types"
 import { Calendar } from "./ui/calendar"
@@ -21,19 +20,15 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useClientStore } from "@/stores/client-store"
 import { useCaseStore } from "@/stores/case-store"
 import { CaseCombobox } from "./case-combo-box"
-
-const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
-const minutes = ['00', '10', '20', '30', '40', '50']
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  note: z.string().min(0, "Note is required"),
+  note: z.string().optional(),
+  priority: z.enum(["Low", "Medium", "High", "Urgent"]),
   dueDate: z.string().optional(),
-  hour: z.string().optional(),
-  minute: z.string().optional(),
-  priority: z.enum(["Low", "Medium", "High"]),
-  status: z.enum(["Open", "Pending", "Closed"]),
-  caseId: z.string().optional(),
+  file_id: z.string().optional(),
   client_id: z.string().optional(),
 })
 
@@ -50,28 +45,24 @@ export function AddTaskDialog() {
     defaultValues: {
       title: "",
       note: "",
-      dueDate: "",
-      hour: "",
-      minute: "",
       priority: "Low",
-      status: "Open",
-      caseId: "",
+      dueDate: "",
+      file_id: "",
       client_id: "",
     }
   })
-
 
   const onSubmit = (data: TaskFormValues) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       title: data.title.trim(),
-      note: data.note.trim() || "",
-      dueDate: data.dueDate?.slice(0, 10),
-      time: data.hour && data.minute ? `${data.hour}:${data.minute}` : '',
-      status: data.status,
+      note: data.note?.trim() || "",
+      status: "Open",
       priority: data.priority,
+      dueDate: data.dueDate?.slice(0, 10),
+      caseId: data.file_id || "",
       client_id: data.client_id,
-      caseId: data.caseId || "",
+      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       is_synced: 0,
     }
@@ -79,157 +70,134 @@ export function AddTaskDialog() {
     useTaskStore.getState().addTask(newTask)
     form.reset()
     setDialogOpen(false)
-    window.debug.log("Data Notes: ", data.note)
   }
+
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Add Task</Button>
+        <Button size="sm">Add Task</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+
+      <DialogContent className="sm:max-w-sm max-w-[90vw]">
         <DialogHeader>
-          <DialogTitle>New Task</DialogTitle>
+          <DialogTitle className="text-lg">New Task</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          {/* Title */}
           <div>
             <Label>Title</Label>
-            <Input {...form.register("title")} />
+            <Input {...form.register("title")} className="mt-1" />
           </div>
 
+          {/* Notes */}
           <div>
             <Label>Notes</Label>
             <textarea
               {...form.register("note")}
-              className="w-full rounded-md border px-3 py-2 text-sm h-32"
+              className="w-full rounded-md border px-3 py-2 text-sm mt-1 h-24"
             />
           </div>
 
-          <div className="flex">
-            <div className="flex flex-col gap-2">
-              <Label>Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-38 justify-between font-normal">
-                    {form.watch("dueDate")
-                      ? format(new Date(form.watch("dueDate")!), "PPP")
-                      : "Select date"}
-                    <ChevronDownIcon className="ml-2 h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={
-                      form.watch("dueDate")
-                        ? new Date(form.watch("dueDate")!)
-                        : undefined
-                    }
-                    onSelect={(date) =>
-                      date && form.setValue("dueDate", date.toISOString())
-                    }
+          {/* Priority */}
+          <div>
+            <Label>Priority</Label>
+            <Controller
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <ToggleGroup
+                  type="single"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  className="w-full mt-1"
+                >
+                  {["Low", "Medium", "High", "Urgent"].map((p) => (
+                    <ToggleGroupItem
+                      key={p}
+                      value={p}
+                      className={`
+                        flex-1 text-xs py-1
+                        hover:bg-${p === "Low" ? "gray-200" : p === "Medium" ? "blue-200" : p === "High" ? "orange-200" : "red-200"}
+                      `}
+                    >
+                      {p}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              )}
+            />
+          </div>
+
+          {/* Accordion for Optional Fields */}
+          <Accordion type="single" collapsible>
+            <AccordionItem value="optional-fields">
+              <AccordionTrigger>Optional Details</AccordionTrigger>
+              <AccordionContent className="space-y-3">
+
+                {/* Due Date */}
+                <div>
+                  <Label>Due Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-between font-normal mt-1"
+                      >
+                        {form.watch("dueDate")
+                          ? format(new Date(form.watch("dueDate")!), "PPP")
+                          : "Select date"}
+                        <ChevronDownIcon className="ml-2 h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={form.watch("dueDate") ? new Date(form.watch("dueDate")!) : undefined}
+                        onSelect={(date) =>
+                          date && form.setValue("dueDate", date.toISOString())
+                        }
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Client */}
+                <div>
+                  <Label>Client</Label>
+                  <Controller
+                    control={form.control}
+                    name="client_id"
+                    render={({ field }) => (
+                      <ClientCombobox
+                        value={clients.find((c) => c.id === field.value)?.name || ""}
+                        onChange={field.onChange}
+                        clients={clients}
+                      />
+                    )}
                   />
-                </PopoverContent>
-              </Popover>
-            </div>
+                </div>
 
-            <div className="flex-1 flex ml-12 ">
-              <div className="flex-1">
-                <Label className="mb-2">Hour</Label>
-                <Controller
-                  control={form.control}
-                  name="hour"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger><SelectValue placeholder="HH" /></SelectTrigger>
-                      <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-              <div className="flex-1">
-                <Label className="mb-2">Minute</Label>
-                <Controller
-                  control={form.control}
-                  name="minute"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger><SelectValue placeholder="MM" /></SelectTrigger>
-                      <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-            </div>
-          </div>
+                {/* Case */}
+                <div>
+                  <Label>Case</Label>
+                  <Controller
+                    control={form.control}
+                    name="file_id"
+                    render={({ field }) => (
+                      <CaseCombobox
+                        value={cases.find((c) => c.file_id === field.value)?.title || ""}
+                        onChange={field.onChange}
+                        cases={cases}
+                      />
+                    )}
+                  />
+                </div>
 
-          <div>
-            <Label className="mb-2">Client</Label>
-            <Controller
-              control={form.control}
-              name="client_id"
-              render={({ field }) => (
-                <ClientCombobox
-                  value={clients.find((c) => c.id === field.value)?.name || ""}
-                  onChange={field.onChange}
-                  clients={clients}
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Label className="mb-2">Case</Label>
-            <Controller
-              control={form.control}
-              name="caseId"
-              render={({ field }) => (
-                <CaseCombobox
-                  value={cases.find((c) => c.file_id === field.value)?.title || ""}
-                  onChange={field.onChange}
-                  cases={cases}
-                />
-              )}
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Label>Priority</Label>
-              <Controller
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Low">Low</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="High">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-
-            <div className="flex-1">
-              <Label>Status</Label>
-              <Controller
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Open">Open</SelectItem>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Closed">Closed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <Button type="submit" className="w-full">Save</Button>
         </form>

@@ -48,6 +48,7 @@ electron.contextBridge.exposeInMainWorld("database", {
   insertTask: (task) => electron.ipcRenderer.invoke("database:insert-task", task),
   getAllTasks: () => electron.ipcRenderer.invoke("database:get-all-tasks"),
   getTasksByClient: (client_id) => electron.ipcRenderer.invoke("database:get-tasks-by-client", client_id),
+  updateTask: (task) => electron.ipcRenderer.invoke("database:update-task", task),
   deleteTask: (id) => electron.ipcRenderer.invoke("database:delete-task", id),
   // Settings
   getAllCourts: () => electron.ipcRenderer.invoke("get-courts"),
