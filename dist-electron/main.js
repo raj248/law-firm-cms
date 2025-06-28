@@ -16957,14 +16957,35 @@ process.env.APP_ROOT = path$o.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path$o.join(process.env.APP_ROOT, "dist-electron");
 const RENDERER_DIST = path$o.join(process.env.APP_ROOT, "dist");
+const SPLASH_DIST = path$o.join(process.env.APP_ROOT, "splash");
+console.log(SPLASH_DIST);
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path$o.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
 let win;
+let splashWin = null;
+function createSplashWindow() {
+  splashWin = new BrowserWindow({
+    width: 500,
+    height: 300,
+    frame: false,
+    resizable: false,
+    transparent: false,
+    alwaysOnTop: true,
+    center: true,
+    show: true,
+    webPreferences: {
+      preload: path$o.join(__dirname$1, "preload.mjs")
+    }
+  });
+  splashWin.loadFile(path$o.join(SPLASH_DIST, "index.html"));
+  splashWin.setMenuBarVisibility(false);
+}
 function createWindow() {
   win = new BrowserWindow({
     icon: path$o.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
       preload: path$o.join(__dirname$1, "preload.mjs")
-    }
+    },
+    show: false
   });
   console.log(path$o.join(__dirname$1, "preload.mjs"));
   win.webContents.on("did-finish-load", () => {
@@ -17008,9 +17029,21 @@ ipcMain.handle("get-app-version", () => {
   return app.getVersion();
 });
 app.whenReady().then(() => {
+  console.log("Creating Window");
+  createSplashWindow();
   createWindow();
   log.info("App starting...");
   main$3.autoUpdater.checkForUpdates();
+  ipcMain.on("app-ready", async () => {
+    await (splashWin == null ? void 0 : splashWin.webContents.executeJavaScript(`
+      document.body.style.transition = 'opacity 0.5s';
+      document.body.style.opacity = '0';
+      setTimeout(() => window.close(), 5000);
+    `));
+    splashWin == null ? void 0 : splashWin.close();
+    splashWin = null;
+    win == null ? void 0 : win.show();
+  });
   ipcMain.on("restart_app", () => {
     main$3.autoUpdater.quitAndInstall();
   });
@@ -17110,5 +17143,6 @@ app.whenReady().then(() => {
 export {
   MAIN_DIST,
   RENDERER_DIST,
+  SPLASH_DIST,
   VITE_DEV_SERVER_URL
 };

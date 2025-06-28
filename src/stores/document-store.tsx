@@ -33,7 +33,7 @@ export const useDocumentStore = create<DocumentStore>()(
           mimetype: d.metadata?.mimetype ?? "",
         }));
 
-        window.debug?.log("Fetched documents from Supabase", fetchedDocs);
+        // window.debug?.log("Fetched documents from Supabase", fetchedDocs);
 
         set((state) => {
           const currentDocs = state.documents;

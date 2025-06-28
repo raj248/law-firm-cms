@@ -1,0 +1,30 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: #111;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: monospace;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #555;
+  border-top: 5px solid #0af;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.version {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-top: 8px;
+}

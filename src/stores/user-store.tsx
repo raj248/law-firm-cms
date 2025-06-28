@@ -68,7 +68,7 @@ export const useUserStore = create<UserStoreState>()(
         }
 
         set({ currentUser: parsed.data, loading: false })
-        window.debug.log("Fetched Current User: ", parsed.data)
+        // window.debug.log("Fetched Current User: ", parsed.data)
       },
 
       async fetchAllowedUsers() {
@@ -85,7 +85,7 @@ export const useUserStore = create<UserStoreState>()(
           return
         }
         set({ allowedUsers: parsed.data, loading: false })
-        window.debug.log("Allowed Users: ", parsed.data)
+        // window.debug.log("Allowed Users: ", parsed.data)
       },
 
       getUserById: (id) => {
@@ -111,8 +111,8 @@ export const useUserStore = create<UserStoreState>()(
 // Supabase Auth Listener for auto-sync
 supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
   const { fetchCurrentUser } = useUserStore.getState()
-  window.debug.log("Session User: ", session?.user)
-  window.debug.log("Event: ", event)
+  window.debug.log("Session User: ", session?.user.email)
+  // window.debug.log("Event: ", event)
   if (["SIGNED_IN", "SIGNED_OUT", "TOKEN_REFRESHED"].includes(event)) {
     fetchCurrentUser()
   }

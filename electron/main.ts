@@ -37,10 +37,34 @@ process.env.APP_ROOT = path.join(__dirname, '..')
 export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
 export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
-
+export const SPLASH_DIST = path.join(process.env.APP_ROOT, 'splash')
+console.log(SPLASH_DIST)
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
 let win: BrowserWindow | null
+
+let splashWin: BrowserWindow | null = null;
+
+function createSplashWindow() {
+  splashWin = new BrowserWindow({
+    width: 500,
+    height: 300,
+    frame: false,
+    resizable: false,
+    transparent: false,
+    alwaysOnTop: true,
+    center: true,
+    show: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.mjs'),
+    },
+  });
+
+  
+  splashWin.loadFile(path.join(SPLASH_DIST, 'index.html'));
+  splashWin.setMenuBarVisibility(false);
+}
+
 
 function createWindow() {
   win = new BrowserWindow({
@@ -48,6 +72,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
+    show: false,
   })
   
   console.log(path.join(__dirname, 'preload.mjs'))
@@ -111,12 +136,30 @@ ipcMain.handle('get-app-version', () => {
   return app.getVersion();
 });
 
-app.whenReady().then(() => {
-  createWindow()
 
-  log.info("App starting...")
-  autoUpdater.checkForUpdates()
+app.whenReady().then(() => {
+  console.log("Creating Window")
+  createSplashWindow();
+  createWindow();
+
+  log.info("App starting...");
+  autoUpdater.checkForUpdates();
+
+  // Simulate initialization (replace with your real DB/Supabase initialization)
+  // await new Promise(resolve => setTimeout(resolve, 3000));
+
   
+  ipcMain.on('app-ready', async ()=>{
+    await splashWin?.webContents.executeJavaScript(`
+      document.body.style.transition = 'opacity 0.5s';
+      document.body.style.opacity = '0';
+      setTimeout(() => window.close(), 5000);
+    `);
+    splashWin?.close();
+    splashWin = null;
+    win?.show();
+  })
+
   ipcMain.on('restart_app', () => {
     autoUpdater.quitAndInstall()
   })
