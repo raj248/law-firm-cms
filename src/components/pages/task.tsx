@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { useTaskStore } from "@/stores/task-store"
 import { AddTaskDialog } from "../add-task-dialog"
@@ -17,19 +17,31 @@ import {
   TabsContent,
 } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Trash2, CheckCircle } from "lucide-react"
+import { Trash2, CheckCircle, CircleCheck } from "lucide-react"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
+import { Badge } from "../ui/badge"
 
 export default function TaskPage() {
   const { tasks, fetchTasks, deleteTask, markTaskCompleted } = useTaskStore()
+  const [statusFilter, setStatusFilter] = useState<string>("all")
 
   useEffect(() => {
     fetchTasks()
   }, [])
 
   const getFilteredTasks = (priority: string) => {
-    return priority === "all"
+    let filtered = priority === "all"
       ? tasks
       : tasks.filter((task) => task.priority === priority)
+
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((task) => task.status === statusFilter)
+    }
+
+    return filtered
   }
 
   return (
@@ -39,17 +51,40 @@ export default function TaskPage() {
         <AddTaskDialog />
       </div>
 
-      <Tabs defaultValue="all" className="space-y-2">
+      <Tabs defaultValue="All" className="space-y-2">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="All">All</TabsTrigger>
           <TabsTrigger value="Urgent">Urgent</TabsTrigger>
           <TabsTrigger value="High">High</TabsTrigger>
           <TabsTrigger value="Medium">Medium</TabsTrigger>
           <TabsTrigger value="Low">Low</TabsTrigger>
         </TabsList>
 
-        {["all", "Urgent", "High", "Medium", "Low"].map((priority) => (
-          <TabsContent key={priority} value={priority}>
+        {["All", "Urgent", "High", "Medium", "Low"].map((priority) => (
+          <TabsContent key={priority} value={priority} className="space-y-3">
+            <ToggleGroup
+              type="single"
+              value={statusFilter}
+              onValueChange={(val) => setStatusFilter(val || "all")}
+              className="flex space-x-2"
+            >
+              {["All", "Open", "Pending", "Deffered", "Closed"].map((status, idx, arr) => (
+                <ToggleGroupItem
+                  key={status}
+                  value={status}
+                  className="
+                    px-3 py-1 text-xs
+                    first:rounded-l-full last:rounded-r-full rounded-full
+                    data-[state=on]:bg-primary data-[state=on]:text-primary-foreground
+                  "
+                >
+                  {status}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+
+
+
             {getFilteredTasks(priority).length ? (
               <div
                 className="
@@ -62,14 +97,24 @@ export default function TaskPage() {
                     key={task.id}
                     className="hover:shadow-sm transition-shadow relative"
                   >
-                    <CardHeader className="pb-2">
+                    <CardHeader >
                       <CardTitle className="text-sm">{task.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="text-xs text-muted-foreground space-y-1">
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-[10px] capitalize">
+                          {task.status}
+                        </Badge>
+                        <Badge variant="secondary" className="text-[10px] capitalize">
+                          {task.priority}
+                        </Badge>
+                      </div>
+
                       {task.dueDate && (
                         <p>{format(new Date(task.dueDate), "PPP")}</p>
                       )}
                       {task.note && <p>{task.note}</p>}
+
                       <div className="flex gap-2 pt-2">
                         <Button
                           variant="ghost"
@@ -93,9 +138,13 @@ export default function TaskPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground text-sm">
-                No {priority} priority tasks.
-              </p>
+              <div className="flex flex-col items-center justify-center h-40 text-center space-y-2">
+                <CircleCheck className="w-8 h-8 text-muted-foreground" />
+                <p className="text-muted-foreground text-base font-medium">
+                  {priority === "All" ? "No tasks." : `No ${priority} priority tasks.`}
+                </p>
+              </div>
+
             )}
           </TabsContent>
         ))}
