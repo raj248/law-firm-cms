@@ -15,7 +15,7 @@
       releaseType: "release",
     },
   ],
-  files: ["dist", "dist-electron"],
+  files: ["dist", "dist-electron", "splash"],
   mac: {
     target: ["dmg"],
     artifactName: "${productName}-Mac-${version}-Installer.${ext}",
