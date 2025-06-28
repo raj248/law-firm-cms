@@ -26,18 +26,18 @@ import { Badge } from "../ui/badge"
 
 export default function TaskPage() {
   const { tasks, fetchTasks, deleteTask, markTaskCompleted } = useTaskStore()
-  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [statusFilter, setStatusFilter] = useState<string>("All")
 
   useEffect(() => {
     fetchTasks()
   }, [])
 
   const getFilteredTasks = (priority: string) => {
-    let filtered = priority === "all"
+    let filtered = priority === "All"
       ? tasks
       : tasks.filter((task) => task.priority === priority)
 
-    if (statusFilter !== "all") {
+    if (statusFilter !== "All") {
       filtered = filtered.filter((task) => task.status === statusFilter)
     }
 
@@ -65,10 +65,10 @@ export default function TaskPage() {
             <ToggleGroup
               type="single"
               value={statusFilter}
-              onValueChange={(val) => setStatusFilter(val || "all")}
+              onValueChange={(val) => setStatusFilter(val || "All")}
               className="flex space-x-2"
             >
-              {["All", "Open", "Pending", "Deffered", "Closed"].map((status, idx, arr) => (
+              {["All", "Open", "Pending", "Deffered", "Closed"].map((status) => (
                 <ToggleGroupItem
                   key={status}
                   value={status}

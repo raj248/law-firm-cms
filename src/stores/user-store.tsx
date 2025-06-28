@@ -16,7 +16,7 @@ const AllowedUserSchema = z.object({
 type AllowedUser = z.infer<typeof AllowedUserSchema>
 
 interface UserStoreState {
-  currentUser: string | null // Supabase UID
+  currentUser: AllowedUser | null
   allowedUsers: AllowedUser[]
   loading: boolean
   error: string | null
@@ -24,7 +24,6 @@ interface UserStoreState {
   fetchCurrentUser: () => Promise<void>
   fetchAllowedUsers: () => Promise<void>
 
-  // 🟩 computed + utils
   getUserById: (id: string) => AllowedUser | undefined
   isCurrentUserAdmin: () => boolean
 }
@@ -40,12 +39,36 @@ export const useUserStore = create<UserStoreState>()(
       async fetchCurrentUser() {
         set({ loading: true, error: null })
         const { data, error } = await supabase.auth.getUser()
-        if (error) {
-          set({ error: error.message, loading: false })
+        if (error || !data.user) {
+          set({ error: error?.message ?? "User not found", loading: false, currentUser: null })
           return
         }
-        set({ currentUser: data.user?.id ?? null, loading: false })
-        window.debug.log("Current User: ", data.user.id)
+
+        // Fetch from allowed_users table using user_id
+        const { data: allowed, error: allowedError } = await supabase
+          .from("allowed_users")
+          .select("*")
+          .eq("user_id", data.user.id)
+          .single()
+
+        if (allowedError || !allowed) {
+          set({
+            error: allowedError?.message ?? "Allowed user not found",
+            loading: false,
+            currentUser: null
+          })
+          return
+        }
+
+        const parsed = AllowedUserSchema.safeParse(allowed)
+        if (!parsed.success) {
+          window.debug.log("Invalid allowed user data format", parsed.error)
+          set({ error: "Invalid allowed user data format", loading: false, currentUser: null })
+          return
+        }
+
+        set({ currentUser: parsed.data, loading: false })
+        window.debug.log("Fetched Current User: ", parsed.data)
       },
 
       async fetchAllowedUsers() {
@@ -65,17 +88,15 @@ export const useUserStore = create<UserStoreState>()(
         window.debug.log("Allowed Users: ", parsed.data)
       },
 
-      // 🟩 computed + utilities
       getUserById: (id) => {
         const { allowedUsers } = get()
         return allowedUsers.find((user) => user.id === id)
       },
 
       isCurrentUserAdmin: () => {
-        const { currentUser, allowedUsers } = get()
-        const user = allowedUsers.find((u) => u.user_id === currentUser)
-        return user?.role === "admin"
-      },
+        const { currentUser } = get()
+        return currentUser?.role === "admin"
+      }
     }),
     {
       name: "user-store",
@@ -87,13 +108,12 @@ export const useUserStore = create<UserStoreState>()(
   )
 )
 
-// 🟩 Supabase Auth Listener for auto-sync
-
+// Supabase Auth Listener for auto-sync
 supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
   const { fetchCurrentUser } = useUserStore.getState()
   window.debug.log("Session User: ", session?.user)
   window.debug.log("Event: ", event)
-  if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
+  if (["SIGNED_IN", "SIGNED_OUT", "TOKEN_REFRESHED"].includes(event)) {
     fetchCurrentUser()
   }
 })

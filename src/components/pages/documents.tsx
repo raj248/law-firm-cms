@@ -36,7 +36,7 @@ export default function DocumentsPage() {
   const documents = useDocumentStore((s) => s.documents)
 
   const fetchDocuments = useDocumentStore((s) => s.fetchDocuments);
-  const { updateLastAccessed, removeDocument, updateLocalPath } = useDocumentStore();
+  const { removeDocument, handleView } = useDocumentStore();
 
   useEffect(() => {
     const load = async () => {
@@ -83,19 +83,6 @@ export default function DocumentsPage() {
     //   fetchDocuments()
     //   removeDocument(name)
     // }
-  }
-
-  const handleView = async (name: string) => {
-    const { data, error } = await supabase.storage.from("templates").download(name)
-    if (error || !data) {
-      toast.error("Download failed", { description: error?.message })
-      return
-    }
-    const arrayBuffer = await data.arrayBuffer()
-    const path = await window.electronAPI.saveTempFile(name, arrayBuffer)
-    path ? await window.electronAPI.openFile(path) : toast.error("Can't open file")
-    updateLastAccessed(name)
-    updateLocalPath(name, path ?? '')
   }
 
   const filteredDocuments = useMemo(() =>
@@ -157,7 +144,7 @@ export default function DocumentsPage() {
             <Card
               key={doc.id}
               className={`relative cursor-pointer group hover:bg-accent transition ${viewMode === "list" ? "flex items-center p-2" : ""}`}
-              onClick={() => handleView(doc.name)}
+              onClick={() => handleView(doc)}
             >
               {viewMode === "grid" ? (
                 <CardContent className="p-2 space-y-2 flex flex-col items-center justify-center w-full">

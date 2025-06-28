@@ -8,13 +8,14 @@ interface DocumentStore {
   documents: DocumentMetadata[];
   fetchDocuments: () => Promise<void>;
   updateLastAccessed: (id: string) => void;
-  updateLocalPath: (id: string, localPath: string) => void; // 👈 Add this
+  updateLocalPath: (id: string, localPath: string) => void;
   removeDocument: (id: string) => void;
+  handleView: (doc: DocumentMetadata) => Promise<void>;
 }
 
 export const useDocumentStore = create<DocumentStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       documents: [],
 
       fetchDocuments: async () => {
@@ -32,20 +33,19 @@ export const useDocumentStore = create<DocumentStore>()(
           mimetype: d.metadata?.mimetype ?? "",
         }));
 
-        window.debug.log("Fetched documents from Supabase", fetchedDocs);
+        window.debug?.log("Fetched documents from Supabase", fetchedDocs);
 
         set((state) => {
           const currentDocs = state.documents;
-
           const fetchedIds = new Set(fetchedDocs.map((d) => d.id));
 
-          // Remove docs that no longer exist in Supabase
+          // Remove deleted documents
           const filteredDocs = currentDocs.filter((doc) => fetchedIds.has(doc.id));
 
-          // Add new docs from Supabase without overwriting existing data
+          // Add new docs
           fetchedDocs.forEach((fetchedDoc) => {
-            const existingDoc = currentDocs.find((doc) => doc.id === fetchedDoc.id);
-            if (!existingDoc) {
+            const exists = currentDocs.find((doc) => doc.id === fetchedDoc.id);
+            if (!exists) {
               filteredDocs.push({
                 ...fetchedDoc,
                 localPath: "",
@@ -53,8 +53,6 @@ export const useDocumentStore = create<DocumentStore>()(
               });
             }
           });
-
-          window.debug.log("Updated document store after sync", filteredDocs);
 
           return { documents: filteredDocs };
         });
@@ -80,6 +78,39 @@ export const useDocumentStore = create<DocumentStore>()(
         set((state) => ({
           documents: state.documents.filter((doc) => doc.id !== id),
         })),
+
+      handleView: async (doc) => {
+        try {
+          const { updateLastAccessed, updateLocalPath } = get();
+
+          if (doc.localPath) {
+            const opened = await window.electronAPI.openFile(doc.localPath);
+            if (!opened) toast.error("Can't open file");
+            updateLastAccessed(doc.name);
+            return;
+          }
+
+          const { data, error } = await supabase.storage.from("templates").download(doc.name);
+          if (error || !data) {
+            toast.error("Download failed", { description: error?.message });
+            return;
+          }
+
+          const arrayBuffer = await data.arrayBuffer();
+          const path = await window.electronAPI.saveTempFile(doc.name, arrayBuffer);
+
+          if (path) {
+            await window.electronAPI.openFile(path);
+            updateLastAccessed(doc.name);
+            updateLocalPath(doc.id, path);
+          } else {
+            toast.error("Can't open file");
+          }
+        } catch (e) {
+          console.error(e);
+          toast.error("An error occurred while opening the document.");
+        }
+      },
     }),
     {
       name: "document-store",
