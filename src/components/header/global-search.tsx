@@ -143,7 +143,6 @@ export function GlobalSearch() {
       <CommandItem
         key={key_id(item)}
         onMouseDown={() => {
-          window.debug.log("item, needs router push")
           if (item.type === "Client") {
             handleClientClick(item.id)
           } else if (item.type === "Case") {
@@ -157,7 +156,7 @@ export function GlobalSearch() {
         {/* Inject a hidden id for uniqueness in the search system */}
         <span className="sr-only">{key_id(item)}</span>
 
-        <span className="font-medium group-aria-selected:text-primary">
+        <span className="font-medium text-muted-foreground group-aria-selected:text-foreground">
           {label}
         </span>
         <span className="text-xs text-muted-foreground ">

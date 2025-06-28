@@ -78,7 +78,7 @@ export function AddTaskDialog() {
         <Button size="sm">Add Task</Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-sm max-w-[90vw]">
+      <DialogContent className="sm:max-w-sm max-w-[90vw] max-h-[80vh] overflow-y-auto scrollbar-custom bg-popover">
         <DialogHeader>
           <DialogTitle className="text-lg">New Task</DialogTitle>
         </DialogHeader>

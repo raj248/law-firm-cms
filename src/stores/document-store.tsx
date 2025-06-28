@@ -57,7 +57,7 @@ export const useDocumentStore = create<DocumentStore>()(
           return { documents: filteredDocs };
         });
 
-        toast.success("Documents synced with Supabase");
+        // toast.success("Documents synced with Supabase");
       },
 
       updateLastAccessed: (name: string) =>

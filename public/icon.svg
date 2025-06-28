@@ -1,20 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Loading Law Firm App...</title>
-  <link rel="stylesheet" href="./style.css" />
-</head>
-<body>
-
-<!-- 🔹 WAVE BACKGROUND -->
-<div class="wave"></div>
-<div class="wave"></div>
-<div class="wave"></div>
-
-<!-- 🔹 CENTER CONTENT -->
-<div class="content">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="icon">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="icon">
     <!-- your icon path here -->
      <path fill="currentColor" d="M19.4133 4.89862L14.5863 2.17544C12.9911 1.27485 11.0089 1.27485 9.41368 2.17544L4.58674
   4.89862C2.99153 5.7992 2 7.47596 2 9.2763V14.7235C2 16.5238 2.99153 18.2014 4.58674 19.1012L9.41368
@@ -31,10 +15,3 @@
    16.4783 14.8528C14.2136 14.8528 12.3781 16.6466 12.3781 18.8598C12.3781 19.3937 12.4861 19.9021 12.68
    20.3676C11.9347 20.5316 11.1396 20.4203 10.4684 20.0413H10.4676Z"></path>
   </svg>
-  <div>Loading Law Firm App...</div>
-  <div class="version" id="version">v0.0.0</div>
-</div>
-
-<script src="./main.js"></script>
-</body>
-</html>

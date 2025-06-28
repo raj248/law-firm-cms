@@ -112,36 +112,58 @@ export default function UserManagement() {
   })
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold mb-4">User Management</h2>
+    <div className="p-4 bg-card text-foreground rounded-md">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold">User Management</h2>
         <AddUserDialog />
       </div>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                <TableHead key={header.id}>
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map(row => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map(cell => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+
+      <div className="rounded-md border overflow-x-auto scrollbar-custom bg-card">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="text-muted-foreground font-semibold"
+                  >
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className="hover:bg-muted/30 cursor-pointer transition-colors"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="text-foreground">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={table.getAllColumns().length}
+                  className="text-center text-muted-foreground py-6"
+                >
+                  No users found.
                 </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
+
   )
 }
 

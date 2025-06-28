@@ -260,20 +260,20 @@ export function CaseTable() {
     <div className="w-full">
       <div className="flex justify-between py-4">
         <Input
-          placeholder="Filter by id, itle, description, court, or tags..."
+          placeholder="Filter by id, title, description, court, or tags..."
           value={globalFilter ?? ""}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
+          onChange={(e) => setGlobalFilter(e.target.value)}
+          className="max-w-sm bg-muted text-foreground placeholder:text-muted-foreground focus:bg-muted"
         />
         <div className="flex items-center gap-2">
           <AddCaseDialog />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="secondary" className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="z-50">
+            <DropdownMenuContent align="end" className="z-50 bg-popover text-popover-foreground">
               {table
                 .getAllColumns()
                 .filter((col) => col.getCanHide())
@@ -292,13 +292,13 @@ export function CaseTable() {
         </div>
       </div>
 
-      <div className="rounded-md border overflow-x-auto scrollbar-custom">
+      <div className="rounded-md border overflow-x-auto scrollbar-custom bg-card">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id}>
                 {hg.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-muted-foreground">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -318,9 +318,10 @@ export function CaseTable() {
                     setSelectedCase(row.original.file_id);
                     setOpen(true);
                   }}
+                  className="hover:bg-muted/30 cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-foreground">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -328,7 +329,7 @@ export function CaseTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
                   No cases found.
                 </TableCell>
               </TableRow>
@@ -338,13 +339,9 @@ export function CaseTable() {
       </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        {/* <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} selected
-        </div> */}
         <div className="space-x-2">
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -352,7 +349,7 @@ export function CaseTable() {
             Previous
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -361,22 +358,18 @@ export function CaseTable() {
           </Button>
         </div>
       </div>
+
       {selectedCase && (
-        <CaseDetailDialog
-          open={open}
-          setOpen={setOpen}
-          file_id={selectedCase}
-        />
+        <CaseDetailDialog open={open} setOpen={setOpen} file_id={selectedCase} />
       )}
+
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
-        <AlertDialogContent className="!max-w-screen-md !w-full p-6">
+        <AlertDialogContent className="!max-w-screen-md !w-full p-6 bg-popover text-popover-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. It will permanently delete Client : {" "}
-              <span className="font-semibold text-destructive">
-                {caseToDelete?.title}
-              </span>.
+              This action cannot be undone. It will permanently delete Case:
+              <span className="font-semibold text-destructive"> {caseToDelete?.title}</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -384,9 +377,9 @@ export function CaseTable() {
             <AlertDialogAction
               onClick={() => {
                 if (caseToDelete) {
-                  useCaseStore.getState().deleteCase(caseToDelete.file_id)
-                  setCaseToDelete(null)
-                  setIsAlertDialogOpen(false)
+                  useCaseStore.getState().deleteCase(caseToDelete.file_id);
+                  setCaseToDelete(null);
+                  setIsAlertDialogOpen(false);
                 }
               }}
             >
@@ -396,5 +389,6 @@ export function CaseTable() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+
   )
 }

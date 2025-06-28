@@ -75,7 +75,7 @@ export function AddCaseDialog({ id = "" }: { id?: string }) {
         <Button size="sm">+ New Case</Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-lg max-w-[90vw] max-h-[80vh] overflow-y-auto scrollbar-custom">
+      <DialogContent className="sm:max-w-lg max-w-[90vw] max-h-[80vh] overflow-y-auto scrollbar-custom bg-popover">
         <DialogHeader>
           <DialogTitle className="text-lg">Add New Case</DialogTitle>
         </DialogHeader>

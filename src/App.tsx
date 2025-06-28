@@ -18,8 +18,9 @@ import AuthPage from "@/components/pages/auth"
 import { useSyncHook } from "./hooks/useSyncHook"
 import UserManagement from "./components/pages/admin/UserManagement"
 import { supabase } from "./supabase/supabase"
-import { UpdateDialog } from "./components/update-banner"
 import { useUserStore } from "./stores/user-store"
+import SettingsPage from "./components/pages/settings"
+// import { UpdateDialog } from "./components/update-banner"
 
 export default function App() {
   const fetchClients = useClientStore((s) => s.fetchClients)
@@ -55,7 +56,7 @@ export default function App() {
       <Router>
         <div className="w-screen h-screen flex flex-row ">
           <Sidebar />
-          <UpdateDialog />
+          {/* <UpdateDialog /> */}
 
           {/* Main content */}
           <Routes>
@@ -75,6 +76,7 @@ export default function App() {
               <Route path="/cases" element={<Cases />} />
               <Route path="/task" element={<TaskPage />} />
               <Route path="/docs" element={<DocumentsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
               {isCurrentUserAdmin() && (<Route path="/user_management" element={<UserManagement />} />)}
             </Route>
           </Routes>

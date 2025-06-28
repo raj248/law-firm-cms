@@ -232,8 +232,9 @@ export function ClientTable() {
           placeholder="Filter by name, email, or phone..."
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
+          className="max-w-sm bg-muted placeholder:text-muted-foreground focus:bg-muted"
         />
+
         <div className="flex items-center gap-2">
           <AddClientDialog />
           <DropdownMenu>
@@ -243,34 +244,30 @@ export function ClientTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
+              {table.getAllColumns()
                 .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border overflow-x-auto scrollbar-custom">
-        <Table className="min-w-full">
-          <TableHeader>
+
+      <div className="rounded-md border border-border overflow-x-auto scrollbar-custom">
+        <Table className="min-w-full text-foreground">
+          <TableHeader className="bg-secondary/50">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-foreground">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -282,20 +279,22 @@ export function ClientTable() {
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
             {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => {
-                    // row.toggleSelected()
                     setSelectedClient(row.original.id);
                     setOpen(true);
                   }}
+                  className={`cursor-pointer transition-colors ${index % 2 === 0 ? "bg-card/80" : "bg-muted/30"
+                    } hover:bg-muted`}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-3 px-4">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -306,7 +305,7 @@ export function ClientTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
                   No clients found.
                 </TableCell>
               </TableRow>
@@ -314,6 +313,7 @@ export function ClientTable() {
           </TableBody>
         </Table>
       </div>
+
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
@@ -338,6 +338,7 @@ export function ClientTable() {
           </Button>
         </div>
       </div>
+
       {selectedClient && (
         <ClientDetailDialog
           open={open}
@@ -345,12 +346,13 @@ export function ClientTable() {
           client_id={selectedClient}
         />
       )}
+
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
         <AlertDialogContent className="!max-w-screen-md !w-full p-6">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. It will permanently delete Client : {" "}
+              This action cannot be undone. It will permanently delete Client:{" "}
               <span className="font-semibold text-destructive">
                 {clientToDelete?.name}
               </span>.
@@ -361,9 +363,9 @@ export function ClientTable() {
             <AlertDialogAction
               onClick={() => {
                 if (clientToDelete) {
-                  useClientStore.getState().deleteClient(clientToDelete.id)
-                  setClientToDelete(null)
-                  setIsAlertDialogOpen(false)
+                  useClientStore.getState().deleteClient(clientToDelete.id);
+                  setClientToDelete(null);
+                  setIsAlertDialogOpen(false);
                 }
               }}
             >
@@ -373,5 +375,6 @@ export function ClientTable() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+
   )
 }

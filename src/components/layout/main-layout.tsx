@@ -1,49 +1,26 @@
-import { Outlet, useLocation } from "react-router-dom"
-import { Separator } from "@/components/ui/separator"
-import { ThemeToggle } from "../header/theme-toggle"
+import { Outlet } from "react-router-dom"
 import { Toaster } from "@/components/ui/sonner"
-import { Debug } from "../header/debug"
-import { GlobalSearch } from "@/components/header/global-search"
-import { Logout } from "../header/logout"
-import { PullCloudButton } from "../header/pull-cloud"
+import { Header } from "../header/header"
+import { useTheme } from "@/hooks/theme-provider"
 
 export default function MainLayout() {
-  const location = useLocation()
-
-  const title = {
-    "/": "Dashboard",
-    "/clients": "Clients",
-    "/cases": "Cases",
-    "/task": "Tasks",
-    "/docs": "Documents",
-    "/login": "Login",
-    "/register": "Register",
-  }[location.pathname] ?? "Untitled"
+  const { theme } = useTheme()
 
   return (
     <div className="flex flex-col h-full w-full ml-14 overflow-hidden hide-scrollbar bg-[var(--color-background)] text-[var(--card-foreground)]">
 
       {/* Header */}
-      <header className="p-4 border-b flex flex-row items-center justify-between">
-        <h1 className="text-xl font-bold">{title}</h1>
-        <GlobalSearch />
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Debug />
-          <Logout />
-          <PullCloudButton />
-        </div>
-      </header>
-
-      <Separator />
+      <Header />
 
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto hide-scrollbar p-4">
         <Outlet />
         <Toaster
           richColors
+          expand
           closeButton
-          visibleToasts={10} />
+          theme={theme}
+          visibleToasts={8} />
       </main>
 
     </div>

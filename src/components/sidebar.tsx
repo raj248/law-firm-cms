@@ -3,12 +3,12 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import {
-  Home,
   Users,
-  Briefcase,
-  Calendar,
-  Files,
-  UserCog,
+  FileText,
+  Gavel,
+  LayoutDashboard,
+  ListTodo,
+  ShieldCheck,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -19,14 +19,14 @@ export default function Sidebar() {
   const { isCurrentUserAdmin } = useUserStore();
 
   const navItems = [
-    { name: "Dashboard", icon: <Home size={18} />, path: "/" },
+    { name: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/" },
     { name: "Clients", icon: <Users size={18} />, path: "/clients" },
-    { name: "Cases", icon: <Briefcase size={18} />, path: "/cases" },
-    { name: "Tasks", icon: <Calendar size={18} />, path: "/task" },
-    { name: "Documents", icon: <Files size={18} />, path: "/docs" },
+    { name: "Cases", icon: <Gavel size={18} />, path: "/cases" },
+    { name: "Tasks", icon: <ListTodo size={18} />, path: "/task" },
+    { name: "Documents", icon: <FileText size={18} />, path: "/docs" },
     // Only include the Users nav item if the user is admin
     ...(isCurrentUserAdmin() ? [
-      { name: "Users", icon: <UserCog size={18} />, path: "/user_management" }
+      { name: "Users", icon: <ShieldCheck size={18} />, path: "/user_management" }
     ] : [])
   ];
 
