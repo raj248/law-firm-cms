@@ -145,20 +145,22 @@ app.whenReady().then(() => {
   log.info("App starting...");
   autoUpdater.checkForUpdates();
 
-  // Simulate initialization (replace with your real DB/Supabase initialization)
-  // await new Promise(resolve => setTimeout(resolve, 3000));
+  const readyBarrier = new Promise(resolve => setTimeout(resolve, 2000));
 
-  
-  ipcMain.on('app-ready', async ()=>{
+  ipcMain.on('app-ready', async () => {
+    await readyBarrier; // ensures at least 5s passed
+
     await splashWin?.webContents.executeJavaScript(`
       document.body.style.transition = 'opacity 0.5s';
       document.body.style.opacity = '0';
       setTimeout(() => window.close(), 5000);
     `);
+
     splashWin?.close();
     splashWin = null;
     win?.show();
-  })
+  });
+
 
   ipcMain.on('restart_app', () => {
     autoUpdater.quitAndInstall()

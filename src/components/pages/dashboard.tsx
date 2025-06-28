@@ -56,9 +56,11 @@ export default function Dashboard() {
     })
     .slice(0, 5)
 
-  const recentDocuments = [...documents]
+  const recentDocuments = documents
+    .filter(doc => doc.lastAccessed && doc.lastAccessed.trim() !== "" && !isNaN(new Date(doc.lastAccessed).getTime()))
     .sort((a, b) => new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime())
-    .slice(0, 8)
+    .slice(0, 8);
+
 
   return (
     <div className="space-y-6 p-4 max-w-5xl mx-auto">
