@@ -15,7 +15,7 @@ export function Debug() {
       size="icon"
       onClick={async () => {
         await fetchDocuments()
-        // window.debug.log(docStore.documents)
+        window.debug.log(await window.electronAPI.getAppVersion())
       }}
       className="rounded-full"
     >

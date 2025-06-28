@@ -29,6 +29,7 @@ electron.contextBridge.exposeInMainWorld("debug", {
 });
 electron.contextBridge.exposeInMainWorld("electronAPI", {
   openFile: (filePath) => electron.ipcRenderer.invoke("open-file", filePath),
+  getAppVersion: () => electron.ipcRenderer.invoke("get-app-version"),
   checkForUpdates: () => electron.ipcRenderer.invoke("check-for-update"),
   saveTempFile: (fileName, buffer) => electron.ipcRenderer.invoke("save-temp-file", fileName, buffer)
 });

@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('debug', {
 // --------- Expose shell.openPath ---------
 contextBridge.exposeInMainWorld('electronAPI', {
   openFile: (filePath: string) => ipcRenderer.invoke('open-file', filePath),
+    getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   checkForUpdates: () => ipcRenderer.invoke('check-for-update'),
   saveTempFile: (fileName: string, buffer: ArrayBuffer)=> ipcRenderer.invoke('save-temp-file', fileName, buffer),
 })

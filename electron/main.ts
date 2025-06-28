@@ -107,6 +107,9 @@ autoUpdater.on('update-downloaded', () => {
   win?.webContents.send('update_downloaded')
 })
 
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
+});
 
 app.whenReady().then(() => {
   createWindow()

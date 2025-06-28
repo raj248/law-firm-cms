@@ -17004,6 +17004,9 @@ main$3.autoUpdater.on("download-progress", (progressObj) => {
 main$3.autoUpdater.on("update-downloaded", () => {
   win == null ? void 0 : win.webContents.send("update_downloaded");
 });
+ipcMain.handle("get-app-version", () => {
+  return app.getVersion();
+});
 app.whenReady().then(() => {
   createWindow();
   log.info("App starting...");
