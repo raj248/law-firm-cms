@@ -31,6 +31,12 @@ interface ElectronAPI {
 }
 
 interface DB {
+
+  insertAudit: (audit: Audit) => Promise<{ success: boolean; error?: string; data?: Audit }>
+  getAllAudits: () => Promise<Audit[]>
+  unsyncedAudits: () => Promise<Audit[]>
+  updateAuditSync: (id: string) => Promise<{ success: boolean; error?: string }>
+
   // Clients
   insertClient: (client: Client) => Promise<{ success: boolean; error?: string; data?: Client }>
   getAllClients: () => Promise<Client[]>

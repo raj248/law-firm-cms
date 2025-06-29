@@ -24,6 +24,11 @@ export function Debug() {
     window.debug.log("App version:", version)
   }
 
+  const handleFetchAudits = async () => {
+    const audits = await window.database.getAllAudits()
+    window.debug.log("Fetched audits", audits)
+  }
+
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -47,6 +52,16 @@ export function Debug() {
         >
           <RefreshCcw size={16} className="mr-2" />
           Fetch Documents
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+          onClick={handleFetchAudits}
+        >
+          <RefreshCcw size={16} className="mr-2" />
+          Fetch Audits
         </Button>
 
         <Button

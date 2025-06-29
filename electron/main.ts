@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync, insertOrUpdateClients } from './db/client-repo.ts'
 import { insertCase, getAllCases, deleteCase, updateCase, unsyncedCases, updateCaseSync, insertOrUpdateCases } from './db/case-repo.ts'
 import { insertTask, getAllTasks, deleteTask, updateTask } from './db/task-repo.ts'
+import { insertAudit, getAllAudits, unsyncedAudits, updateAuditSync } from "./db/audit-repo"
 
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -54,13 +55,15 @@ function createSplashWindow() {
     transparent: false,
     alwaysOnTop: true,
     center: true,
-    show: true,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
   });
 
-  
+  splashWin.webContents.on('did-finish-load', () => {
+    splashWin?.show()
+  })
   splashWin.loadFile(path.join(SPLASH_DIST, 'index.html'));
   splashWin.setMenuBarVisibility(false);
 }
@@ -178,7 +181,29 @@ app.whenReady().then(() => {
   ipcMain.handle('save-temp-file', async (_event, filename, buffer)=>{
     return await saveTempFile(filename, buffer)
   })
+
+  // Insert audit
+  ipcMain.handle('database:insert-audit', (_event, audit) => {
+      return insertAudit(audit)
+  })
+
+  // Get all audits
+  ipcMain.handle('database:get-all-audits', () => {
+      return getAllAudits()
+  })
+
+  // Get unsynced audits
+  ipcMain.handle('database:get-unsynced-audits', () => {
+      return unsyncedAudits()
+  })
+
+  // Update audit sync status
+  ipcMain.handle('database:update-audit-sync', (_event, id: string) => {
+      return updateAuditSync(id)
+  })
+  
   // Clients
+  
   ipcMain.handle('database:insert-client', (_event, client) => {
     return insertClient(client)
   })

@@ -72,4 +72,16 @@ db.exec(`
     is_synced INTEGER DEFAULT 1
   );
 
+  CREATE TABLE IF NOT EXISTS audits (
+  id TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL,
+  user_id TEXT DEFAULT '',
+  user_name TEXT DEFAULT '',
+  action_type TEXT DEFAULT '',
+  object_type TEXT DEFAULT '',
+  object_id TEXT DEFAULT '',
+  is_synced INTEGER DEFAULT 0
+);
+
+
 `)

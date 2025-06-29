@@ -1,3 +1,21 @@
+
+export type newAudit = {
+  action_type: string
+  object_type: string
+  object_id: string
+}
+
+export interface Audit {
+  id: string
+  created_at: string
+  user_id: string
+  user_name: string
+  action_type: string
+  object_type: string
+  object_id: string
+  is_synced: number // 0 = not synced, 1 = synced
+}
+
 export type User = {
   id: string
   name: string

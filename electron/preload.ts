@@ -1,4 +1,4 @@
-import { Client, Case, Task, Court, Tag } from '@/types'
+import { Client, Case, Task, Court, Tag, Audit } from '@/types'
 import { ipcRenderer, contextBridge } from 'electron'
 
 // --------- Expose APIs to the Renderer process ---------
@@ -48,6 +48,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
 })
 
 contextBridge.exposeInMainWorld('database', {
+
+  // Audits
+  insertAudit: (audit: Audit) => ipcRenderer.invoke('database:insert-audit', audit),
+  getAllAudits: () => ipcRenderer.invoke('database:get-all-audits'),
+  unsyncedAudits: () => ipcRenderer.invoke('database:get-unsynced-audits'),
+  updateAuditSync: (id: string) => ipcRenderer.invoke('database:update-audit-sync', id),
+  
   // Clients
   insertClient: (client: Client) => ipcRenderer.invoke('database:insert-client', client),
   getAllClients: (): Promise<Client[]> => ipcRenderer.invoke('database:get-all-clients'),
