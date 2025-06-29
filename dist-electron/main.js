@@ -16896,6 +16896,11 @@ const insertAudit = (audit) => {
 const getAllAudits = () => {
   return db.prepare(`SELECT * FROM audits ORDER BY created_at DESC`).all();
 };
+const getAuditById = (id) => {
+  const stmt = db.prepare("SELECT * FROM audits WHERE id = ? LIMIT 1");
+  const audit = stmt.get(id);
+  return audit ?? null;
+};
 const unsyncedAudits = () => {
   return db.prepare(`SELECT * FROM audits WHERE is_synced = 0`).all();
 };
@@ -17082,6 +17087,7 @@ app.whenReady().then(() => {
     main$3.autoUpdater.checkForUpdates();
   }, 3e3);
 });
+ipcMain.handle("check-update", () => main$3.autoUpdater.checkForUpdates);
 ipcMain.on("restart_app", () => {
   main$3.autoUpdater.quitAndInstall();
 });
@@ -17101,6 +17107,9 @@ ipcMain.handle("database:insert-audit", (_event, audit) => {
 });
 ipcMain.handle("database:get-all-audits", () => {
   return getAllAudits();
+});
+ipcMain.handle("get-audit-by-id", async (_event, id) => {
+  return getAuditById(id);
 });
 ipcMain.handle("database:get-unsynced-audits", () => {
   return unsyncedAudits();

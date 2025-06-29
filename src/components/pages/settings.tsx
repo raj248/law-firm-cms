@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { useTheme } from "@/hooks/theme-provider"
 import { toast } from "sonner"
+import { CheckForUpdateButton } from "../checkForUpdateButton"
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
@@ -90,6 +91,7 @@ export default function SettingsPage() {
             <Label>Auto-Download Updates</Label>
             <Switch checked={autoDownloadUpdates} onCheckedChange={setAutoDownloadUpdates} />
           </div>
+          <CheckForUpdateButton />
           <div className="flex items-center justify-between">
             <Label>Notify Before Restart</Label>
             <Switch checked={notifyBeforeRestart} onCheckedChange={setNotifyBeforeRestart} />

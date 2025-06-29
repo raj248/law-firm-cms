@@ -26,35 +26,58 @@ export function ActivityFeedPopover({
   const [isHovering, setIsHovering] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Sort oldest first, keep last 20
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const remainingRef = useRef<number>(6000)
+  const startRef = useRef<number>(0)
+  const lastAuditIdRef = useRef<string | null>(null)
 
-  useEffect(() => {
-    window.debug.log("ActivityFeedPopover rendered", Date.now())
-  }, [])
-
-  // window.debug.log("audits", audits)
   const sortedAudits = [...audits]
     .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
     .slice(-20)
 
   const latestAudit = sortedAudits[sortedAudits.length - 1]
-  // window.debug.log("latestAudit", latestAudit)
+
+  const startTimer = () => {
+    startRef.current = Date.now()
+    timerRef.current = setTimeout(() => {
+      setVisible(false)
+      onDismiss?.()
+    }, remainingRef.current)
+  }
+
+  const clearTimer = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      remainingRef.current -= Date.now() - startRef.current
+      timerRef.current = null
+    }
+  }
 
   useEffect(() => {
     if (newActivityTrigger && latestAudit) {
-      playNotificationSound()
+      // Play sound only if this audit has not been seen
+      if (lastAuditIdRef.current !== latestAudit.id) {
+        playNotificationSound()
+        lastAuditIdRef.current = latestAudit.id
+      }
+
       setVisible(true)
-
-      const timer = setTimeout(() => {
-        if (!isHovering) {
-          setVisible(false)
-          onDismiss?.()
-        }
-      }, 6000)
-
-      return () => clearTimeout(timer)
+      remainingRef.current = 6000
+      startTimer()
     }
-  }, [newActivityTrigger])
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [newActivityTrigger, latestAudit])
+
+  useEffect(() => {
+    if (isHovering) {
+      clearTimer()
+    } else if (visible && !timerRef.current) {
+      startTimer()
+    }
+  }, [isHovering])
 
   useEffect(() => {
     if (expanded && scrollRef.current) {
@@ -64,7 +87,6 @@ export function ActivityFeedPopover({
 
   if (!visible || !latestAudit) return null
 
-  // Utility to convert action_type to readable verb
   const getActionVerb = (actionType: string) => {
     const type = actionType.toUpperCase()
     if (type === "INSERT") return "Added"

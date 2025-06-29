@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 })
 
 contextBridge.exposeInMainWorld('electronUpdater', {
+  checkForUpdate: () => ipcRenderer.invoke('check-update'),
   onUpdateAvailable: (cb: (event: any, info: {
       version: string
       releaseNotes: string
@@ -53,6 +54,7 @@ contextBridge.exposeInMainWorld('database', {
   // Audits
   insertAudit: (audit: Audit) => ipcRenderer.invoke('database:insert-audit', audit),
   getAllAudits: () => ipcRenderer.invoke('database:get-all-audits'),
+  getAuditById: (id: string) => ipcRenderer.invoke("get-audit-by-id", id),
   unsyncedAudits: () => ipcRenderer.invoke('database:get-unsynced-audits'),
   updateAuditSync: (id: string) => ipcRenderer.invoke('database:update-audit-sync', id),
   

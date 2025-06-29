@@ -36,6 +36,12 @@ export const getAllAudits = (): Audit[] => {
   return db.prepare(`SELECT * FROM audits ORDER BY created_at DESC`).all() as Audit[]
 }
 
+export const getAuditById = (id:string) => {
+  const stmt = db.prepare("SELECT * FROM audits WHERE id = ? LIMIT 1")
+  const audit = stmt.get(id)
+  return audit ?? null
+}
+
 // GET UNSYNCED AUDITS
 export const unsyncedAudits = (): Audit[] => {
   return db.prepare(`SELECT * FROM audits WHERE is_synced = 0`).all() as Audit[]

@@ -19,6 +19,7 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   }
 });
 electron.contextBridge.exposeInMainWorld("electronUpdater", {
+  checkForUpdate: () => electron.ipcRenderer.invoke("check-update"),
   onUpdateAvailable: (cb) => electron.ipcRenderer.on("update_available", cb),
   onDownloadProgress: (cb) => electron.ipcRenderer.on("update_download_progress", cb),
   onUpdateDownloaded: (cb) => electron.ipcRenderer.on("update_downloaded", cb),
@@ -39,6 +40,7 @@ electron.contextBridge.exposeInMainWorld("database", {
   // Audits
   insertAudit: (audit) => electron.ipcRenderer.invoke("database:insert-audit", audit),
   getAllAudits: () => electron.ipcRenderer.invoke("database:get-all-audits"),
+  getAuditById: (id) => electron.ipcRenderer.invoke("get-audit-by-id", id),
   unsyncedAudits: () => electron.ipcRenderer.invoke("database:get-unsynced-audits"),
   updateAuditSync: (id) => electron.ipcRenderer.invoke("database:update-audit-sync", id),
   // Clients

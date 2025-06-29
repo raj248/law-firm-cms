@@ -35,6 +35,7 @@ interface DB {
 
   insertAudit: (audit: Audit) => Promise<{ success: boolean; error?: string; data?: Audit }>
   getAllAudits: () => Promise<Audit[]>
+  getAuditById: (id: string) => Promise<Audit | null>
   unsyncedAudits: () => Promise<Audit[]>
   updateAuditSync: (id: string) => Promise<{ success: boolean; error?: string }>
 
@@ -82,6 +83,7 @@ interface Admin {
 }
 
 interface ElectronUpdater {
+  checkForUpdate: () => void
   onUpdateAvailable : (callback: (event: any, info: {
       version: string
       releaseNotes: string

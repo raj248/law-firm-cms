@@ -16,7 +16,8 @@ import {
   insertTask, getAllTasks, deleteTask, updateTask
 } from './db/task-repo.ts';
 import {
-  insertAudit, getAllAudits, unsyncedAudits, updateAuditSync
+  insertAudit, getAllAudits, unsyncedAudits, updateAuditSync,
+  getAuditById
 } from './db/audit-repo.ts';
 import {
   getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyncedTags, updateCourtSync, updateTagSync
@@ -147,6 +148,7 @@ app.whenReady().then(() => {
   }, 3000);
 });
 
+ipcMain.handle('check-update', () => autoUpdater.checkForUpdates)
 // IPC
 ipcMain.on('restart_app', () => {
   autoUpdater.quitAndInstall();
@@ -167,137 +169,141 @@ ipcMain.handle('save-temp-file', async (_event, filename, buffer) => {
 // [Clients, Cases, Tasks, Audits, Courts, Tags, User Management]
 // ✅ No change needed here unless you want me to optimize further.
 
-  // Insert audit
-  ipcMain.handle('database:insert-audit', (_event, audit) => {
-      return insertAudit(audit)
-  })
+// Insert audit
+ipcMain.handle('database:insert-audit', (_event, audit) => {
+    return insertAudit(audit)
+})
 
-  // Get all audits
-  ipcMain.handle('database:get-all-audits', () => {
-      return getAllAudits()
-  })
+// Get all audits
+ipcMain.handle('database:get-all-audits', () => {
+    return getAllAudits()
+})
 
-  // Get unsynced audits
-  ipcMain.handle('database:get-unsynced-audits', () => {
-      return unsyncedAudits()
-  })
+ipcMain.handle("get-audit-by-id", async (_event, id: string) => {
+  return getAuditById(id)
+})
 
-  // Update audit sync status
-  ipcMain.handle('database:update-audit-sync', (_event, id: string) => {
-      return updateAuditSync(id)
-  })
-  
-  // Clients
-  
-  ipcMain.handle('database:insert-client', (_event, client) => {
-    return insertClient(client)
-  })
+// Get unsynced audits
+ipcMain.handle('database:get-unsynced-audits', () => {
+    return unsyncedAudits()
+})
 
-  ipcMain.handle('database:get-all-clients', () => {
-    return getAllClients()
-  })
+// Update audit sync status
+ipcMain.handle('database:update-audit-sync', (_event, id: string) => {
+    return updateAuditSync(id)
+})
 
-  ipcMain.handle('database:update-client-field',(_event, id, field, value) => {
-    return updateClientField(id, field, value)
-  })
+// Clients
 
-  ipcMain.handle('database:delete-client', (_event, id: string) => {
-    return deleteClient(id)
-  })
+ipcMain.handle('database:insert-client', (_event, client) => {
+  return insertClient(client)
+})
 
-  // Cases
-  ipcMain.handle('database:insert-case', (_event, legalCase) => {
-    return insertCase(legalCase)
-  })
+ipcMain.handle('database:get-all-clients', () => {
+  return getAllClients()
+})
 
-  ipcMain.handle('database:get-all-cases', () => {
-    return getAllCases()
-  })
+ipcMain.handle('database:update-client-field',(_event, id, field, value) => {
+  return updateClientField(id, field, value)
+})
 
-  ipcMain.handle('database:delete-case', (_event, id: string) => {
-    return deleteCase(id)
-  })
+ipcMain.handle('database:delete-client', (_event, id: string) => {
+  return deleteClient(id)
+})
 
-  ipcMain.handle('database:update-case',(_event, id, field, value)=>{
-    return updateCase(id, field, value)
-  })
+// Cases
+ipcMain.handle('database:insert-case', (_event, legalCase) => {
+  return insertCase(legalCase)
+})
 
-  // Tasks
-  ipcMain.handle('database:insert-task', (_event, task) => {
-    return insertTask(task)
-  })
+ipcMain.handle('database:get-all-cases', () => {
+  return getAllCases()
+})
 
-  ipcMain.handle('database:get-all-tasks', () => {
-    return getAllTasks()
-  })
+ipcMain.handle('database:delete-case', (_event, id: string) => {
+  return deleteCase(id)
+})
 
-  ipcMain.handle('database:delete-task', (_event, id: string) => {
-    return deleteTask(id)
-  })
+ipcMain.handle('database:update-case',(_event, id, field, value)=>{
+  return updateCase(id, field, value)
+})
 
-  ipcMain.handle('database:update-task', (_event, task) => {
-    return updateTask(task)
-  })
+// Tasks
+ipcMain.handle('database:insert-task', (_event, task) => {
+  return insertTask(task)
+})
 
-  ipcMain.handle('get-courts', () => {
-    return getAllCourts()
-  })
+ipcMain.handle('database:get-all-tasks', () => {
+  return getAllTasks()
+})
 
-  ipcMain.handle('get-tags', () => {
-    return getAllTags()
-  })
+ipcMain.handle('database:delete-task', (_event, id: string) => {
+  return deleteTask(id)
+})
 
-  ipcMain.handle('insert-court', (_event, name, id, is_synced) => {
-    return insertCourt(name, id, is_synced)
-  })
+ipcMain.handle('database:update-task', (_event, task) => {
+  return updateTask(task)
+})
 
-  ipcMain.handle('insert-tag', (_event, name, id, is_synced) => {
-    return insertTag(name, id, is_synced)
-  })
+ipcMain.handle('get-courts', () => {
+  return getAllCourts()
+})
 
-  ipcMain.handle('update-court-sync', (_event, id) => {
-    return updateCourtSync(id)
-  })
+ipcMain.handle('get-tags', () => {
+  return getAllTags()
+})
 
-  ipcMain.handle('update-tag-sync', (_event, id) => {
-    return updateTagSync(id)
-  })
+ipcMain.handle('insert-court', (_event, name, id, is_synced) => {
+  return insertCourt(name, id, is_synced)
+})
 
-  ipcMain.handle('unsynced-courts', ()=>{
-    return unsyncedCourts()
-  })
+ipcMain.handle('insert-tag', (_event, name, id, is_synced) => {
+  return insertTag(name, id, is_synced)
+})
 
-  ipcMain.handle('unsynced-tags', ()=>{
-    return unsyncedTags()
-  })
+ipcMain.handle('update-court-sync', (_event, id) => {
+  return updateCourtSync(id)
+})
 
-  ipcMain.handle('unsynced-clients', ()=>{
-    return unsyncedClients()
-  })
+ipcMain.handle('update-tag-sync', (_event, id) => {
+  return updateTagSync(id)
+})
 
-  ipcMain.handle('update-client-sync', (_event, id)=>{
-    return updateClientSync(id)
-  })
+ipcMain.handle('unsynced-courts', ()=>{
+  return unsyncedCourts()
+})
 
-  ipcMain.handle('insert-or-update-clients', (_event, data)=>{
-    return insertOrUpdateClients(data)
-  })
+ipcMain.handle('unsynced-tags', ()=>{
+  return unsyncedTags()
+})
 
-  ipcMain.handle('unsynced-cases', ()=>{
-    return unsyncedCases()
-  })
+ipcMain.handle('unsynced-clients', ()=>{
+  return unsyncedClients()
+})
 
-  ipcMain.handle('update-case-sync', (_event, id)=>{
-    return updateCaseSync(id)
-  })
+ipcMain.handle('update-client-sync', (_event, id)=>{
+  return updateClientSync(id)
+})
 
-  ipcMain.handle('insert-or-update-cases', (_event, data)=>{
-    return insertOrUpdateCases(data)
-  })
+ipcMain.handle('insert-or-update-clients', (_event, data)=>{
+  return insertOrUpdateClients(data)
+})
 
-  ipcMain.handle('admin:delete-user', async (_event, userId: string) => {
-  // const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
-  const result  = await deleteUser(userId)
-  console.log(result)
-  return result
+ipcMain.handle('unsynced-cases', ()=>{
+  return unsyncedCases()
+})
+
+ipcMain.handle('update-case-sync', (_event, id)=>{
+  return updateCaseSync(id)
+})
+
+ipcMain.handle('insert-or-update-cases', (_event, data)=>{
+  return insertOrUpdateCases(data)
+})
+
+ipcMain.handle('admin:delete-user', async (_event, userId: string) => {
+// const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
+const result  = await deleteUser(userId)
+console.log(result)
+return result
 })

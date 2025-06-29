@@ -6,8 +6,6 @@ import { Audit } from "@/types"
 import { useSyncStore } from '@/stores/sync-store'
 
 export async function pullAllAudits() {
-  // const { currentUser } = useUserStore.getState()
-
   const { data: audits, error } = await supabase.from('audits').select('*')
 
   if (error) {
@@ -15,28 +13,37 @@ export async function pullAllAudits() {
     return
   }
 
-  if (!audits) return
+  if (!audits || audits.length === 0) {
+    window.debug.log("No audits found on Supabase.")
+    return
+  }
 
-  // ✅ Filter out audits created by current user
-  // const filteredAudits = audits.filter(audit => audit.user_id !== currentUser?.id)
-
-  // ✅ Add is_synced: 1 to each pulled audit
   const auditsWithSync = audits.map(audit => ({
     ...audit,
     is_synced: 1
   })) as Audit[]
 
-  if (auditsWithSync.length > 0) {
-    for (const audit of auditsWithSync) {
-      const res = await window.database.insertAudit(audit)
-      window.debug.log("Inserted/Updated audits locally:", res)
-    }
+  let insertedCount = 0
 
-    toast.success("✅ Audits Pulled", { description: `Synced ${auditsWithSync.length} audits from Supabase` })
+  for (const audit of auditsWithSync) {
+    const existing = await window.database.getAuditById(audit.id) // Adjust if your API differs
+    if (!existing) {
+      const res = await window.database.insertAudit(audit)
+      window.debug.log("Inserted new audit:", res)
+      insertedCount++
+    } else {
+      window.debug.log("Skipped existing audit:", audit.id)
+    }
+  }
+
+  if (insertedCount > 0) {
+    window.debug.log(`✅ Pulled and inserted ${insertedCount} new audits.`)
+    // toast.success(`✅ Synced ${insertedCount} new audits from Supabase.`)
   } else {
-    window.debug.log("No audits to sync for other users.")
+    window.debug.log("✅ No new audits to insert. All audits are up to date.")
   }
 }
+
 
 
 export async function pushAudits(): Promise<void> {

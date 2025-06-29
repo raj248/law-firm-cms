@@ -38,7 +38,7 @@ export function useSyncHook() {
       const case_channel = supabase.channel('realtime-cases')
       const court_channel = supabase.channel('realtime-courts')
       const tag_channel = supabase.channel('realtime-tags')
-      const audit_channel = supabase.channel('realtime-tags')
+      const audit_channel = supabase.channel('realtime-audits')
 
       
       // Subscribe to realtime
@@ -114,7 +114,7 @@ export function useSyncHook() {
         })
 
       audit_channel.joinedOnce? 
-      window.debug.log("Tag Already subscribed")
+      window.debug.log("Audits Already subscribed")
       :
       subs_audits = audit_channel
         .on('postgres_changes', {
