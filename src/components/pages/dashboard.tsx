@@ -18,18 +18,23 @@ import { useEffect } from "react"
 import { format } from "date-fns"
 import { Link } from "react-router-dom"
 import { AddTaskDialog } from "../add-task-dialog"
+import { useAuditStore } from "@/stores/audit-store"
 
 export default function Dashboard() {
   const { clients, fetchClients } = useClientStore()
   const { cases, fetchCases } = useCaseStore()
   const { tasks, fetchTasks } = useTaskStore()
   const { documents, fetchDocuments, handleView } = useDocumentStore()
+  const { audits, fetchAudits } = useAuditStore()
+
 
   useEffect(() => {
     fetchClients()
     fetchCases()
     fetchTasks()
     fetchDocuments()
+    fetchAudits()
+
   }, [])
 
   // Sort utilities
@@ -245,6 +250,45 @@ export default function Dashboard() {
           ) : (
             <p className="text-sm text-muted-foreground">No documents found.</p>
           )}
+        </div>
+      </div>
+      {/* Recent Audits */}
+      <div>
+        <h3 className="text-base font-semibold mb-2">Activity Feed</h3>
+        <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1 hide-scrollbar">
+
+          {audits.length ? (
+            audits
+              .slice()
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+              .slice(0, 20)
+              .map((audit) => (
+                <div
+                  key={audit.id}
+                  className="flex items-start gap-2 rounded-lg bg-muted p-2 max-w-[80%] shadow-sm"
+                >
+                  <div className="flex-shrink-0 rounded-full bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center text-xs font-bold">
+                    {audit.user_name ? audit.user_name[0].toUpperCase() : "U"}
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-sm">
+                      <span className="font-semibold">{audit.user_name || "Unknown User"}</span>{" "}
+                      {audit.action_type}{" "}
+                      <span className="font-medium">{audit.object_type}</span>
+                    </p>
+                    {audit.object_id && (
+                      <p className="text-xs text-muted-foreground">ID: {audit.object_id}</p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground">
+                      {format(new Date(audit.created_at), "PPP p")}
+                    </p>
+                  </div>
+                </div>
+              ))
+          ) : (
+            <p className="text-sm text-muted-foreground">No activities yet.</p>
+          )}
+
         </div>
       </div>
 
