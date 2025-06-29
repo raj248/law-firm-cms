@@ -63,7 +63,7 @@ export async function pullAllClients() {
   useClientStore.getState().fetchClients()
   const newSyncTime = new Date().toISOString()
   useSyncStore.getState().setLastSyncedAt(newSyncTime)
-  toast.info("Clients Synced")
+  // toast.info("Clients Synced")
 }
 
 

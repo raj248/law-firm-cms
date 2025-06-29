@@ -8,6 +8,7 @@ import { pushClients } from '@/supabase/cloud-clients'
 import { pushCases } from '@/supabase/cloud-cases'
 import { handleSettingsRealtimePayload, pullAllSettings } from '@/supabase/syncSettings'
 import { pushSettings } from '@/supabase/cloud-settings'
+import { handleAuditRealtimePayload, pullAllAudits } from '@/supabase/syncAudits'
 
 export function useSyncHook() {
   useEffect(() => {
@@ -15,6 +16,7 @@ export function useSyncHook() {
     let subs_cases: ReturnType<typeof supabase.channel> | null = null
     let subs_courts: ReturnType<typeof supabase.channel> | null = null
     let subs_tags: ReturnType<typeof supabase.channel> | null = null
+    let subs_audits: ReturnType<typeof supabase.channel> | null = null
 
     const syncAndSubscribe = async () => {
       const {  setRealtimeActive } = useSyncStore.getState()
@@ -23,17 +25,20 @@ export function useSyncHook() {
       await pullAllClients()
       await pullAllCases()
       await pullAllSettings()
+      await pullAllAudits()
 
       // toast.info('⏫ Pushing local changes...')
       await pushClients()
       await pushCases()
       await pushSettings()
+      // await 
 
       toast.success('✅ Sync complete. Subscribing to realtime...')
       const client_channel = supabase.channel('realtime-clients')
       const case_channel = supabase.channel('realtime-cases')
       const court_channel = supabase.channel('realtime-courts')
       const tag_channel = supabase.channel('realtime-tags')
+      const audit_channel = supabase.channel('realtime-tags')
 
       
       // Subscribe to realtime
@@ -106,6 +111,24 @@ export function useSyncHook() {
         .subscribe(() => {
           setRealtimeActive(true)
           window.debug.log("Subsribed Tags...")
+        })
+
+      audit_channel.joinedOnce? 
+      window.debug.log("Tag Already subscribed")
+      :
+      subs_audits = audit_channel
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'audits',
+        }, (payload) => {
+          window.debug.log('📡 Realtime change:', payload)
+          handleAuditRealtimePayload(payload)
+          // handle the payload or set a flag to refetch
+        })
+        .subscribe(() => {
+          setRealtimeActive(true)
+          window.debug.log("Subsribed Audits...")
         })
     }
 

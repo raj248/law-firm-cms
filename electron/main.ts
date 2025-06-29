@@ -60,16 +60,16 @@ function createSplashWindow() {
   splashWin.loadFile(path.join(SPLASH_DIST, 'index.html'));
   splashWin.setMenuBarVisibility(false);
 
-  splashWin.webContents.on('did-fail-load', (_e, code, desc) => {
-    log.error(`Splash failed: ${desc} (${code})`);
-    splashWin?.close();
-    splashWin = null;
-    win?.show();
-  });
+  // splashWin.webContents.on('did-fail-load', (_e, code, desc) => {
+  //   log.error(`Splash failed: ${desc} (${code})`);
+  //   splashWin?.close();
+  //   splashWin = null;
+  //   win?.show();
+  // });
 
   splashWin.webContents.on('did-finish-load', () => {
     splashWin?.show();
-    if (VITE_DEV_SERVER_URL) splashWin?.webContents.openDevTools({ mode: 'detach' });
+    // if (VITE_DEV_SERVER_URL) splashWin?.webContents.openDevTools({ mode: 'detach' });
   });
 }
 
@@ -84,14 +84,14 @@ function createMainWindow() {
 
   win.setAutoHideMenuBar(true);
 
-  win.webContents.on('did-fail-load', (_e, code, desc) => {
-    log.error(`Main window failed: ${desc} (${code})`);
-    win?.loadFile(path.join(RENDERER_DIST, 'index.html'));
-  });
+  // win.webContents.on('did-fail-load', (_e, code, desc) => {
+  //   log.error(`Main window failed: ${desc} (${code})`);
+  //   win?.loadFile(path.join(RENDERER_DIST, 'index.html'));
+  // });
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-    win.webContents.openDevTools({ mode: 'detach' });
+    // win.webContents.openDevTools({ mode: 'detach' });
   } else {
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
     // win.webContents.openDevTools({ mode: 'detach' }); // Uncomment only for debug
@@ -144,7 +144,7 @@ app.whenReady().then(() => {
     splashWin = null;
     win?.show();
     autoUpdater.checkForUpdates();
-  }, 2000);
+  }, 3000);
 });
 
 // IPC

@@ -61,7 +61,7 @@ export async function pullAllCases(): Promise<void> {
   const newSyncTime = new Date().toISOString()
   useSyncStore.getState().setLastSyncedAt(newSyncTime)
   useCaseStore.getState().fetchCases()
-  toast.info("Cases Synced")
+  // toast.info("Cases Synced")
 }
 
 
