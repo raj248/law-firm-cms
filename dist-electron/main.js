@@ -16633,6 +16633,7 @@ db.exec(`
     action_type TEXT DEFAULT '',
     object_type TEXT DEFAULT '',
     object_id TEXT DEFAULT '',
+    object_name TEXT DEFAULT '',
     is_synced INTEGER DEFAULT 0
   );
 `);
@@ -16873,12 +16874,13 @@ const updateTask = (task) => {
 };
 const insertAudit = (audit) => {
   const stmt = db.prepare(`
-    INSERT INTO audits (id, created_at, user_id, user_name, action_type, object_type, object_id, is_synced)
-    VALUES (@id, @created_at, @user_id, @user_name, @action_type, @object_type, @object_id, @is_synced)
+    INSERT OR REPLACE INTO audits 
+    (id, created_at, user_id, user_name, action_type, object_type, object_id, object_name, is_synced)
+    VALUES (@id, @created_at, @user_id, @user_name, @action_type, @object_type, @object_id, @object_name, @is_synced)
   `);
   const result = stmt.run(audit);
   if (result.changes === 0) {
-    return { success: false, error: "Insert failed: no rows affected." };
+    return { success: false, error: "Upsert failed: no rows affected." };
   }
   db.prepare(`
     DELETE FROM audits

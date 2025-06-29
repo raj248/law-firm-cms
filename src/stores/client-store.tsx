@@ -12,7 +12,7 @@ type ClientStore = {
   updateClient: (id: string, field: keyof Client, value: string) => Promise<void>
 }
 
-export const useClientStore = create<ClientStore>((set) => ({
+export const useClientStore = create<ClientStore>((set, get) => ({
   clients: [],
   fetchClients: async () => {
     const data = await window.database.getAllClients()
@@ -29,6 +29,7 @@ export const useClientStore = create<ClientStore>((set) => ({
         action_type: "INSERT",
         object_type: "CLIENT",
         object_id: result.data.id,
+        object_name: result.data.name,
       })
     } else {
       toast.error("Error", { description: result.error })
@@ -46,10 +47,12 @@ export const useClientStore = create<ClientStore>((set) => ({
         description: `${field} updated successfully`
       })
       pushClients()
+      const name = get().clients.find((c) => c.id === id)?.name
       await createAuditPartial({
         action_type: "UPDATE",
         object_type: "CLIENT",
         object_id: id,
+        object_name: name ?? '',
       })
     } else {
       toast.error("Update failed", {
@@ -58,6 +61,7 @@ export const useClientStore = create<ClientStore>((set) => ({
     }
   },
   deleteClient: async (id) => {
+    const name = get().clients.find((c) => c.id === id)?.name
     const resCloud = await deleteClient(id)
     const resLocal = await window.database.deleteClient(id)
     if (resCloud.success && resLocal.success) {
@@ -69,6 +73,7 @@ export const useClientStore = create<ClientStore>((set) => ({
         action_type: "DELETE",
         object_type: "CLIENT",
         object_id: id,
+        object_name: name ?? '',
       })
     } else {
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })

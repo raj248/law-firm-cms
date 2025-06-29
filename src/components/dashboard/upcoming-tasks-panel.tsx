@@ -3,7 +3,6 @@
 
 import { format } from "date-fns"
 import { Task } from "@/types"
-
 export function UpcomingTasksPanel({ tasks }: { tasks: Task[] }) {
   const upcomingTasks = [...tasks]
     .filter(t => t.status !== "Closed")

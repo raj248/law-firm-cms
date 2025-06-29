@@ -6,7 +6,7 @@ import { Audit } from "@/types"
 import { useSyncStore } from '@/stores/sync-store'
 
 export async function pullAllAudits() {
-  const { currentUser } = useUserStore.getState()
+  // const { currentUser } = useUserStore.getState()
 
   const { data: audits, error } = await supabase.from('audits').select('*')
 
@@ -18,10 +18,10 @@ export async function pullAllAudits() {
   if (!audits) return
 
   // ✅ Filter out audits created by current user
-  const filteredAudits = audits.filter(audit => audit.user_id !== currentUser?.id)
+  // const filteredAudits = audits.filter(audit => audit.user_id !== currentUser?.id)
 
   // ✅ Add is_synced: 1 to each pulled audit
-  const auditsWithSync = filteredAudits.map(audit => ({
+  const auditsWithSync = audits.map(audit => ({
     ...audit,
     is_synced: 1
   })) as Audit[]
@@ -58,6 +58,7 @@ export async function pushAudits(): Promise<void> {
       action_type: audit.action_type,
       object_type: audit.object_type,
       object_id: audit.object_id,
+      object_name: audit.object_name,
       // Do NOT include is_synced as it does not exist on Supabase
     })
 
@@ -85,21 +86,21 @@ export function handleAuditRealtimePayload(payload: any) {
   }
 
   // Trigger notification
-  useSyncStore.getState().setNewAuditNotification(true)
-
+  
   if (eventType === 'INSERT') {
     const audit: Audit = {
       ...newAudit,
       is_synced: 1, // mark synced locally
     }
-
+    
     // Insert or update in local SQLite
     window.database.insertAudit(audit)
-
+    
     // Refresh local Zustand audit store
     useAuditStore.getState().fetchAudits()
   }
-
+  
+  useSyncStore.getState().setNewAuditNotification(true)
   window.debug.log(
     `🔄 Handled ${eventType} for audit`,
     eventType === 'DELETE' ? oldAudit.id : newAudit.id

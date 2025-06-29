@@ -9,47 +9,16 @@ import Cases from "@/components/pages/cases"
 import TaskPage from "./components/pages/task"
 import DocumentsPage from "./components/pages/documents"
 import ProtectedRoute from "@/components/auth/ProtectedRoute"
-import { useClientStore } from "./stores/client-store"
-import { useEffect } from "react"
-import { useCaseStore } from "./stores/case-store"
-import { useTaskStore } from "./stores/task-store"
 import { DialogPortal } from "./components/dialogs/details/main-dialog-portal"
 import AuthPage from "@/components/pages/auth"
-import { useSyncHook } from "./hooks/useSyncHook"
 import UserManagement from "./components/pages/admin/UserManagement"
-import { supabase } from "./supabase/supabase"
-import { useUserStore } from "./stores/user-store"
 import SettingsPage from "./components/pages/settings"
 import { useUpdateListener } from "./hooks/useUpdateListener"
-// import { UpdateDialog } from "./components/update-banner"
+import { useUserStore } from "./stores/user-store"
+import { useSyncHook } from "./hooks/useSyncHook"
 
 export default function App() {
-  const fetchClients = useClientStore((s) => s.fetchClients)
-  const fetchCases = useCaseStore((s) => s.fetchCases)
-  const fetchTasks = useTaskStore((s) => s.fetchTasks)
-
-  const { fetchCurrentUser, fetchAllowedUsers, isCurrentUserAdmin } = useUserStore()
-
-  useEffect(() => {
-    fetchCurrentUser()
-    fetchAllowedUsers()
-  }, [])
-  useEffect(() => {
-    window.debug.log("Fetching clients...")
-    fetchClients()
-    window.debug.log("Fetching cases...")
-    fetchCases()
-    window.debug.log("Fetching tasks...")
-    fetchTasks()
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        window.debug.log("🔒 No valid session. Redirecting to login...")
-        supabase.auth.signOut()
-        // Redirect to login screen
-      }
-    })
-  }, [])
-
+  const { isCurrentUserAdmin } = useUserStore()
   const { theme } = useTheme()
   useUpdateListener()
   useSyncHook()

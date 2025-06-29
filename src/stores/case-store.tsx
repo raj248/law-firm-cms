@@ -37,6 +37,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         action_type: "INSERT",
         object_type: "CASE",
         object_id: result.data.file_id,
+        object_name: result.data.title,
       })
     } else {
       toast.error("Error", { description: result.error })
@@ -44,6 +45,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
   },
 
   deleteCase: async (id) => {
+    const title = get().cases.find((c) => c.file_id === id)?.title
     const resCloud = await deleteCaseFromCloud(id)
     const resLocal = await window.database.deleteCase(id)
     if (resCloud.success && resLocal.success) {
@@ -55,6 +57,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         action_type: "DELETE",
         object_type: "CASE",
         object_id: id,
+        object_name: title ?? '',
       })
     }
     else {
@@ -89,6 +92,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         action_type: "UPDATE",
         object_type: "CASE",
         object_id: id,
+        object_name: result.updatedCase.title,
       })
     } else {
       toast.error("Error", { description: result.error })

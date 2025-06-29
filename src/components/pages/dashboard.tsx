@@ -5,34 +5,19 @@ import { useCaseStore } from "@/stores/case-store"
 import { useTaskStore } from "@/stores/task-store"
 import { useDocumentStore } from "@/stores/document-store"
 import { useAuditStore } from "@/stores/audit-store"
-import { useEffect, useState } from "react"
-import { ActivityFeedPopover } from "../dashboard/activity-feed-popover"
+import { useEffect } from "react"
 import { DashboardStats } from "../dashboard/dashboard-stats"
 import { QuickActions } from "../dashboard/quick-actions"
 import { RecentClientsCases } from "../dashboard/recent-client-cases"
 import { RecentDocumentsPanel } from "../dashboard/recent-documents-panel"
 import { UpcomingTasksPanel } from "../dashboard/upcoming-tasks-panel"
-import { useSyncStore } from "@/stores/sync-store"
-
-
 
 export default function Dashboard() {
   const { clients, fetchClients } = useClientStore()
   const { cases, fetchCases } = useCaseStore()
   const { tasks, fetchTasks } = useTaskStore()
   const { documents, fetchDocuments, handleView } = useDocumentStore()
-  const { audits, fetchAudits } = useAuditStore()
-  const [newActivityTrigger, setNewActivityTrigger] = useState(false)
-  const newAuditNotification = useSyncStore(s => s.newAuditNotification)
-
-  useEffect(() => {
-    if (newAuditNotification) {
-      setNewActivityTrigger(true)
-
-      // Reset flag after triggering to prevent re-triggers
-      useSyncStore.getState().setNewAuditNotification(false)
-    }
-  }, [newAuditNotification])
+  const { fetchAudits } = useAuditStore()
 
   useEffect(() => {
     fetchClients()
@@ -76,11 +61,7 @@ export default function Dashboard() {
 
       <RecentDocumentsPanel documents={documents} onView={handleView} />
 
-      <ActivityFeedPopover
-        audits={audits}
-        newActivityTrigger={newActivityTrigger}
-        onDismiss={() => setNewActivityTrigger(false)}
-      />
+
     </div>
   )
 }

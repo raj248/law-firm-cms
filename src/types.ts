@@ -3,6 +3,7 @@ export type newAudit = {
   action_type: string
   object_type: string
   object_id: string
+  object_name: string
 }
 
 export interface Audit {
@@ -13,6 +14,7 @@ export interface Audit {
   action_type: string
   object_type: string
   object_id: string
+  object_name: string
   is_synced: number // 0 = not synced, 1 = synced
 }
 

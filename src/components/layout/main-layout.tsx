@@ -2,8 +2,25 @@ import { Outlet } from "react-router-dom"
 import { Toaster } from "@/components/ui/sonner"
 import { Header } from "../header/header"
 import { useTheme } from "@/hooks/theme-provider"
+import { ActivityFeedPopover } from "../dashboard/activity-feed-popover"
+import { useEffect, useState } from "react"
+import { useSyncStore } from "@/stores/sync-store"
+import { useAuditStore } from "@/stores/audit-store"
 
 export default function MainLayout() {
+  const { audits } = useAuditStore()
+  const [newActivityTrigger, setNewActivityTrigger] = useState(false)
+  const newAuditNotification = useSyncStore(s => s.newAuditNotification)
+
+  useEffect(() => {
+    if (newAuditNotification) {
+      setNewActivityTrigger(true)
+
+      // Reset flag after triggering to prevent re-triggers
+      useSyncStore.getState().setNewAuditNotification(false)
+    }
+  }, [newAuditNotification])
+
   const { theme } = useTheme()
 
   return (
@@ -22,7 +39,11 @@ export default function MainLayout() {
           theme={theme}
           visibleToasts={8} />
       </main>
-
+      <ActivityFeedPopover
+        audits={audits}
+        newActivityTrigger={newActivityTrigger}
+        onDismiss={() => setNewActivityTrigger(false)}
+      />
     </div>
   )
 }

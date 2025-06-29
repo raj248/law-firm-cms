@@ -83,6 +83,7 @@ db.exec(`
     action_type TEXT DEFAULT '',
     object_type TEXT DEFAULT '',
     object_id TEXT DEFAULT '',
+    object_name TEXT DEFAULT '',
     is_synced INTEGER DEFAULT 0
   );
 `);

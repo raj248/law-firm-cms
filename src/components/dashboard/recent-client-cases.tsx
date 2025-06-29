@@ -58,7 +58,7 @@ export function RecentClientsCases({ recentClients, recentCases }: RecentClients
           {recentCases.length ? (
             <ul className="space-y-1 text-sm">
               {recentCases.map((c) => (
-                <HoverCard key={c.case_id} openDelay={100} closeDelay={50}>
+                <HoverCard key={c.file_id} openDelay={100} closeDelay={50}>
                   <HoverCardTrigger asChild>
                     <li className="flex justify-between cursor-pointer hover:text-primary">
                       <span>{c.title}</span>

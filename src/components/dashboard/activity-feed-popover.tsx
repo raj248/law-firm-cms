@@ -1,11 +1,14 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
 import { format } from "date-fns"
 import { X } from "lucide-react"
 import { Audit } from "@/types"
 import { playNotificationSound } from "@/utils/sound"
+
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
 
 interface Props {
   audits: Audit[]
@@ -13,84 +16,126 @@ interface Props {
   onDismiss?: () => void
 }
 
-export function ActivityFeedPopover({ audits, newActivityTrigger, onDismiss }: Props) {
+export function ActivityFeedPopover({
+  audits,
+  newActivityTrigger,
+  onDismiss,
+}: Props) {
   const [visible, setVisible] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const [isHovering, setIsHovering] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  // Sort oldest first, keep last 20
+
   useEffect(() => {
-    if (newActivityTrigger) {
+    window.debug.log("ActivityFeedPopover rendered", Date.now())
+  }, [])
+
+  window.debug.log("audits", audits)
+  const sortedAudits = [...audits]
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    .slice(-20)
+
+  const latestAudit = sortedAudits[sortedAudits.length - 1]
+  // window.debug.log("latestAudit", latestAudit)
+
+  useEffect(() => {
+    if (newActivityTrigger && latestAudit) {
       playNotificationSound()
       setVisible(true)
+
       const timer = setTimeout(() => {
-        setVisible(false)
-        onDismiss?.()
+        if (!isHovering) {
+          setVisible(false)
+          onDismiss?.()
+        }
       }, 6000)
+
       return () => clearTimeout(timer)
     }
   }, [newActivityTrigger])
 
-  // Sort oldest first for natural upward scrolling
-  const sortedAudits = [...audits]
-    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-    .slice(-20) // latest 20
-
-  // Auto-scroll to bottom to show latest
   useEffect(() => {
-    if (visible && scrollRef.current) {
+    if (expanded && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [visible, sortedAudits])
+  }, [expanded])
+
+  if (!visible || !latestAudit) return null
+
+  // Utility to convert action_type to readable verb
+  const getActionVerb = (actionType: string) => {
+    const type = actionType.toUpperCase()
+    if (type === "INSERT") return "Added"
+    if (type === "UPDATE") return "Updated"
+    if (type === "DELETE") return "Deleted"
+    return type
+  }
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ x: "100%", opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: "100%", opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed top-4 right-4 z-50 w-[300px] sm:w-[350px] bg-background border rounded-lg shadow-xl p-3"
+    <div
+      className={cn(
+        "fixed right-4 top-1/2 -translate-y-1/2 z-50 bg-background border rounded-lg shadow-xl transition-all duration-300 overflow-hidden",
+        expanded ? "w-[300px] sm:w-[350px] max-h-[400px]" : "w-[250px] max-h-[70px]"
+      )}
+      onMouseEnter={() => {
+        setIsHovering(true)
+        setExpanded(true)
+      }}
+      onMouseLeave={() => {
+        setIsHovering(false)
+        setExpanded(false)
+      }}
+    >
+      <div className="relative">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="absolute top-1 right-1 z-10"
+          onClick={() => {
+            setVisible(false)
+            onDismiss?.()
+          }}
         >
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-base font-semibold">New Activity</h3>
-            <button onClick={() => setVisible(false)}>
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
-          </div>
-          <div
-            ref={scrollRef}
-            className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1 hide-scrollbar"
-          >
-            {sortedAudits.length ? (
-              sortedAudits.map((audit) => (
+          <X className="h-4 w-4 text-muted-foreground" />
+        </Button>
+
+        {expanded ? (
+          <ScrollArea ref={scrollRef} className="p-2 h-[350px]">
+            <div className="flex flex-col gap-2">
+              {sortedAudits.map((audit) => (
                 <div
                   key={audit.id}
-                  className="flex items-start gap-2 rounded bg-muted p-2 shadow-sm"
+                  className="flex flex-col rounded bg-muted p-2 shadow-sm"
                 >
-                  <div className="flex-shrink-0 rounded-full bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center text-xs font-bold">
-                    {audit.user_name ? audit.user_name[0].toUpperCase() : "U"}
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="text-sm">
-                      <span className="font-semibold">{audit.user_name || "Unknown User"}</span>{" "}
-                      {audit.action_type}{" "}
-                      <span className="font-medium">{audit.object_type}</span>
-                    </p>
-                    {audit.object_id && (
-                      <p className="text-xs text-muted-foreground">ID: {audit.object_id}</p>
-                    )}
-                    <p className="text-[10px] text-muted-foreground">
-                      {format(new Date(audit.created_at), "PPP p")}
-                    </p>
+                  <p className="text-sm">
+                    {getActionVerb(audit.action_type)}{" "}
+                    <span className="font-medium">{audit.object_type}</span>{" "}
+                    <span className="font-semibold">{audit.object_name}</span>
+                  </p>
+                  <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                    <span>{audit.user_name || "Unknown User"}</span>
+                    <span>{format(new Date(audit.created_at), "PPP p")}</span>
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No activities yet.</p>
-            )}
+              ))}
+            </div>
+          </ScrollArea>
+        ) : (
+          <div className="flex flex-col p-2">
+            <p className="text-sm line-clamp-2">
+              {getActionVerb(latestAudit.action_type)}{" "}
+              <span className="font-medium">{latestAudit.object_type}</span>{" "}
+              <span className="font-semibold">{latestAudit.object_name}</span>
+            </p>
+            <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+              <span>{latestAudit.user_name || "Unknown User"}</span>
+              <span>{format(new Date(latestAudit.created_at), "p")}</span>
+            </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </div>
+    </div>
   )
 }

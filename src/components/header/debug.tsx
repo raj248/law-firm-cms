@@ -49,6 +49,16 @@ export function Debug() {
           variant="ghost"
           size="sm"
           className="w-full justify-start"
+          onClick={() => useSyncStore.getState().setNewAuditNotification(true)}
+        >
+          <Terminal size={16} className="mr-2" />
+          New Notification
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
           onClick={handleFetchDocs}
         >
           <RefreshCcw size={16} className="mr-2" />
@@ -75,15 +85,6 @@ export function Debug() {
           Log App Version
         </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-          onClick={() => useSyncStore.getState().setNewAuditNotification(true)}
-        >
-          <Terminal size={16} className="mr-2" />
-          New Notification
-        </Button>
       </PopoverContent>
     </Popover>
   )

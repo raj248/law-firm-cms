@@ -5,14 +5,15 @@ import { db } from "./db.ts"
 // INSERT AUDIT WITH AUTO CLEANUP
 export const insertAudit = (audit: Audit): { success: boolean; error?: string; data?: Audit } => {
   const stmt = db.prepare(`
-    INSERT INTO audits (id, created_at, user_id, user_name, action_type, object_type, object_id, is_synced)
-    VALUES (@id, @created_at, @user_id, @user_name, @action_type, @object_type, @object_id, @is_synced)
+    INSERT OR REPLACE INTO audits 
+    (id, created_at, user_id, user_name, action_type, object_type, object_id, object_name, is_synced)
+    VALUES (@id, @created_at, @user_id, @user_name, @action_type, @object_type, @object_id, @object_name, @is_synced)
   `)
 
   const result = stmt.run(audit)
 
   if (result.changes === 0) {
-    return { success: false, error: "Insert failed: no rows affected." }
+    return { success: false, error: "Upsert failed: no rows affected." }
   }
 
   // CLEANUP: Keep max 300 rows
@@ -28,6 +29,7 @@ export const insertAudit = (audit: Audit): { success: boolean; error?: string; d
 
   return { success: true, data: audit }
 }
+
 
 // GET ALL AUDITS
 export const getAllAudits = (): Audit[] => {
