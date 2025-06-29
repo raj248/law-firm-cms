@@ -141,6 +141,7 @@ export function useSyncHook() {
       if (subs_cases) supabase.removeChannel(subs_cases)
       if (subs_courts) supabase.removeChannel(subs_courts)
       if (subs_tags) supabase.removeChannel(subs_tags)
+      if (subs_audits) supabase.removeChannel(subs_audits)
     }
 
     const handleReconnect = async () => {
@@ -163,6 +164,9 @@ export function useSyncHook() {
       window.removeEventListener('beforeunload', handleOffline)
       if (subs_clients) supabase.removeChannel(subs_clients)
       if (subs_cases) supabase.removeChannel(subs_cases)
+      if (subs_courts) supabase.removeChannel(subs_courts)
+      if (subs_tags) supabase.removeChannel(subs_tags)
+      if (subs_audits) supabase.removeChannel(subs_audits)
     }
   }, [])
 }
