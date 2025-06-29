@@ -97,10 +97,6 @@ export function GlobalSearch() {
     debounceRef.current = setTimeout(() => runSearch(query), 200)
   }, [query])
 
-  // useEffect(() => {
-  //   window.debug.log("Updated results:", results)
-  // }, [results])
-
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

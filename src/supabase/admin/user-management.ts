@@ -34,12 +34,11 @@ export async function addUser(name: string, email: string, role: string) {
     return
   }
 
-  const { data, error } = await supabase
+  const {  error } = await supabase
     .from("allowed_users")
     .insert([{ name, email, role }])
     .select()
   if (!error) {
-    window.debug.log(data)
     toast.success(`User ${name} - ${email} - ${role} added successfully`)
     loadUsers()
   } else {
@@ -99,7 +98,7 @@ export async function deleteUser(id: string) {
 
   
   const result = await window.admin.deleteUser(userToBeDeleted?.user_id)
-  window.debug.log(result)
+  // window.debug.log(result)
   if(!result.success) {
     toast.error("Error Deleting User", { description: result.error })
     return

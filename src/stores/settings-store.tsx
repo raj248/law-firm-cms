@@ -46,14 +46,14 @@ export const useSettingsStore = create<SettingsState>()(
         const success = window.database.insertCourt(court)
         success ?? set((state) => ({ courts: [...state.courts, court] }))
         get().fetchCourts()
-        window.debug.log("Added court:", court)
+        // window.debug.log("Added court:", court)
         pushSettings()
       },
       addTag: (tag) => {
         const success = window.database.insertTag(tag)
         success ?? set((state) => ({ tags: [...state.tags, tag] }))
         get().fetchTags()
-        window.debug.log("Added tag:", tag)
+        // window.debug.log("Added tag:", tag)
         pushSettings()
       },
       // DELETE AND UPDATE NOT IMPLEMENTED

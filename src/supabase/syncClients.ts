@@ -5,7 +5,7 @@ import { Client } from '@/types'
 import { toast } from 'sonner'
 
 export async function pullClients(lastSyncTime: string): Promise<void> {
-  window.debug.log(lastSyncTime)
+  // window.debug.log(lastSyncTime)
   const { data, error } = await supabase
     .from('clients')
     .select('*')
@@ -15,7 +15,7 @@ export async function pullClients(lastSyncTime: string): Promise<void> {
     toast.error('❌ Pull failed', {description: error.message})
     return
   }
-  window.debug.log(data)
+  // window.debug.log(data)
 
   if(!data) return
   window.database.insertOrUpdateClients(data as Client[])
@@ -50,7 +50,6 @@ export async function pullAllClients() {
   // 🔽 STEP 3: Delete them from local DB
   if (deletedClientIds.length > 0) {
     for(const id of deletedClientIds) {
-      window.debug.log("Id to delete: ",id)
       const res = await window.database.deleteClient(id)
       window.debug.log("Deleted clients locally:", id, " : ", res)
       

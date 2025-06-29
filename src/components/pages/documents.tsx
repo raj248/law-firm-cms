@@ -41,9 +41,7 @@ export default function DocumentsPage() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      window.debug.log("Documents loading...");
       await fetchDocuments();
-      window.debug.log("Documents loaded");
       setLoading(false);
     };
     load();
@@ -57,14 +55,13 @@ export default function DocumentsPage() {
   const handleUpload = async () => {
     if (!selectedFile) return
     setUploading(true)
-    const { data, error } = await supabase.storage.from("templates").upload(selectedFile.name, selectedFile, { upsert: true })
+    const { error } = await supabase.storage.from("templates").upload(selectedFile.name, selectedFile, { upsert: true })
     if (error) {
       window.debug.log(error)
       toast.error("Upload failed")
     } else {
       toast.success("Upload successful")
       fetchDocuments()
-      window.debug.log(data)
       setOpen(false)
     }
     setUploading(false)
@@ -73,16 +70,6 @@ export default function DocumentsPage() {
 
   const handleDelete = async (name: string) => {
     setConfirmDelete({ name });
-    // if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return
-    // const { error } = await supabase.storage.from("templates").remove([name])
-    // if (error) {
-    //   window.debug.log(error)
-    //   toast.error("Delete failed")
-    // } else {
-    //   toast.success("Deleted successfully")
-    //   fetchDocuments()
-    //   removeDocument(name)
-    // }
   }
 
   const filteredDocuments = useMemo(() =>

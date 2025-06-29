@@ -36,7 +36,7 @@ export async function pushCases(): Promise<void> {
     }
   }
 
-  window.debug.log('📦 Local cases marked as synced.')
+  // window.debug.log('📦 Local cases marked as synced.')
 }
 
 export const deleteCase = async (id:string): Promise<{success:boolean, error?: PostgrestError}> => {

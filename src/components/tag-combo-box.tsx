@@ -53,7 +53,6 @@ export function TagsCombobox({
     if (!options.includes(newTag)) {
       setTags([...tags, newTag])
       useSettingsStore.getState().addTag(newTag)
-      window.debug.log(options)
     } else {
       toggleTag(newTag)
     }

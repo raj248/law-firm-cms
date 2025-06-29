@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Case } from '@/types'
 import { toast } from 'sonner'
 import { deleteCase as deleteCaseFromCloud, pushCases as pushCasesToCloud } from '@/supabase/cloud-cases'
+import { createAuditPartial } from '@/lib/audit'
 
 type CaseStore = {
   cases: Case[]
@@ -27,12 +28,16 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
 
   addCase: async (legalCase) => {
     const result = await window.database.insertCase(legalCase)
-    window.debug.log("Added case: ", result)
+    // window.debug.log("Added case: ", result)
     if (result.success && result.data) {
       set((state) => ({ cases: [...state.cases, result.data] }))
       toast.success("Case added", { description: legalCase.title })
       pushCasesToCloud()
-
+      await createAuditPartial({
+        action_type: "INSERT",
+        object_type: "CASE",
+        object_id: result.data.file_id,
+      })
     } else {
       toast.error("Error", { description: result.error })
     }
@@ -46,7 +51,11 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         cases: state.cases.filter((c) => c.file_id !== id),
       }))
       toast.success("Case deleted", { description: "Case has been deleted" })
-      // pushCasesToCloud()
+      await createAuditPartial({
+        action_type: "DELETE",
+        object_type: "CASE",
+        object_id: id,
+      })
     }
     else {
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })
@@ -70,12 +79,17 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
             : c
         ),
       }))
-      window.debug.log("Updated case: ", result.updatedCase)
+      // window.debug.log("Updated case: ", result.updatedCase)
       toast.success("Case updated", {
         description: `${field} updated successfully`
       })
       deleteCaseFromCloud(file_id)
       pushCasesToCloud()
+      await createAuditPartial({
+        action_type: "UPDATE",
+        object_type: "CASE",
+        object_id: id,
+      })
     } else {
       toast.error("Error", { description: result.error })
     }

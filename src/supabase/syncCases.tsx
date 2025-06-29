@@ -50,7 +50,6 @@ export async function pullAllCases(): Promise<void> {
   // 🔽 Delete them from local DB
   if (deletedCaseIds.length > 0) {
     for (const id of deletedCaseIds) {
-      window.debug.log("Id to delete:", id)
       const res = await window.database.deleteCase(id)
       window.debug.log("Deleted cases locally:", id, ":", res)
     }

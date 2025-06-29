@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 type SyncState = {
   lastSyncedAt: string
-  isRealtimeActive: boolean
+  isRealTimeActive: boolean
   setLastSyncedAt: (ts: string) => void
   setRealtimeActive: (val: boolean) => void
   resetLastSyncedAt: () => void
@@ -14,9 +14,9 @@ export const useSyncStore = create<SyncState>()(
   persist(
     (set) => ({
       lastSyncedAt: '1970-01-01T00:00:00Z',
-      isRealtimeActive: false,
+      isRealTimeActive: false,
       setLastSyncedAt: (ts) => set({ lastSyncedAt: ts }),
-      setRealtimeActive: (val) => set({ isRealtimeActive: val }),
+      setRealtimeActive: (val) => set({ isRealTimeActive: val }),
       resetLastSyncedAt: () => set({ lastSyncedAt: '1970-01-01T00:00:00Z' }),
       clear: (): any => useSyncStore.persist.clearStorage()
     }),

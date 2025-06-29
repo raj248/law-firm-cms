@@ -25,7 +25,7 @@ export const useClientStore = create<ClientStore>((set) => ({
       set((state) => ({ clients: [...state.clients, result.data] }))
       toast.success("Client added", { description: `${result.data.name} has been added` })
       pushClients()
-      createAuditPartial({
+      await createAuditPartial({
         action_type: "INSERT",
         object_type: "CLIENT",
         object_id: result.data.id,
@@ -46,7 +46,7 @@ export const useClientStore = create<ClientStore>((set) => ({
         description: `${field} updated successfully`
       })
       pushClients()
-      createAuditPartial({
+      await createAuditPartial({
         action_type: "UPDATE",
         object_type: "CLIENT",
         object_id: id,
@@ -65,7 +65,7 @@ export const useClientStore = create<ClientStore>((set) => ({
         clients: state.clients.filter((c) => c.id !== id)
       }))
       toast.success("Client deleted", { description: "Client has been deleted" })
-      createAuditPartial({
+      await createAuditPartial({
         action_type: "DELETE",
         object_type: "CLIENT",
         object_id: id,
@@ -75,8 +75,3 @@ export const useClientStore = create<ClientStore>((set) => ({
     }
   }
 }))
-
-// For update client
-// set((state) => ({
-//   clients: state.clients.map((c) => c.id === client.id ? client : c)
-// }))

@@ -34,7 +34,7 @@ export async function pushClients(): Promise<void> {
     }
   }
 
-  window.debug.log('📦 Local database updated with synced status.')
+  // window.debug.log('📦 Local Clients updated with synced status.')
 }
 
 export const deleteClient = async (id:string): Promise<{success:boolean, error?: PostgrestError}> => {

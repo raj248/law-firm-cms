@@ -26,7 +26,7 @@ export const useAuditStore = create<AuditStoreState>()(
         try {
           const audits = await window.database.getAllAudits()
           set({ audits, loading: false })
-          window.debug.log("Fetched audits: ", audits)
+          // window.debug.log("Fetched audits: ", audits)
         } catch (e) {
           set({ error: String(e), loading: false })
         }
@@ -37,18 +37,27 @@ export const useAuditStore = create<AuditStoreState>()(
           const audits = await window.database.unsyncedAudits()
           if (audits.length === 0) return
 
-          const { error } = await supabase.from("audits").insert(audits)
+          // Remove `is_synced` before pushing to Supabase
+          const auditsToPush = audits.map(({ is_synced, ...rest }) => rest)
+
+          const { error } = await supabase.from("audits").insert(auditsToPush)
+
           if (error) {
             set({ error: error.message })
+            window.debug.log("Error pushing audits: ", error)
             return
           }
 
+          // Mark as synced locally after successful push
           audits.forEach((audit) => window.database.updateAuditSync(audit.id))
+
           await get().fetchAudits()
         } catch (e) {
           set({ error: String(e) })
+          window.debug.log("Error in pushAudits:", e)
         }
       },
+
 
       addAudit: async (audit: Audit) => {
         try {

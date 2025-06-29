@@ -37,7 +37,7 @@ const onAdd = (data: ClientFormData) => {
     note: data.note || "Not Available",
     id: id,
   })
-  window.debug.log("Client added:", data)
+  // window.debug.log("Client added:", data)
 }
 
 export function AddClientDialog() {
