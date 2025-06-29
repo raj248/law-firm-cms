@@ -1,22 +1,26 @@
-import { createRequire } from 'node:module'
-const require = createRequire(import.meta.url)
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
-const Database = require("better-sqlite3")
-import path from 'path'
-import fs from 'fs'
-import { app } from 'electron'
+const Database = require("better-sqlite3");
+import path from 'path';
+import fs from 'fs';
+import { app } from 'electron';
 
+// Ensure Electron app is ready before calling app.getPath
+console.log('App Name:', app.getName());
 
-console.log('App Name : ',app.getName())
-// const dbPath = path.join(app.getPath('userData'), 'lawfirm.db')
-const dbPath = path.join('./database', 'lawfirm.db')
-console.log("Databse Path : ",dbPath)
+const dbDirectory = app.getPath('userData'); // ✅ User-safe, writable
+const dbPath = path.join(dbDirectory, 'lawfirm.db');
+
+console.log("Database Path:", dbPath);
+
 // Ensure folder exists
-fs.mkdirSync(path.dirname(dbPath), { recursive: true })
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
-export const db = new Database(dbPath)
+// Initialize DB
+export const db = new Database(dbPath);
 
-// Create tables if not exists
+// Create tables if not exist
 db.exec(`
   CREATE TABLE IF NOT EXISTS clients (
     id TEXT PRIMARY KEY,
@@ -42,15 +46,15 @@ db.exec(`
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     is_synced INTEGER DEFAULT 1
-    );
-    
+  );
+
   CREATE TABLE IF NOT EXISTS tasks (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     note TEXT,
     status TEXT CHECK(status IN ('Open', 'Closed', 'Pending', 'Deffered')) NOT NULL DEFAULT 'Open',
     priority TEXT CHECK(priority IN ('Low', 'Medium', 'High', 'Urgent')) NOT NULL DEFAULT 'Medium',
-    dueDate TEXT, -- ISO date (nullable if no due date)
+    dueDate TEXT,
     caseId TEXT,
     client_id TEXT,
     created_at TEXT NOT NULL,
@@ -73,15 +77,13 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS audits (
-  id TEXT PRIMARY KEY,
-  created_at TEXT NOT NULL,
-  user_id TEXT DEFAULT '',
-  user_name TEXT DEFAULT '',
-  action_type TEXT DEFAULT '',
-  object_type TEXT DEFAULT '',
-  object_id TEXT DEFAULT '',
-  is_synced INTEGER DEFAULT 0
-);
-
-
-`)
+    id TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL,
+    user_id TEXT DEFAULT '',
+    user_name TEXT DEFAULT '',
+    action_type TEXT DEFAULT '',
+    object_type TEXT DEFAULT '',
+    object_id TEXT DEFAULT '',
+    is_synced INTEGER DEFAULT 0
+  );
+`);
