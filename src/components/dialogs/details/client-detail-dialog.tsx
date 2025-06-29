@@ -4,9 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditableField } from "../editable-field";
+import { EditableField } from "../../editable-field";
 import { Client } from "@/types";
-import { CaseSection } from "../case-section";
+import { CaseSection } from "./case-section";
 import { useClientStore } from "@/stores/client-store"
 
 type Props = {

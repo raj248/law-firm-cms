@@ -1,6 +1,6 @@
 "use client"
 
-import { CaseTable } from "../case-table"
+import { CaseTable } from "../tables/case-table"
 
 
 export default function CasesPage() {

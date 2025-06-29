@@ -11,6 +11,8 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip"
+import { pullAllAudits } from "@/supabase/syncAudits"
+import { pullAllSettings } from "@/supabase/syncSettings"
 
 export function CloudSyncButton() {
   const [syncing, setSyncing] = useState(false)
@@ -21,6 +23,8 @@ export function CloudSyncButton() {
     toast.message("Syncing with cloud...")
     await pullAllClients()
     await pullAllCases()
+    await pullAllSettings()
+    await pullAllAudits()
     // toast.success("✅ Sync complete")
     setSyncing(false)
   }

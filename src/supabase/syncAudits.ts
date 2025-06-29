@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { useUserStore } from "@/stores/user-store"
 import { useAuditStore } from "@/stores/audit-store"
 import { Audit } from "@/types"
+import { useSyncStore } from '@/stores/sync-store'
 
 export async function pullAllAudits() {
   const { currentUser } = useUserStore.getState()
@@ -75,20 +76,31 @@ export async function pushAudits(): Promise<void> {
 export function handleAuditRealtimePayload(payload: any) {
   const { eventType, new: newAudit, old: oldAudit } = payload
 
+  const currentUserId = useUserStore.getState().currentUser?.id
+
+  // Skip processing if the audit is from the current user
+  if (newAudit?.user_id === currentUserId) {
+    window.debug.log(`🛑 Skipped audit ${newAudit.id} from current user ${currentUserId}`)
+    return
+  }
+
+  // Trigger notification
+  useSyncStore.getState().setNewAuditNotification(true)
+
   if (eventType === 'INSERT') {
     const audit: Audit = {
       ...newAudit,
-      is_synced: 1, // ensure synced locally
+      is_synced: 1, // mark synced locally
     }
 
-    // Insert/update in local SQLite
+    // Insert or update in local SQLite
     window.database.insertAudit(audit)
 
-    // Refresh audit Zustand store
+    // Refresh local Zustand audit store
     useAuditStore.getState().fetchAudits()
   }
 
-    window.debug.log(
+  window.debug.log(
     `🔄 Handled ${eventType} for audit`,
     eventType === 'DELETE' ? oldAudit.id : newAudit.id
   )

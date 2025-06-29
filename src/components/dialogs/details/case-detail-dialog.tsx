@@ -4,14 +4,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { EditableField } from "../editable-field"
+import { EditableField } from "../../editable-field"
 import { Badge } from "@/components/ui/badge"
 import { Case, statusOptions } from "@/types"
 import { formatDistanceToNow } from "date-fns"
-import { DropdownEditableField } from "../dropdown-editable-field"
+import { DropdownEditableField } from "../../dropdown-editable-field"
 import { useCaseStore } from "@/stores/case-store"
 import React from "react"
-import { TagsCombobox } from "../tag-combo-box"
+import { TagsCombobox } from "../../combo-box/tag-combo-box"
 import { useSettingsStore } from "@/stores/settings-store"
 
 type Props = {

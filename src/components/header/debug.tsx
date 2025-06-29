@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover"
+import { useSyncStore } from "@/stores/sync-store"
 
 export function Debug() {
   const fetchDocuments = useDocumentStore((s) => s.fetchDocuments)
@@ -72,6 +73,16 @@ export function Debug() {
         >
           <Terminal size={16} className="mr-2" />
           Log App Version
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start"
+          onClick={() => useSyncStore.getState().setNewAuditNotification(true)}
+        >
+          <Terminal size={16} className="mr-2" />
+          New Notification
         </Button>
       </PopoverContent>
     </Popover>

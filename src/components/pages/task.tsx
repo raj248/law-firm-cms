@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { useTaskStore } from "@/stores/task-store"
-import { AddTaskDialog } from "../add-task-dialog"
+import { AddTaskDialog } from "../dialogs/add/add-task-dialog"
 import {
   Card,
   CardContent,

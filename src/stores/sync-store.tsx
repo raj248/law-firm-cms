@@ -4,6 +4,8 @@ import { persist } from 'zustand/middleware'
 type SyncState = {
   lastSyncedAt: string
   isRealTimeActive: boolean
+  newAuditNotification: boolean
+  setNewAuditNotification: (flag: boolean) => void
   setLastSyncedAt: (ts: string) => void
   setRealtimeActive: (val: boolean) => void
   resetLastSyncedAt: () => void
@@ -15,6 +17,8 @@ export const useSyncStore = create<SyncState>()(
     (set) => ({
       lastSyncedAt: '1970-01-01T00:00:00Z',
       isRealTimeActive: false,
+      newAuditNotification: false,
+      setNewAuditNotification: (flag: boolean) => set({ newAuditNotification: flag }),
       setLastSyncedAt: (ts) => set({ lastSyncedAt: ts }),
       setRealtimeActive: (val) => set({ isRealTimeActive: val }),
       resetLastSyncedAt: () => set({ lastSyncedAt: '1970-01-01T00:00:00Z' }),

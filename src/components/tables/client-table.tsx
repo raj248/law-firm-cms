@@ -11,8 +11,6 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-  FilterFn,
-  Row,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 
@@ -34,27 +32,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Case } from "@/types"
-import { useCaseStore } from "@/stores/case-store"
-import { CaseDetailDialog } from "./dialogs/case-detail-dialog"
+import { Client } from "@/types"
+import { useClientStore } from "@/stores/client-store"
+import { ClientDetailDialog } from "../dialogs/details/client-detail-dialog"
 import { toast } from "sonner"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
-import { AddCaseDialog } from "./add-case-dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog"
+import { AddClientDialog } from "../dialogs/add/add-client-dialog"
 import { formatDistanceToNow } from "date-fns"
 
-const COLUMN_VISIBILITY_KEY = "case-table-column-visibility"
-
-const tagIncludes: FilterFn<Case> = (
-  row: Row<Case>,
-  columnId: string,
-  filterValue: string
-) => {
-  const tags = row.getValue(columnId) as string[]
-  if (!Array.isArray(tags)) return false
-  return tags.some((tag) =>
-    tag.toLowerCase().includes(filterValue.toLowerCase())
-  )
-}
+const COLUMN_VISIBILITY_KEY = "client-table-column-visibility"
 
 const getInitialVisibility = (): VisibilityState => {
   if (typeof window === "undefined") return {}
@@ -62,93 +48,57 @@ const getInitialVisibility = (): VisibilityState => {
   return stored ? JSON.parse(stored) : {}
 }
 
-export function CaseTable() {
-  const columns: ColumnDef<Case>[] = [
+export function ClientTable() {
+  const columns: ColumnDef<Client>[] = [
     {
-      accessorKey: "file_id",
+      accessorKey: "name",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          File ID <ArrowUpDown className="ml-2 h-4 w-4" />
+          Name <ArrowUpDown />
         </Button>
       ),
+      cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
       filterFn: 'includesString',
-      cell: ({ row }) => <div>{row.getValue("file_id")}</div>,
     },
     {
-      accessorKey: "case_id",
+      accessorKey: "phone",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Case ID <ArrowUpDown className="ml-2 h-4 w-4" />
+          Phone <ArrowUpDown />
         </Button>
       ),
       filterFn: 'includesString',
-      cell: ({ row }) => <div>{row.getValue("case_id") ?? "---"}</div>,
+      cell: ({ row }) => <div>{row.getValue("phone")}</div>,
     },
     {
-      accessorKey: "title",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Title <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      accessorKey: "email",
+      header: "Email",
       filterFn: 'includesString',
-      cell: ({ row }) => <div>{row.getValue("title")}</div>,
+      cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
     },
     {
-      accessorKey: "description",
-      header: "Description",
-      filterFn: 'includesString',
+      accessorKey: "address",
+      header: "Address",
       cell: ({ row }) => (
-        <div className="truncate max-w-xs" title={row.getValue("description")}>
-          {row.getValue("description")}
+        <div className="truncate max-w-xs" title={row.getValue("address")}>
+          {row.getValue("address")}
         </div>
       ),
     },
     {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: "note",
+      header: "Note",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("status")}</div>
+        <div className="truncate max-w-xs" title={row.getValue("note")}>
+          {row.getValue("note")}
+        </div>
       ),
-    },
-    {
-      accessorKey: "court",
-      header: "Court",
-      filterFn: 'includesString',
-      cell: ({ row }) => <div>{row.getValue("court")}</div>,
-    },
-    {
-      accessorKey: "tags",
-      header: "Tags",
-      filterFn: "includesString",
-      cell: ({ row }) => {
-        const tags: string[] = row.getValue("tags") || []
-        return (
-          <div className="flex flex-wrap gap-1">
-            {tags.length > 0 ? (
-              tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-0.5 text-xs bg-[var(--color-accent)] text-[var(--color-accent-foreground)] rounded-full"
-                >
-                  {tag}
-                </span>
-              ))
-            ) : (
-              <span className="text-muted-foreground text-sm">—</span>
-            )}
-          </div>
-        )
-      },
     },
     {
       accessorKey: "updated_at",
@@ -165,39 +115,60 @@ export function CaseTable() {
     },
     {
       id: "actions",
-      enableHiding: false,
+      enableHiding: true,
       cell: ({ row }) => {
-        const item = row.original
+        const client = row.original
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open actions</span>
-                <MoreHorizontal className="h-4 w-4" />
+              <Button variant="ghost" className="h-8 w-8 p-0"
+                onClick={() => console.log("Dropdown Trigger Clicked")}
+              >
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="z-50">
-
-              {row.original.case_id && (<DropdownMenuItem
+              <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation()
-                  navigator.clipboard.writeText(item.case_id)
-                  toast("Copied", { description: "Case ID copied" })
-                }
-                }
+                  navigator.clipboard.writeText(client.id)
+                  toast("Copied", { description: "Client ID copied to clipboard" })
+                }}
               >
-                Copy Case ID
+                Copy Client ID
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {client.email && (<DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(client.email)
+                  toast("Copied", { description: "Email copied to clipboard" })
+                }}
+              >
+                Copy Email
               </DropdownMenuItem>)}
 
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation()
-                  navigator.clipboard.writeText(item.title)
-                  toast("Copied", { description: "Case Title copied" })
-                }
-                }
+                  navigator.clipboard.writeText(client.phone)
+                  toast("Copied", { description: "Phone number copied to clipboard" })
+                }}
               >
-                Copy Case Title
+                Copy Phone
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // your appointment logic
+                  toast("Scheduled", { description: "Appointment logic executed" })
+                }}
+              >
+                Schedule Appointment
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
@@ -206,7 +177,8 @@ export function CaseTable() {
                 className="text-destructive focus:text-destructive"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setCaseToDelete(item)
+                  // delete logic
+                  setClientToDelete(client)
                   setIsAlertDialogOpen(true)
                 }}
               >
@@ -222,15 +194,15 @@ export function CaseTable() {
   const [globalFilter, setGlobalFilter] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(getInitialVisibility)
   const [rowSelection, setRowSelection] = React.useState({})
-  const cases = useCaseStore((s) => s.cases)
-  const [selectedCase, setSelectedCase] = React.useState<string | null>(null);
+  const client = useClientStore((s) => s.clients)
+  const [selectedClient, setSelectedClient] = React.useState<string | null>(null);
   const [open, setOpen] = React.useState(false);
-  const [caseToDelete, setCaseToDelete] = React.useState<Case | null>(null)
+  const [clientToDelete, setClientToDelete] = React.useState<Client | null>(null)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = React.useState(false)
 
 
-  const table = useReactTable({
-    data: cases,
+  const table = useReactTable<Client>({
+    data: client,
     columns,
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
@@ -241,9 +213,6 @@ export function CaseTable() {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     globalFilterFn: 'includesString',
-    filterFns: {
-      tagIncludes,
-    },
     state: {
       sorting,
       globalFilter,
@@ -260,31 +229,31 @@ export function CaseTable() {
     <div className="w-full">
       <div className="flex justify-between py-4">
         <Input
-          placeholder="Filter by id, title, description, court, or tags..."
+          placeholder="Filter by name, email, or phone..."
           value={globalFilter ?? ""}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          className="max-w-sm bg-muted text-foreground placeholder:text-muted-foreground focus:bg-muted"
+          onChange={(event) => setGlobalFilter(event.target.value)}
+          className="max-w-sm bg-muted placeholder:text-muted-foreground focus:bg-muted"
         />
+
         <div className="flex items-center gap-2">
-          <AddCaseDialog />
+          <AddClientDialog />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="z-50 bg-popover text-popover-foreground">
-              {table
-                .getAllColumns()
-                .filter((col) => col.getCanHide())
-                .map((col) => (
+            <DropdownMenuContent align="end">
+              {table.getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
                   <DropdownMenuCheckboxItem
-                    key={col.id}
+                    key={column.id}
                     className="capitalize"
-                    checked={col.getIsVisible()}
-                    onCheckedChange={(val) => col.toggleVisibility(!!val)}
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {col.id}
+                    {column.id}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>
@@ -292,16 +261,19 @@ export function CaseTable() {
         </div>
       </div>
 
-      <div className="rounded-md border overflow-x-auto scrollbar-custom bg-card">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
-                {hg.headers.map((header) => (
-                  <TableHead key={header.id} className="text-muted-foreground">
+      <div className="rounded-md border border-border overflow-x-auto scrollbar-custom">
+        <Table className="min-w-full text-foreground">
+          <TableHeader className="bg-secondary/50">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="text-foreground">
                     {header.isPlaceholder
                       ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                      : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -310,19 +282,23 @@ export function CaseTable() {
 
           <TableBody>
             {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => {
-                    setSelectedCase(row.original.file_id);
+                    setSelectedClient(row.original.id);
                     setOpen(true);
                   }}
-                  className="hover:bg-muted/30 cursor-pointer"
+                  className={`cursor-pointer transition-colors ${index % 2 === 0 ? "bg-card/80" : "bg-muted/30"
+                    } hover:bg-muted`}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-foreground">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <TableCell key={cell.id} className="py-3 px-4">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -330,7 +306,7 @@ export function CaseTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                  No cases found.
+                  No clients found.
                 </TableCell>
               </TableRow>
             )}
@@ -339,9 +315,13 @@ export function CaseTable() {
       </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="text-muted-foreground flex-1 text-sm">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} selected
+        </div>
         <div className="space-x-2">
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -349,7 +329,7 @@ export function CaseTable() {
             Previous
           </Button>
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -359,26 +339,32 @@ export function CaseTable() {
         </div>
       </div>
 
-      {selectedCase && (
-        <CaseDetailDialog open={open} setOpen={setOpen} file_id={selectedCase} />
+      {selectedClient && (
+        <ClientDetailDialog
+          open={open}
+          setOpen={setOpen}
+          client_id={selectedClient}
+        />
       )}
 
       <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
-        <AlertDialogContent className="!max-w-screen-md !w-full p-6 bg-popover text-popover-foreground">
+        <AlertDialogContent className="!max-w-screen-md !w-full p-6">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. It will permanently delete Case:
-              <span className="font-semibold text-destructive"> {caseToDelete?.title}</span>.
+              This action cannot be undone. It will permanently delete Client:{" "}
+              <span className="font-semibold text-destructive">
+                {clientToDelete?.name}
+              </span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                if (caseToDelete) {
-                  useCaseStore.getState().deleteCase(caseToDelete.file_id);
-                  setCaseToDelete(null);
+                if (clientToDelete) {
+                  useClientStore.getState().deleteClient(clientToDelete.id);
+                  setClientToDelete(null);
                   setIsAlertDialogOpen(false);
                 }
               }}

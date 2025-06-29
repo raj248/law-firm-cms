@@ -1,4 +1,4 @@
-import { ClientTable } from "@/components/client-table" // the reusable DataTable
+import { ClientTable } from "@/components/tables/client-table" // the reusable DataTable
 
 export default function ClientsPage() {
   return (
