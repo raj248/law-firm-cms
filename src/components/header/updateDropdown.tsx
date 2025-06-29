@@ -1,7 +1,6 @@
 "use client"
 
 import { useUpdateStore } from "@/stores/update-store"
-import { useUpdateListener } from "@/hooks/useUpdateListener"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -14,8 +13,6 @@ import {
 import { RefreshCcw, CheckCircle, DownloadCloud } from "lucide-react"
 
 export function UpdateDropdown() {
-  useUpdateListener()
-
   const {
     updateAvailable,
     version,
@@ -49,7 +46,7 @@ export function UpdateDropdown() {
         align="end"
         side="top"
       >
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex items-center gap-2">
             {downloaded ? (
               <CheckCircle className="text-green-600" size={20} />
@@ -64,13 +61,11 @@ export function UpdateDropdown() {
           <p className="text-sm text-muted-foreground">
             {downloaded ? (
               <>
-                Version <span className="font-medium">{version}</span> has been
-                downloaded and is ready to install.
+                Version <span className="font-medium">{version}</span> has been downloaded and is ready to install.
               </>
             ) : (
               <>
-                Downloading version <span className="font-medium">{version}</span>... (
-                {progress.toFixed(1)}%)
+                Downloading version <span className="font-medium">{version}</span>... ({progress.toFixed(1)}%)
               </>
             )}
           </p>
@@ -104,7 +99,12 @@ export function UpdateDropdown() {
                 🔁 Restart to Update
               </Button>
             ) : (
-              <Button variant="secondary" size="sm" className="w-full" disabled>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-full"
+                disabled
+              >
                 Downloading...
               </Button>
             )}

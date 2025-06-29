@@ -20,6 +20,7 @@ import UserManagement from "./components/pages/admin/UserManagement"
 import { supabase } from "./supabase/supabase"
 import { useUserStore } from "./stores/user-store"
 import SettingsPage from "./components/pages/settings"
+import { useUpdateListener } from "./hooks/useUpdateListener"
 // import { UpdateDialog } from "./components/update-banner"
 
 export default function App() {
@@ -50,6 +51,7 @@ export default function App() {
   }, [])
 
   const { theme } = useTheme()
+  useUpdateListener()
   useSyncHook()
   return (
     <ThemeProvider defaultTheme={theme} storageKey="vite-ui-theme">
