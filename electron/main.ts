@@ -62,6 +62,7 @@ function createSplashWindow() {
   });
 
   splashWin.webContents.on('did-finish-load', () => {
+    splashWin?.webContents.openDevTools({ mode: 'detach' })
     splashWin?.show()
   })
   splashWin.loadFile(path.join(SPLASH_DIST, 'index.html'));
@@ -88,10 +89,14 @@ function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
     console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL)
+    win.webContents.openDevTools({ mode: 'detach' })
+
     
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+    win.webContents.openDevTools({ mode: 'detach' })
+
     console.log("RENDERER_DIST: ", path.join(RENDERER_DIST, 'index.html'))
   }
   win?.setAutoHideMenuBar(true)
