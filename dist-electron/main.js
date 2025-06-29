@@ -2,15 +2,15 @@ var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 import require$$1$5, { app, BrowserWindow, ipcMain, shell } from "electron";
-import { createRequire } from "node:module";
-import require$$1 from "path";
-import require$$1$1 from "fs";
 import { fileURLToPath } from "node:url";
 import path$o from "node:path";
+import { createRequire } from "node:module";
+import require$$1 from "fs";
 import require$$0 from "constants";
 import require$$0$1 from "stream";
 import require$$4$1 from "util";
 import require$$5 from "assert";
+import require$$1$1 from "path";
 import require$$1$6 from "child_process";
 import require$$0$2 from "events";
 import require$$0$3 from "crypto";
@@ -23,349 +23,6 @@ import require$$4$3 from "http";
 import require$$1$7 from "https";
 import { randomUUID } from "node:crypto";
 import { Buffer as Buffer$1 } from "buffer";
-const require$2 = createRequire(import.meta.url);
-const Database = require$2("better-sqlite3");
-console.log("App Name:", app.getName());
-app.getPath("userData");
-const dbPath = require$$1.join(app.getPath("userData"), "LawFirmApp", "database", "lawfirm.db");
-console.log("Database Path:", dbPath);
-require$$1$1.mkdirSync(require$$1.dirname(dbPath), { recursive: true });
-const db = new Database(dbPath);
-db.exec(`
-  CREATE TABLE IF NOT EXISTS clients (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    phone TEXT NOT NULL UNIQUE,
-    email TEXT,
-    address TEXT,
-    note TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    is_synced INTEGER DEFAULT 1
-  );
-
-  CREATE TABLE IF NOT EXISTS cases (
-    file_id TEXT PRIMARY KEY,
-    case_id TEXT,
-    client_id TEXT NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
-    court TEXT NOT NULL,
-    tags TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    is_synced INTEGER DEFAULT 1
-  );
-
-  CREATE TABLE IF NOT EXISTS tasks (
-    id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    note TEXT,
-    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending', 'Deffered')) NOT NULL DEFAULT 'Open',
-    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High', 'Urgent')) NOT NULL DEFAULT 'Medium',
-    dueDate TEXT,
-    caseId TEXT,
-    client_id TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    is_synced INTEGER DEFAULT 1
-  );
-
-  CREATE TABLE IF NOT EXISTS courts (
-    id TEXT PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    created_at TEXT NOT NULL,
-    is_synced INTEGER DEFAULT 1
-  );
-
-  CREATE TABLE IF NOT EXISTS tags (
-    id TEXT PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    created_at TEXT NOT NULL,
-    is_synced INTEGER DEFAULT 1
-  );
-
-  CREATE TABLE IF NOT EXISTS audits (
-    id TEXT PRIMARY KEY,
-    created_at TEXT NOT NULL,
-    user_id TEXT DEFAULT '',
-    user_name TEXT DEFAULT '',
-    action_type TEXT DEFAULT '',
-    object_type TEXT DEFAULT '',
-    object_id TEXT DEFAULT '',
-    is_synced INTEGER DEFAULT 0
-  );
-`);
-const insertClient = (client) => {
-  const exists = db.prepare(`SELECT 1 FROM clients WHERE phone = ? `).get(client.phone);
-  if (exists) {
-    return { success: false, error: "Client with same phone already exists." };
-  }
-  const stmt = db.prepare(`
-    INSERT INTO clients 
-    (id, name, phone, email, address, updated_at, created_at, note, is_synced) 
-    VALUES (@id, @name, @phone, @email, @address, @updated_at, @created_at, @note, @is_synced)
-  `);
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  const newClient = {
-    id: client.id,
-    name: client.name,
-    phone: client.phone,
-    email: client.email,
-    address: client.address ?? "",
-    updated_at: now,
-    created_at: now,
-    note: client.note ?? "",
-    is_synced: 0
-  };
-  const result = stmt.run(newClient);
-  if (result.changes === 0) {
-    return { success: false, error: "Insert failed: no rows affected." };
-  }
-  return { success: true, data: newClient };
-};
-const getAllClients = () => {
-  return db.prepare(`SELECT * FROM clients`).all();
-};
-const updateClientField = (id, field, value) => {
-  const validFields = ["name", "email", "phone", "address", "note"];
-  if (!validFields.includes(field)) return false;
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  const result = db.prepare(
-    `UPDATE clients SET ${field} = ?, 
-    is_synced = 0,
-    updated_at = ?
-    WHERE id = ?`
-  ).run(value, now, id);
-  if (result.changes === 0) {
-    return { success: false, error: "Update Failed: No idea what happend." };
-  }
-  return { success: true };
-};
-const deleteClient = (id) => {
-  const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
-  console.log("Delete results: ", result);
-  if (result.changes > 0) {
-    return { success: true };
-  }
-  return { success: false, error: "Delete Failed: Client not found." };
-};
-const unsyncedClients = () => {
-  const result = db.prepare(`
-    SELECT * FROM clients WHERE is_synced = 0
-  `).all();
-  return result;
-};
-const updateClientSync = (id) => {
-  const updateSyncStmt = db.prepare(`
-    UPDATE clients SET is_synced = 1 WHERE id = ?
-  `);
-  return updateSyncStmt.run(id);
-};
-const insertOrUpdateClients = (data) => {
-  const insertOrUpdate = db.prepare(`
-    INSERT INTO clients (id, name, phone, email, address, note, created_at, updated_at, is_synced)
-    VALUES (@id, @name, @phone, @email, @address, @note, @created_at, @updated_at, 1)
-    ON CONFLICT(id) DO UPDATE SET
-      name = excluded.name,
-      phone = excluded.phone,
-      email = excluded.email,
-      address = excluded.address,
-      note = excluded.note,
-      created_at = excluded.created_at,
-      updated_at = excluded.updated_at,
-      is_synced = 1
-  `);
-  const transaction = db.transaction(() => {
-    for (const client of data) insertOrUpdate.run(client);
-  });
-  transaction();
-};
-const insertCase = (legalCase) => {
-  const exists = db.prepare(`SELECT 1 FROM cases WHERE file_id = ?`).get(legalCase.file_id);
-  if (exists) {
-    return { success: false, error: "Case with same File ID already exists." };
-  }
-  const stmt = db.prepare(`
-    INSERT INTO cases
-    (file_id, case_id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
-    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
-  `);
-  const newCase = {
-    ...legalCase,
-    tags: JSON.stringify(legalCase.tags ?? []),
-    updated_at: (/* @__PURE__ */ new Date()).toISOString(),
-    is_synced: 0
-  };
-  const result = stmt.run(newCase);
-  if (result.changes === 0) {
-    return { success: false, error: "Insert failed: no rows affected." };
-  }
-  return { success: true, data: { ...newCase, tags: legalCase.tags ?? [] } };
-};
-const getAllCases = () => {
-  return db.prepare(`SELECT * FROM cases`).all();
-};
-const updateCase = (id, field, value) => {
-  const exists = db.prepare(`SELECT 1 FROM cases WHERE file_id = ?`).get(id);
-  if (!exists) return { success: false, error: "Case not found" };
-  const isTags = field === "tags";
-  const updated_at = (/* @__PURE__ */ new Date()).toISOString();
-  const stmt = db.prepare(`
-    UPDATE cases
-    SET ${field} = ?, updated_at = ?, is_synced = 0
-    WHERE file_id = ?
-  `);
-  const result = stmt.run(
-    isTags ? JSON.stringify(value) : value,
-    updated_at,
-    id
-  );
-  if (!result.changes) return { success: false, error: "Update failed: No idea what happend." };
-  const new_id = field === "file_id" ? value : id;
-  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE file_id = ?`).get(new_id);
-  const castCase = (c) => ({
-    ...c,
-    tags: c.tags ? JSON.parse(c.tags) : []
-  });
-  return { success: true, updatedCase: castCase(modifiedCase) };
-};
-const deleteCase = (id) => {
-  const result = db.prepare(`DELETE FROM cases WHERE file_id = ?`).run(id);
-  if (result.changes === 0) {
-    return { success: false, error: "Delete Failed: No idea what happend." };
-  }
-  return { success: true };
-};
-const unsyncedCases = () => {
-  const result = db.prepare(`
-    SELECT * FROM cases WHERE is_synced = 0
-  `).all();
-  return result;
-};
-const updateCaseSync = (id) => {
-  const updateSyncStmt = db.prepare(`
-    UPDATE cases SET is_synced = 1 WHERE file_id = ?
-  `);
-  return updateSyncStmt.run(id);
-};
-const insertOrUpdateCases = (data) => {
-  const insertOrUpdate = db.prepare(`
-    INSERT INTO cases (file_id, case_id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
-    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
-    ON CONFLICT(file_id) DO UPDATE SET
-      case_id = excluded.case_id,
-      title = excluded.title,
-      description = excluded.description,
-      status = excluded.status,
-      client_id = excluded.client_id,
-      court = excluded.court,
-      tags = excluded.tags,
-      created_at = excluded.created_at,
-      updated_at = excluded.updated_at,
-      is_synced = 1
-  `);
-  const transaction = db.transaction(() => {
-    for (const kase of data) insertOrUpdate.run({
-      ...kase,
-      client_id: kase.client_id,
-      tags: kase.tags ?? ""
-      // store tags as JSON string
-    });
-  });
-  transaction();
-};
-const insertTask = (task) => {
-  const stmt = db.prepare(`
-    INSERT OR REPLACE INTO tasks
-    (id, title, dueDate, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
-    VALUES (@id, @title, @dueDate, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
-  `);
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  const result = stmt.run({
-    ...task,
-    note: task.note ?? "",
-    updated_at: now,
-    created_at: now,
-    is_synced: 0
-  });
-  if (result.changes === 0) {
-    return { success: false, error: "Insert failed: no rows affected." };
-  }
-  return { success: true };
-};
-const getAllTasks = () => {
-  return db.prepare(`SELECT * FROM tasks`).all();
-};
-const deleteTask = (id) => {
-  const result = db.prepare(`DELETE FROM tasks WHERE id = ?`).run(id);
-  if (result.changes === 0) {
-    return { success: false, error: "Delete Failed: No idea what happend." };
-  }
-  return { success: true };
-};
-const updateTask = (task) => {
-  const stmt = db.prepare(`
-    UPDATE tasks
-    SET 
-      title = @title,
-      note = @note,
-      status = @status,
-      priority = @priority,
-      dueDate = @dueDate,
-      caseId = @caseId,
-      client_id = @client_id,
-      updated_at = @updated_at,
-      is_synced = @is_synced
-    WHERE id = @id
-  `);
-  const result = stmt.run({
-    ...task,
-    note: task.note ?? "",
-    updated_at: (/* @__PURE__ */ new Date()).toISOString(),
-    is_synced: 0
-  });
-  console.log(result);
-  if (result.changes === 0) {
-    return { success: false, error: "Update failed: No such task found (or i have no idea what happend)." };
-  }
-  return { success: true };
-};
-const insertAudit = (audit) => {
-  const stmt = db.prepare(`
-    INSERT INTO audits (id, created_at, user_id, user_name, action_type, object_type, object_id, is_synced)
-    VALUES (@id, @created_at, @user_id, @user_name, @action_type, @object_type, @object_id, @is_synced)
-  `);
-  const result = stmt.run(audit);
-  if (result.changes === 0) {
-    return { success: false, error: "Insert failed: no rows affected." };
-  }
-  db.prepare(`
-    DELETE FROM audits
-    WHERE id IN (
-      SELECT id FROM audits
-      ORDER BY created_at ASC
-      LIMIT (SELECT COUNT(*) FROM audits) - 300
-    )
-    AND (SELECT COUNT(*) FROM audits) > 300
-  `).run();
-  return { success: true, data: audit };
-};
-const getAllAudits = () => {
-  return db.prepare(`SELECT * FROM audits ORDER BY created_at DESC`).all();
-};
-const unsyncedAudits = () => {
-  return db.prepare(`SELECT * FROM audits WHERE is_synced = 0`).all();
-};
-const updateAuditSync = (id) => {
-  const stmt = db.prepare(`UPDATE audits SET is_synced = 1 WHERE id = ?`);
-  const result = stmt.run(id);
-  if (result.changes === 0) {
-    return { success: false, error: "Update failed: Audit not found." };
-  }
-  return { success: true };
-};
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
@@ -781,7 +438,7 @@ function clone$1(obj) {
   });
   return copy2;
 }
-var fs$j = require$$1$1;
+var fs$j = require$$1;
 var polyfills = polyfills$1;
 var legacy = legacyStreams;
 var clone = clone_1;
@@ -1244,7 +901,7 @@ function retry$2() {
 })(fs$k);
 var makeDir$1 = {};
 var utils$1 = {};
-const path$n = require$$1;
+const path$n = require$$1$1;
 utils$1.checkPath = function checkPath(pth) {
   if (process.platform === "win32") {
     const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path$n.parse(pth).root, ""));
@@ -1318,7 +975,7 @@ var utimes = {
   utimesMillisSync: utimesMillisSync$1
 };
 const fs$f = fs$k;
-const path$m = require$$1;
+const path$m = require$$1$1;
 const util$1 = require$$4$1;
 function getStats$2(src2, dest, opts) {
   const statFunc = opts.dereference ? (file2) => fs$f.stat(file2, { bigint: true }) : (file2) => fs$f.lstat(file2, { bigint: true });
@@ -1442,7 +1099,7 @@ var stat$4 = {
   areIdentical: areIdentical$2
 };
 const fs$e = gracefulFs;
-const path$l = require$$1;
+const path$l = require$$1$1;
 const mkdirs$1 = mkdirs$2.mkdirs;
 const pathExists$5 = pathExists_1.pathExists;
 const utimesMillis = utimes.utimesMillis;
@@ -1632,7 +1289,7 @@ function copyLink$1(resolvedSrc, dest, cb) {
 }
 var copy_1 = copy$2;
 const fs$d = gracefulFs;
-const path$k = require$$1;
+const path$k = require$$1$1;
 const mkdirsSync$1 = mkdirs$2.mkdirsSync;
 const utimesMillisSync = utimes.utimesMillisSync;
 const stat$2 = stat$4;
@@ -1764,7 +1421,7 @@ var copy$1 = {
   copySync: copySync_1
 };
 const fs$c = gracefulFs;
-const path$j = require$$1;
+const path$j = require$$1$1;
 const assert = require$$5;
 const isWindows = process.platform === "win32";
 function defaults(options) {
@@ -2008,7 +1665,7 @@ var remove_1 = {
 };
 const u$6 = universalify$1.fromPromise;
 const fs$a = fs$k;
-const path$i = require$$1;
+const path$i = require$$1$1;
 const mkdir$3 = mkdirs$2;
 const remove$1 = remove_1;
 const emptyDir = u$6(async function emptyDir2(dir) {
@@ -2039,7 +1696,7 @@ var empty = {
   emptydir: emptyDir
 };
 const u$5 = universalify$1.fromCallback;
-const path$h = require$$1;
+const path$h = require$$1$1;
 const fs$9 = gracefulFs;
 const mkdir$2 = mkdirs$2;
 function createFile$1(file2, callback) {
@@ -2094,7 +1751,7 @@ var file$1 = {
   createFileSync: createFileSync$1
 };
 const u$4 = universalify$1.fromCallback;
-const path$g = require$$1;
+const path$g = require$$1$1;
 const fs$8 = gracefulFs;
 const mkdir$1 = mkdirs$2;
 const pathExists$4 = pathExists_1.pathExists;
@@ -2148,7 +1805,7 @@ var link = {
   createLink: u$4(createLink$1),
   createLinkSync: createLinkSync$1
 };
-const path$f = require$$1;
+const path$f = require$$1$1;
 const fs$7 = gracefulFs;
 const pathExists$3 = pathExists_1.pathExists;
 function symlinkPaths$1(srcpath, dstpath, callback) {
@@ -2246,7 +1903,7 @@ var symlinkType_1 = {
   symlinkTypeSync: symlinkTypeSync$1
 };
 const u$3 = universalify$1.fromCallback;
-const path$e = require$$1;
+const path$e = require$$1$1;
 const fs$5 = fs$k;
 const _mkdirs = mkdirs$2;
 const mkdirs = _mkdirs.mkdirs;
@@ -2350,7 +2007,7 @@ let _fs;
 try {
   _fs = gracefulFs;
 } catch (_) {
-  _fs = require$$1$1;
+  _fs = require$$1;
 }
 const universalify = universalify$1;
 const { stringify: stringify$3, stripBom } = utils;
@@ -2423,7 +2080,7 @@ var jsonfile = {
 };
 const u$2 = universalify$1.fromCallback;
 const fs$4 = gracefulFs;
-const path$d = require$$1;
+const path$d = require$$1$1;
 const mkdir = mkdirs$2;
 const pathExists$1 = pathExists_1.pathExists;
 function outputFile$1(file2, data, encoding, callback) {
@@ -2479,7 +2136,7 @@ jsonFile.readJSON = jsonFile.readJson;
 jsonFile.readJSONSync = jsonFile.readJsonSync;
 var json$1 = jsonFile;
 const fs$3 = gracefulFs;
-const path$c = require$$1;
+const path$c = require$$1$1;
 const copy = copy$1.copy;
 const remove = remove_1.remove;
 const mkdirp = mkdirs$2.mkdirp;
@@ -2543,7 +2200,7 @@ function moveAcrossDevice$1(src2, dest, overwrite, cb) {
 }
 var move_1 = move$1;
 const fs$2 = gracefulFs;
-const path$b = require$$1;
+const path$b = require$$1$1;
 const copySync = copy$1.copySync;
 const removeSync = remove_1.removeSync;
 const mkdirpSync = mkdirs$2.mkdirpSync;
@@ -3549,7 +3206,7 @@ httpExecutor.configureRequestOptions = configureRequestOptions;
 httpExecutor.safeStringifyJson = safeStringifyJson;
 const crypto_1$4 = require$$0$3;
 const debug_1$1 = srcExports$1;
-const fs_1$5 = require$$1$1;
+const fs_1$5 = require$$1;
 const stream_1$2 = require$$0$1;
 const url_1$5 = require$$4$2;
 const CancellationToken_1$1 = CancellationToken$1;
@@ -10820,10 +10477,10 @@ Object.defineProperty(DownloadedUpdateHelper$1, "__esModule", { value: true });
 DownloadedUpdateHelper$1.DownloadedUpdateHelper = void 0;
 DownloadedUpdateHelper$1.createTempUpdateFile = createTempUpdateFile;
 const crypto_1$2 = require$$0$3;
-const fs_1$4 = require$$1$1;
+const fs_1$4 = require$$1;
 const isEqual = lodash_isequalExports;
 const fs_extra_1$6 = lib;
-const path$a = require$$1;
+const path$a = require$$1$1;
 class DownloadedUpdateHelper {
   constructor(cacheDir) {
     this.cacheDir = cacheDir;
@@ -10976,7 +10633,7 @@ var ElectronAppAdapter$1 = {};
 var AppAdapter = {};
 Object.defineProperty(AppAdapter, "__esModule", { value: true });
 AppAdapter.getAppCacheDir = getAppCacheDir;
-const path$9 = require$$1;
+const path$9 = require$$1$1;
 const os_1$1 = require$$1$3;
 function getAppCacheDir() {
   const homedir = (0, os_1$1.homedir)();
@@ -10992,7 +10649,7 @@ function getAppCacheDir() {
 }
 Object.defineProperty(ElectronAppAdapter$1, "__esModule", { value: true });
 ElectronAppAdapter$1.ElectronAppAdapter = void 0;
-const path$8 = require$$1;
+const path$8 = require$$1$1;
 const AppAdapter_1 = AppAdapter;
 class ElectronAppAdapter {
   constructor(app2 = require$$1$5.app) {
@@ -11605,7 +11262,7 @@ Object.defineProperty(PrivateGitHubProvider$1, "__esModule", { value: true });
 PrivateGitHubProvider$1.PrivateGitHubProvider = void 0;
 const builder_util_runtime_1$9 = out;
 const js_yaml_1$1 = jsYaml;
-const path$7 = require$$1;
+const path$7 = require$$1$1;
 const url_1$2 = require$$4$2;
 const util_1$1 = util;
 const GitHubProvider_1$1 = GitHubProvider$1;
@@ -11858,7 +11515,7 @@ Object.defineProperty(DataSplitter$1, "__esModule", { value: true });
 DataSplitter$1.DataSplitter = void 0;
 DataSplitter$1.copyData = copyData;
 const builder_util_runtime_1$7 = out;
-const fs_1$3 = require$$1$1;
+const fs_1$3 = require$$1;
 const stream_1$1 = require$$0$1;
 const downloadPlanBuilder_1$2 = downloadPlanBuilder;
 const DOUBLE_CRLF = Buffer.from("\r\n\r\n");
@@ -12241,7 +11898,7 @@ Object.defineProperty(DifferentialDownloader$1, "__esModule", { value: true });
 DifferentialDownloader$1.DifferentialDownloader = void 0;
 const builder_util_runtime_1$5 = out;
 const fs_extra_1$5 = lib;
-const fs_1$2 = require$$1$1;
+const fs_1$2 = require$$1;
 const DataSplitter_1 = DataSplitter$1;
 const url_1$1 = require$$4$2;
 const downloadPlanBuilder_1 = downloadPlanBuilder;
@@ -12534,7 +12191,7 @@ const events_1 = require$$0$2;
 const fs_extra_1$4 = lib;
 const js_yaml_1 = jsYaml;
 const lazy_val_1 = main$2;
-const path$6 = require$$1;
+const path$6 = require$$1$1;
 const semver_1 = semver$1;
 const DownloadedUpdateHelper_1 = DownloadedUpdateHelper$1;
 const ElectronAppAdapter_1 = ElectronAppAdapter$1;
@@ -13279,8 +12936,8 @@ AppImageUpdater$1.AppImageUpdater = void 0;
 const builder_util_runtime_1$3 = out;
 const child_process_1$2 = require$$1$6;
 const fs_extra_1$2 = lib;
-const fs_1$1 = require$$1$1;
-const path$5 = require$$1;
+const fs_1$1 = require$$1;
+const path$5 = require$$1$1;
 const BaseUpdater_1$4 = BaseUpdater$1;
 const FileWithEmbeddedBlockMapDifferentialDownloader_1$1 = FileWithEmbeddedBlockMapDifferentialDownloader$1;
 const Provider_1$5 = Provider$1;
@@ -13530,8 +13187,8 @@ Object.defineProperty(MacUpdater$1, "__esModule", { value: true });
 MacUpdater$1.MacUpdater = void 0;
 const builder_util_runtime_1$2 = out;
 const fs_extra_1$1 = lib;
-const fs_1 = require$$1$1;
-const path$4 = require$$1;
+const fs_1 = require$$1;
+const path$4 = require$$1$1;
 const http_1 = require$$4$3;
 const AppUpdater_1 = AppUpdater$1;
 const Provider_1$1 = Provider$1;
@@ -13767,7 +13424,7 @@ windowsExecutableCodeSignatureVerifier.verifySignature = verifySignature;
 const builder_util_runtime_1$1 = out;
 const child_process_1 = require$$1$6;
 const os$1 = require$$1$3;
-const path$3 = require$$1;
+const path$3 = require$$1$1;
 function verifySignature(publisherNames, unescapedTempUpdateFile, logger) {
   return new Promise((resolve, reject) => {
     const tempUpdateFile = unescapedTempUpdateFile.replace(/'/g, "''");
@@ -13867,7 +13524,7 @@ function isOldWin6() {
 Object.defineProperty(NsisUpdater$1, "__esModule", { value: true });
 NsisUpdater$1.NsisUpdater = void 0;
 const builder_util_runtime_1 = out;
-const path$2 = require$$1;
+const path$2 = require$$1$1;
 const BaseUpdater_1 = BaseUpdater$1;
 const FileWithEmbeddedBlockMapDifferentialDownloader_1 = FileWithEmbeddedBlockMapDifferentialDownloader$1;
 const types_1 = types;
@@ -14042,7 +13699,7 @@ NsisUpdater$1.NsisUpdater = NsisUpdater;
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.NsisUpdater = exports.MacUpdater = exports.RpmUpdater = exports.PacmanUpdater = exports.DebUpdater = exports.AppImageUpdater = exports.Provider = exports.NoOpLogger = exports.AppUpdater = exports.BaseUpdater = void 0;
   const fs_extra_12 = lib;
-  const path2 = require$$1;
+  const path2 = require$$1$1;
   var BaseUpdater_12 = BaseUpdater$1;
   Object.defineProperty(exports, "BaseUpdater", { enumerable: true, get: function() {
     return BaseUpdater_12.BaseUpdater;
@@ -14812,8 +14469,8 @@ var hasRequiredPackageJson;
 function requirePackageJson() {
   if (hasRequiredPackageJson) return packageJson$1;
   hasRequiredPackageJson = 1;
-  const fs2 = require$$1$1;
-  const path2 = require$$1;
+  const fs2 = require$$1;
+  const path2 = require$$1$1;
   packageJson$1 = {
     findAndReadPackageJson,
     tryReadJsonAt
@@ -14886,7 +14543,7 @@ function requireNodeExternalApi() {
   hasRequiredNodeExternalApi = 1;
   const childProcess = require$$1$6;
   const os2 = require$$1$3;
-  const path2 = require$$1;
+  const path2 = require$$1$1;
   const packageJson2 = requirePackageJson();
   class NodeExternalApi {
     constructor() {
@@ -15067,7 +14724,7 @@ var hasRequiredElectronExternalApi;
 function requireElectronExternalApi() {
   if (hasRequiredElectronExternalApi) return ElectronExternalApi_1;
   hasRequiredElectronExternalApi = 1;
-  const path2 = require$$1;
+  const path2 = require$$1$1;
   const NodeExternalApi = requireNodeExternalApi();
   class ElectronExternalApi extends NodeExternalApi {
     /**
@@ -15251,9 +14908,9 @@ var hasRequiredInitialize;
 function requireInitialize() {
   if (hasRequiredInitialize) return initialize;
   hasRequiredInitialize = 1;
-  const fs2 = require$$1$1;
+  const fs2 = require$$1;
   const os2 = require$$1$3;
-  const path2 = require$$1;
+  const path2 = require$$1$1;
   const preloadInitializeFn = requireElectronLogPreload();
   initialize = {
     initialize({
@@ -16052,7 +15709,7 @@ function requireFile$1() {
   if (hasRequiredFile$1) return File_1;
   hasRequiredFile$1 = 1;
   const EventEmitter = require$$0$2;
-  const fs2 = require$$1$1;
+  const fs2 = require$$1;
   const os2 = require$$1$3;
   class File extends EventEmitter {
     constructor({
@@ -16211,8 +15868,8 @@ function requireFileRegistry() {
   if (hasRequiredFileRegistry) return FileRegistry_1;
   hasRequiredFileRegistry = 1;
   const EventEmitter = require$$0$2;
-  const fs2 = require$$1$1;
-  const path2 = require$$1;
+  const fs2 = require$$1;
+  const path2 = require$$1$1;
   const File = requireFile$1();
   const NullFile = requireNullFile();
   class FileRegistry extends EventEmitter {
@@ -16281,9 +15938,9 @@ var hasRequiredFile;
 function requireFile() {
   if (hasRequiredFile) return file;
   hasRequiredFile = 1;
-  const fs2 = require$$1$1;
+  const fs2 = require$$1;
   const os2 = require$$1$3;
-  const path2 = require$$1;
+  const path2 = require$$1$1;
   const FileRegistry = requireFileRegistry();
   const { transform } = requireTransform();
   const { removeStyles } = requireStyle();
@@ -16638,89 +16295,13 @@ if (isRenderer) {
 }
 var srcExports = src.exports;
 const log = /* @__PURE__ */ getDefaultExportFromCjs(srcExports);
-const getAllCourts = () => {
-  const stmt = db.prepare(`SELECT * FROM courts ORDER BY name ASC`);
-  return stmt.all();
-};
-const getAllTags = () => {
-  const stmt = db.prepare(`SELECT * FROM tags ORDER BY name ASC`);
-  return stmt.all();
-};
-const updateCourtSync = (id) => {
-  const updateSyncStmt = db.prepare(`
-    UPDATE courts SET is_synced = 1 WHERE id = ?
-  `);
-  updateSyncStmt.run(id);
-};
-const updateTagSync = (id) => {
-  const updateSyncStmt = db.prepare(`
-    UPDATE tags SET is_synced = 1 WHERE id = ?
-  `);
-  updateSyncStmt.run(id);
-};
-const unsyncedCourts = () => {
-  const result = db.prepare(`
-      SELECT * FROM courts WHERE is_synced = 0
-    `).all();
-  return result;
-};
-const unsyncedTags = () => {
-  const result = db.prepare(`
-      SELECT * FROM tags WHERE is_synced = 0
-    `).all();
-  return result;
-};
-const insertCourt = (name, id, is_synced) => {
-  const stmt = db.prepare(`
-    INSERT INTO courts (id, name, created_at, is_synced)
-    VALUES (@id, @name, @created_at, @is_synced)
-    ON CONFLICT(name) DO NOTHING
-  `);
-  const tag = {
-    id: id ? id : randomUUID(),
-    name,
-    created_at: (/* @__PURE__ */ new Date()).toISOString(),
-    is_synced: is_synced ? is_synced : 0
-  };
-  const result = stmt.run(tag);
-  return result.changes > 0;
-};
-const insertTag = (name, id, is_synced) => {
-  const stmt = db.prepare(`
-    INSERT INTO tags (id, name, created_at, is_synced)
-    VALUES (@id, @name, @created_at, @is_synced)
-    ON CONFLICT(name) DO NOTHING
-  `);
-  const tag = {
-    id: id ? id : randomUUID(),
-    name,
-    created_at: (/* @__PURE__ */ new Date()).toISOString(),
-    is_synced: is_synced ? is_synced : 0
-  };
-  const result = stmt.run(tag);
-  return result.changes > 0;
-};
-async function deleteUser(userId) {
-  console.log(process.env.VITE_SUPABASE_URL);
-  const res = await fetch(`${process.env.VITE_SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
-    method: "DELETE",
-    headers: {
-      apiKey: process.env.VITE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${process.env.VITE_SERVICE_ROLE_KEY}`
-    }
-  });
-  if (res.status === 200 || res.status === 404) {
-    return { success: true };
-  }
-  return { success: false, error: `Failed: ${await res.text()}` };
-}
 var main = { exports: {} };
 const version$1 = "16.5.0";
 const require$$4 = {
   version: version$1
 };
-const fs$1 = require$$1$1;
-const path$1 = require$$1;
+const fs$1 = require$$1;
+const path$1 = require$$1$1;
 const os = require$$1$3;
 const crypto = require$$0$3;
 const packageJson = require$$4;
@@ -16982,18 +16563,435 @@ main.exports.populate = DotenvModule.populate;
 main.exports = DotenvModule;
 var mainExports = main.exports;
 const dotenv = /* @__PURE__ */ getDefaultExportFromCjs(mainExports);
+const require$2 = createRequire(import.meta.url);
+const Database = require$2("better-sqlite3");
+console.log("App Name:", app.getName());
+const dbPath = require$$1$1.join(app.getPath("userData"), "LawFirmApp", "database", "lawfirm.db");
+console.log("Database Path:", dbPath);
+require$$1.mkdirSync(require$$1$1.dirname(dbPath), { recursive: true });
+const db = new Database(dbPath);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS clients (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL UNIQUE,
+    email TEXT,
+    address TEXT,
+    note TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS cases (
+    file_id TEXT PRIMARY KEY,
+    case_id TEXT,
+    client_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending')) NOT NULL,
+    court TEXT NOT NULL,
+    tags TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS tasks (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    note TEXT,
+    status TEXT CHECK(status IN ('Open', 'Closed', 'Pending', 'Deffered')) NOT NULL DEFAULT 'Open',
+    priority TEXT CHECK(priority IN ('Low', 'Medium', 'High', 'Urgent')) NOT NULL DEFAULT 'Medium',
+    dueDate TEXT,
+    caseId TEXT,
+    client_id TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS courts (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS tags (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TEXT NOT NULL,
+    is_synced INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS audits (
+    id TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL,
+    user_id TEXT DEFAULT '',
+    user_name TEXT DEFAULT '',
+    action_type TEXT DEFAULT '',
+    object_type TEXT DEFAULT '',
+    object_id TEXT DEFAULT '',
+    is_synced INTEGER DEFAULT 0
+  );
+`);
+const insertClient = (client) => {
+  const exists = db.prepare(`SELECT 1 FROM clients WHERE phone = ? `).get(client.phone);
+  if (exists) {
+    return { success: false, error: "Client with same phone already exists." };
+  }
+  const stmt = db.prepare(`
+    INSERT INTO clients 
+    (id, name, phone, email, address, updated_at, created_at, note, is_synced) 
+    VALUES (@id, @name, @phone, @email, @address, @updated_at, @created_at, @note, @is_synced)
+  `);
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const newClient = {
+    id: client.id,
+    name: client.name,
+    phone: client.phone,
+    email: client.email,
+    address: client.address ?? "",
+    updated_at: now,
+    created_at: now,
+    note: client.note ?? "",
+    is_synced: 0
+  };
+  const result = stmt.run(newClient);
+  if (result.changes === 0) {
+    return { success: false, error: "Insert failed: no rows affected." };
+  }
+  return { success: true, data: newClient };
+};
+const getAllClients = () => {
+  return db.prepare(`SELECT * FROM clients`).all();
+};
+const updateClientField = (id, field, value) => {
+  const validFields = ["name", "email", "phone", "address", "note"];
+  if (!validFields.includes(field)) return false;
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const result = db.prepare(
+    `UPDATE clients SET ${field} = ?, 
+    is_synced = 0,
+    updated_at = ?
+    WHERE id = ?`
+  ).run(value, now, id);
+  if (result.changes === 0) {
+    return { success: false, error: "Update Failed: No idea what happend." };
+  }
+  return { success: true };
+};
+const deleteClient = (id) => {
+  const result = db.prepare(`DELETE FROM clients WHERE id = ?`).run(id);
+  console.log("Delete results: ", result);
+  if (result.changes > 0) {
+    return { success: true };
+  }
+  return { success: false, error: "Delete Failed: Client not found." };
+};
+const unsyncedClients = () => {
+  const result = db.prepare(`
+    SELECT * FROM clients WHERE is_synced = 0
+  `).all();
+  return result;
+};
+const updateClientSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE clients SET is_synced = 1 WHERE id = ?
+  `);
+  return updateSyncStmt.run(id);
+};
+const insertOrUpdateClients = (data) => {
+  const insertOrUpdate = db.prepare(`
+    INSERT INTO clients (id, name, phone, email, address, note, created_at, updated_at, is_synced)
+    VALUES (@id, @name, @phone, @email, @address, @note, @created_at, @updated_at, 1)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      phone = excluded.phone,
+      email = excluded.email,
+      address = excluded.address,
+      note = excluded.note,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at,
+      is_synced = 1
+  `);
+  const transaction = db.transaction(() => {
+    for (const client of data) insertOrUpdate.run(client);
+  });
+  transaction();
+};
+const insertCase = (legalCase) => {
+  const exists = db.prepare(`SELECT 1 FROM cases WHERE file_id = ?`).get(legalCase.file_id);
+  if (exists) {
+    return { success: false, error: "Case with same File ID already exists." };
+  }
+  const stmt = db.prepare(`
+    INSERT INTO cases
+    (file_id, case_id, title, description, status, client_id, court, created_at, tags, updated_at, is_synced)
+    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @created_at, @tags, @updated_at, @is_synced)
+  `);
+  const newCase = {
+    ...legalCase,
+    tags: JSON.stringify(legalCase.tags ?? []),
+    updated_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: 0
+  };
+  const result = stmt.run(newCase);
+  if (result.changes === 0) {
+    return { success: false, error: "Insert failed: no rows affected." };
+  }
+  return { success: true, data: { ...newCase, tags: legalCase.tags ?? [] } };
+};
+const getAllCases = () => {
+  return db.prepare(`SELECT * FROM cases`).all();
+};
+const updateCase = (id, field, value) => {
+  const exists = db.prepare(`SELECT 1 FROM cases WHERE file_id = ?`).get(id);
+  if (!exists) return { success: false, error: "Case not found" };
+  const isTags = field === "tags";
+  const updated_at = (/* @__PURE__ */ new Date()).toISOString();
+  const stmt = db.prepare(`
+    UPDATE cases
+    SET ${field} = ?, updated_at = ?, is_synced = 0
+    WHERE file_id = ?
+  `);
+  const result = stmt.run(
+    isTags ? JSON.stringify(value) : value,
+    updated_at,
+    id
+  );
+  if (!result.changes) return { success: false, error: "Update failed: No idea what happend." };
+  const new_id = field === "file_id" ? value : id;
+  const modifiedCase = db.prepare(`SELECT * FROM cases WHERE file_id = ?`).get(new_id);
+  const castCase = (c) => ({
+    ...c,
+    tags: c.tags ? JSON.parse(c.tags) : []
+  });
+  return { success: true, updatedCase: castCase(modifiedCase) };
+};
+const deleteCase = (id) => {
+  const result = db.prepare(`DELETE FROM cases WHERE file_id = ?`).run(id);
+  if (result.changes === 0) {
+    return { success: false, error: "Delete Failed: No idea what happend." };
+  }
+  return { success: true };
+};
+const unsyncedCases = () => {
+  const result = db.prepare(`
+    SELECT * FROM cases WHERE is_synced = 0
+  `).all();
+  return result;
+};
+const updateCaseSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE cases SET is_synced = 1 WHERE file_id = ?
+  `);
+  return updateSyncStmt.run(id);
+};
+const insertOrUpdateCases = (data) => {
+  const insertOrUpdate = db.prepare(`
+    INSERT INTO cases (file_id, case_id, title, description, status, client_id, court, tags, created_at, updated_at, is_synced)
+    VALUES (@file_id, @case_id, @title, @description, @status, @client_id, @court, @tags, @created_at, @updated_at, 1)
+    ON CONFLICT(file_id) DO UPDATE SET
+      case_id = excluded.case_id,
+      title = excluded.title,
+      description = excluded.description,
+      status = excluded.status,
+      client_id = excluded.client_id,
+      court = excluded.court,
+      tags = excluded.tags,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at,
+      is_synced = 1
+  `);
+  const transaction = db.transaction(() => {
+    for (const kase of data) insertOrUpdate.run({
+      ...kase,
+      client_id: kase.client_id,
+      tags: kase.tags ?? ""
+      // store tags as JSON string
+    });
+  });
+  transaction();
+};
+const insertTask = (task) => {
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO tasks
+    (id, title, dueDate, client_id, caseId, status, priority, note, updated_at, created_at, is_synced)
+    VALUES (@id, @title, @dueDate, @client_id, @caseId, @status, @priority, @note, @updated_at, @created_at, @is_synced)
+  `);
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const result = stmt.run({
+    ...task,
+    note: task.note ?? "",
+    updated_at: now,
+    created_at: now,
+    is_synced: 0
+  });
+  if (result.changes === 0) {
+    return { success: false, error: "Insert failed: no rows affected." };
+  }
+  return { success: true };
+};
+const getAllTasks = () => {
+  return db.prepare(`SELECT * FROM tasks`).all();
+};
+const deleteTask = (id) => {
+  const result = db.prepare(`DELETE FROM tasks WHERE id = ?`).run(id);
+  if (result.changes === 0) {
+    return { success: false, error: "Delete Failed: No idea what happend." };
+  }
+  return { success: true };
+};
+const updateTask = (task) => {
+  const stmt = db.prepare(`
+    UPDATE tasks
+    SET 
+      title = @title,
+      note = @note,
+      status = @status,
+      priority = @priority,
+      dueDate = @dueDate,
+      caseId = @caseId,
+      client_id = @client_id,
+      updated_at = @updated_at,
+      is_synced = @is_synced
+    WHERE id = @id
+  `);
+  const result = stmt.run({
+    ...task,
+    note: task.note ?? "",
+    updated_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: 0
+  });
+  console.log(result);
+  if (result.changes === 0) {
+    return { success: false, error: "Update failed: No such task found (or i have no idea what happend)." };
+  }
+  return { success: true };
+};
+const insertAudit = (audit) => {
+  const stmt = db.prepare(`
+    INSERT INTO audits (id, created_at, user_id, user_name, action_type, object_type, object_id, is_synced)
+    VALUES (@id, @created_at, @user_id, @user_name, @action_type, @object_type, @object_id, @is_synced)
+  `);
+  const result = stmt.run(audit);
+  if (result.changes === 0) {
+    return { success: false, error: "Insert failed: no rows affected." };
+  }
+  db.prepare(`
+    DELETE FROM audits
+    WHERE id IN (
+      SELECT id FROM audits
+      ORDER BY created_at ASC
+      LIMIT (SELECT COUNT(*) FROM audits) - 300
+    )
+    AND (SELECT COUNT(*) FROM audits) > 300
+  `).run();
+  return { success: true, data: audit };
+};
+const getAllAudits = () => {
+  return db.prepare(`SELECT * FROM audits ORDER BY created_at DESC`).all();
+};
+const unsyncedAudits = () => {
+  return db.prepare(`SELECT * FROM audits WHERE is_synced = 0`).all();
+};
+const updateAuditSync = (id) => {
+  const stmt = db.prepare(`UPDATE audits SET is_synced = 1 WHERE id = ?`);
+  const result = stmt.run(id);
+  if (result.changes === 0) {
+    return { success: false, error: "Update failed: Audit not found." };
+  }
+  return { success: true };
+};
+const getAllCourts = () => {
+  const stmt = db.prepare(`SELECT * FROM courts ORDER BY name ASC`);
+  return stmt.all();
+};
+const getAllTags = () => {
+  const stmt = db.prepare(`SELECT * FROM tags ORDER BY name ASC`);
+  return stmt.all();
+};
+const updateCourtSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE courts SET is_synced = 1 WHERE id = ?
+  `);
+  updateSyncStmt.run(id);
+};
+const updateTagSync = (id) => {
+  const updateSyncStmt = db.prepare(`
+    UPDATE tags SET is_synced = 1 WHERE id = ?
+  `);
+  updateSyncStmt.run(id);
+};
+const unsyncedCourts = () => {
+  const result = db.prepare(`
+      SELECT * FROM courts WHERE is_synced = 0
+    `).all();
+  return result;
+};
+const unsyncedTags = () => {
+  const result = db.prepare(`
+      SELECT * FROM tags WHERE is_synced = 0
+    `).all();
+  return result;
+};
+const insertCourt = (name, id, is_synced) => {
+  const stmt = db.prepare(`
+    INSERT INTO courts (id, name, created_at, is_synced)
+    VALUES (@id, @name, @created_at, @is_synced)
+    ON CONFLICT(name) DO NOTHING
+  `);
+  const tag = {
+    id: id ? id : randomUUID(),
+    name,
+    created_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: is_synced ? is_synced : 0
+  };
+  const result = stmt.run(tag);
+  return result.changes > 0;
+};
+const insertTag = (name, id, is_synced) => {
+  const stmt = db.prepare(`
+    INSERT INTO tags (id, name, created_at, is_synced)
+    VALUES (@id, @name, @created_at, @is_synced)
+    ON CONFLICT(name) DO NOTHING
+  `);
+  const tag = {
+    id: id ? id : randomUUID(),
+    name,
+    created_at: (/* @__PURE__ */ new Date()).toISOString(),
+    is_synced: is_synced ? is_synced : 0
+  };
+  const result = stmt.run(tag);
+  return result.changes > 0;
+};
 const require$1 = createRequire(import.meta.url);
 const fs = require$1("fs");
 const path = require$1("path");
 const saveTempFile = (fileName, arrayBuffer) => {
   const buffer = Buffer$1.from(arrayBuffer);
-  const tempDir = path.join(app.getAppPath(), "documents", "templates");
+  const tempDir = path.join(app.getPath("userData"), "LawFirmApp", "templates");
   fs.mkdirSync(tempDir, { recursive: true });
   const tempPath = path.join(tempDir, fileName);
   fs.writeFileSync(tempPath, buffer);
-  const fullPath = path.resolve(tempPath);
-  return fullPath;
+  return path.resolve(tempPath);
 };
+async function deleteUser(userId) {
+  console.log(process.env.VITE_SUPABASE_URL);
+  const res = await fetch(`${process.env.VITE_SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    method: "DELETE",
+    headers: {
+      apiKey: process.env.VITE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${process.env.VITE_SERVICE_ROLE_KEY}`
+    }
+  });
+  if (res.status === 200 || res.status === 404) {
+    return { success: true };
+  }
+  return { success: false, error: `Failed: ${await res.text()}` };
+}
 dotenv.config();
 createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
@@ -17003,17 +17001,17 @@ const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path$o.join(process.env.APP_ROOT, "dist-electron");
 const RENDERER_DIST = path$o.join(process.env.APP_ROOT, "dist");
 const SPLASH_DIST = path$o.join(process.env.APP_ROOT, "splash");
-console.log(SPLASH_DIST);
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path$o.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
-let win;
+let win = null;
 let splashWin = null;
+main$3.autoUpdater.logger = log;
+log.transports.file.level = "debug";
 function createSplashWindow() {
   splashWin = new BrowserWindow({
     width: 500,
     height: 300,
     frame: false,
     resizable: false,
-    transparent: false,
     alwaysOnTop: true,
     center: true,
     show: false,
@@ -17021,35 +17019,41 @@ function createSplashWindow() {
       preload: path$o.join(__dirname$1, "preload.mjs")
     }
   });
-  splashWin.webContents.on("did-finish-load", () => {
-    splashWin == null ? void 0 : splashWin.webContents.openDevTools({ mode: "detach" });
-    splashWin == null ? void 0 : splashWin.show();
-  });
   splashWin.loadFile(path$o.join(SPLASH_DIST, "index.html"));
   splashWin.setMenuBarVisibility(false);
+  splashWin.webContents.on("did-fail-load", (_e, code, desc) => {
+    log.error(`Splash failed: ${desc} (${code})`);
+    splashWin == null ? void 0 : splashWin.close();
+    splashWin = null;
+    win == null ? void 0 : win.show();
+  });
+  splashWin.webContents.on("did-finish-load", () => {
+    splashWin == null ? void 0 : splashWin.show();
+    if (VITE_DEV_SERVER_URL) splashWin == null ? void 0 : splashWin.webContents.openDevTools({ mode: "detach" });
+  });
 }
-function createWindow() {
+function createMainWindow() {
   win = new BrowserWindow({
     icon: path$o.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    show: false,
     webPreferences: {
       preload: path$o.join(__dirname$1, "preload.mjs")
-    },
-    show: false
+    }
   });
-  console.log(path$o.join(__dirname$1, "preload.mjs"));
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  win.setAutoHideMenuBar(true);
+  win.webContents.on("did-fail-load", (_e, code, desc) => {
+    log.error(`Main window failed: ${desc} (${code})`);
+    win == null ? void 0 : win.loadFile(path$o.join(RENDERER_DIST, "index.html"));
   });
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-    console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL);
     win.webContents.openDevTools({ mode: "detach" });
   } else {
     win.loadFile(path$o.join(RENDERER_DIST, "index.html"));
-    win.webContents.openDevTools({ mode: "detach" });
-    console.log("RENDERER_DIST: ", path$o.join(RENDERER_DIST, "index.html"));
   }
-  win == null ? void 0 : win.setAutoHideMenuBar(true);
+  win.webContents.on("did-finish-load", () => {
+    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  });
 }
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -17059,10 +17063,9 @@ app.on("window-all-closed", () => {
 });
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createMainWindow();
   }
 });
-main$3.autoUpdater.logger = log;
 main$3.autoUpdater.on("update-available", (info) => {
   win == null ? void 0 : win.webContents.send("update_available", {
     version: info.version,
@@ -17076,134 +17079,124 @@ main$3.autoUpdater.on("download-progress", (progressObj) => {
 main$3.autoUpdater.on("update-downloaded", () => {
   win == null ? void 0 : win.webContents.send("update_downloaded");
 });
-ipcMain.handle("get-app-version", () => {
-  return app.getVersion();
-});
 app.whenReady().then(() => {
-  console.log("Creating Window");
+  log.info("App version:", app.getVersion());
+  log.info("App path:", app.getAppPath());
+  log.info("User data path:", app.getPath("userData"));
   createSplashWindow();
-  createWindow();
-  log.info("App starting...");
-  main$3.autoUpdater.checkForUpdates();
-  const readyBarrier = new Promise((resolve) => setTimeout(resolve, 2e3));
-  ipcMain.on("app-ready", async () => {
-    await readyBarrier;
-    await (splashWin == null ? void 0 : splashWin.webContents.executeJavaScript(`
-      document.body.style.transition = 'opacity 0.5s';
-      document.body.style.opacity = '0';
-      setTimeout(() => window.close(), 5000);
-    `));
+  createMainWindow();
+  setTimeout(() => {
     splashWin == null ? void 0 : splashWin.close();
     splashWin = null;
     win == null ? void 0 : win.show();
-  });
-  ipcMain.on("restart_app", () => {
-    main$3.autoUpdater.quitAndInstall();
-  });
-  ipcMain.on("log", (_event, ...args) => {
-    console.log("\x1B[32m%s\x1B[0m", "[Renderer Log]:", ...args);
-  });
-  ipcMain.handle("open-file", async (_event, filePath) => {
-    return await shell.openPath(filePath);
-  });
-  ipcMain.handle("save-temp-file", async (_event, filename, buffer) => {
-    return await saveTempFile(filename, buffer);
-  });
-  ipcMain.handle("database:insert-audit", (_event, audit) => {
-    return insertAudit(audit);
-  });
-  ipcMain.handle("database:get-all-audits", () => {
-    return getAllAudits();
-  });
-  ipcMain.handle("database:get-unsynced-audits", () => {
-    return unsyncedAudits();
-  });
-  ipcMain.handle("database:update-audit-sync", (_event, id) => {
-    return updateAuditSync(id);
-  });
-  ipcMain.handle("database:insert-client", (_event, client) => {
-    return insertClient(client);
-  });
-  ipcMain.handle("database:get-all-clients", () => {
-    return getAllClients();
-  });
-  ipcMain.handle("database:update-client-field", (_event, id, field, value) => {
-    return updateClientField(id, field, value);
-  });
-  ipcMain.handle("database:delete-client", (_event, id) => {
-    return deleteClient(id);
-  });
-  ipcMain.handle("database:insert-case", (_event, legalCase) => {
-    return insertCase(legalCase);
-  });
-  ipcMain.handle("database:get-all-cases", () => {
-    return getAllCases();
-  });
-  ipcMain.handle("database:delete-case", (_event, id) => {
-    return deleteCase(id);
-  });
-  ipcMain.handle("database:update-case", (_event, id, field, value) => {
-    return updateCase(id, field, value);
-  });
-  ipcMain.handle("database:insert-task", (_event, task) => {
-    return insertTask(task);
-  });
-  ipcMain.handle("database:get-all-tasks", () => {
-    return getAllTasks();
-  });
-  ipcMain.handle("database:delete-task", (_event, id) => {
-    return deleteTask(id);
-  });
-  ipcMain.handle("database:update-task", (_event, task) => {
-    return updateTask(task);
-  });
-  ipcMain.handle("get-courts", () => {
-    return getAllCourts();
-  });
-  ipcMain.handle("get-tags", () => {
-    return getAllTags();
-  });
-  ipcMain.handle("insert-court", (_event, name, id, is_synced) => {
-    return insertCourt(name, id, is_synced);
-  });
-  ipcMain.handle("insert-tag", (_event, name, id, is_synced) => {
-    return insertTag(name, id, is_synced);
-  });
-  ipcMain.handle("update-court-sync", (_event, id) => {
-    return updateCourtSync(id);
-  });
-  ipcMain.handle("update-tag-sync", (_event, id) => {
-    return updateTagSync(id);
-  });
-  ipcMain.handle("unsynced-courts", () => {
-    return unsyncedCourts();
-  });
-  ipcMain.handle("unsynced-tags", () => {
-    return unsyncedTags();
-  });
-  ipcMain.handle("unsynced-clients", () => {
-    return unsyncedClients();
-  });
-  ipcMain.handle("update-client-sync", (_event, id) => {
-    return updateClientSync(id);
-  });
-  ipcMain.handle("insert-or-update-clients", (_event, data) => {
-    return insertOrUpdateClients(data);
-  });
-  ipcMain.handle("unsynced-cases", () => {
-    return unsyncedCases();
-  });
-  ipcMain.handle("update-case-sync", (_event, id) => {
-    return updateCaseSync(id);
-  });
-  ipcMain.handle("insert-or-update-cases", (_event, data) => {
-    return insertOrUpdateCases(data);
-  });
-  ipcMain.handle("admin:delete-user", async (_event, userId) => {
-    const result = await deleteUser(userId);
-    console.log(result);
-    return result;
-  });
+    main$3.autoUpdater.checkForUpdates();
+  }, 2e3);
+});
+ipcMain.on("restart_app", () => {
+  main$3.autoUpdater.quitAndInstall();
+});
+ipcMain.on("log", (_event, ...args) => {
+  console.log("\x1B[32m%s\x1B[0m", "[Renderer Log]:", ...args);
+});
+ipcMain.handle("get-app-version", () => app.getVersion());
+ipcMain.handle("open-file", async (_event, filePath) => await shell.openPath(filePath));
+ipcMain.handle("save-temp-file", async (_event, filename, buffer) => {
+  return await saveTempFile(filename, buffer);
+});
+ipcMain.handle("database:insert-audit", (_event, audit) => {
+  return insertAudit(audit);
+});
+ipcMain.handle("database:get-all-audits", () => {
+  return getAllAudits();
+});
+ipcMain.handle("database:get-unsynced-audits", () => {
+  return unsyncedAudits();
+});
+ipcMain.handle("database:update-audit-sync", (_event, id) => {
+  return updateAuditSync(id);
+});
+ipcMain.handle("database:insert-client", (_event, client) => {
+  return insertClient(client);
+});
+ipcMain.handle("database:get-all-clients", () => {
+  return getAllClients();
+});
+ipcMain.handle("database:update-client-field", (_event, id, field, value) => {
+  return updateClientField(id, field, value);
+});
+ipcMain.handle("database:delete-client", (_event, id) => {
+  return deleteClient(id);
+});
+ipcMain.handle("database:insert-case", (_event, legalCase) => {
+  return insertCase(legalCase);
+});
+ipcMain.handle("database:get-all-cases", () => {
+  return getAllCases();
+});
+ipcMain.handle("database:delete-case", (_event, id) => {
+  return deleteCase(id);
+});
+ipcMain.handle("database:update-case", (_event, id, field, value) => {
+  return updateCase(id, field, value);
+});
+ipcMain.handle("database:insert-task", (_event, task) => {
+  return insertTask(task);
+});
+ipcMain.handle("database:get-all-tasks", () => {
+  return getAllTasks();
+});
+ipcMain.handle("database:delete-task", (_event, id) => {
+  return deleteTask(id);
+});
+ipcMain.handle("database:update-task", (_event, task) => {
+  return updateTask(task);
+});
+ipcMain.handle("get-courts", () => {
+  return getAllCourts();
+});
+ipcMain.handle("get-tags", () => {
+  return getAllTags();
+});
+ipcMain.handle("insert-court", (_event, name, id, is_synced) => {
+  return insertCourt(name, id, is_synced);
+});
+ipcMain.handle("insert-tag", (_event, name, id, is_synced) => {
+  return insertTag(name, id, is_synced);
+});
+ipcMain.handle("update-court-sync", (_event, id) => {
+  return updateCourtSync(id);
+});
+ipcMain.handle("update-tag-sync", (_event, id) => {
+  return updateTagSync(id);
+});
+ipcMain.handle("unsynced-courts", () => {
+  return unsyncedCourts();
+});
+ipcMain.handle("unsynced-tags", () => {
+  return unsyncedTags();
+});
+ipcMain.handle("unsynced-clients", () => {
+  return unsyncedClients();
+});
+ipcMain.handle("update-client-sync", (_event, id) => {
+  return updateClientSync(id);
+});
+ipcMain.handle("insert-or-update-clients", (_event, data) => {
+  return insertOrUpdateClients(data);
+});
+ipcMain.handle("unsynced-cases", () => {
+  return unsyncedCases();
+});
+ipcMain.handle("update-case-sync", (_event, id) => {
+  return updateCaseSync(id);
+});
+ipcMain.handle("insert-or-update-cases", (_event, data) => {
+  return insertOrUpdateCases(data);
+});
+ipcMain.handle("admin:delete-user", async (_event, userId) => {
+  const result = await deleteUser(userId);
+  console.log(result);
+  return result;
 });
 export {
   MAIN_DIST,

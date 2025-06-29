@@ -33,7 +33,8 @@
     oneClick: false,
     perMachine: false,
     allowToChangeInstallationDirectory: true,
-    deleteAppDataOnUninstall: false,
+    deleteAppDataOnUninstall: true,
+    runAfterFinish: true,
   },
   linux: {
     target: ["AppImage"],

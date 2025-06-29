@@ -1,50 +1,47 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { autoUpdater } from 'electron-updater';
+import log from 'electron-log';
+import dotenv from 'dotenv';
 
-import { insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync, insertOrUpdateClients } from './db/client-repo.ts'
-import { insertCase, getAllCases, deleteCase, updateCase, unsyncedCases, updateCaseSync, insertOrUpdateCases } from './db/case-repo.ts'
-import { insertTask, getAllTasks, deleteTask, updateTask } from './db/task-repo.ts'
-import { insertAudit, getAllAudits, unsyncedAudits, updateAuditSync } from "./db/audit-repo"
+import {
+  insertClient, getAllClients, deleteClient, updateClientField, unsyncedClients, updateClientSync, insertOrUpdateClients
+} from './db/client-repo.ts';
+import {
+  insertCase, getAllCases, deleteCase, updateCase, unsyncedCases, updateCaseSync, insertOrUpdateCases
+} from './db/case-repo.ts';
+import {
+  insertTask, getAllTasks, deleteTask, updateTask
+} from './db/task-repo.ts';
+import {
+  insertAudit, getAllAudits, unsyncedAudits, updateAuditSync
+} from './db/audit-repo.ts';
+import {
+  getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyncedTags, updateCourtSync, updateTagSync
+} from './db/settings-repo.ts';
+import { saveTempFile } from './file-handler.ts';
+import { deleteUser } from './supabaseAdmin.ts';
 
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
-import { createRequire } from 'node:module'
+dotenv.config();
 
-import { autoUpdater } from "electron-updater"
-import log from "electron-log"
-import { getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyncedTags, updateCourtSync, updateTagSync } from './db/settings-repo.ts'
-import { deleteUser } from './supabaseAdmin.ts'
-
-import dotenv from 'dotenv'
-import { saveTempFile } from './file-handler.ts'
-dotenv.config()
-
-const require = createRequire(import.meta.url)
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 {require}
-// The built directory structure
-//
-// ├─┬─┬ dist
-// │ │ └── index.html
-// │ │
-// │ ├─┬ dist-electron
-// │ │ ├── main.js
-// │ │ └── preload.mjs
-// │
-process.env.APP_ROOT = path.join(__dirname, '..')
+process.env.APP_ROOT = path.join(__dirname, '..');
+export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
+export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron');
+export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist');
+export const SPLASH_DIST = path.join(process.env.APP_ROOT, 'splash');
+process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST;
 
-// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
-export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
-export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
-export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
-export const SPLASH_DIST = path.join(process.env.APP_ROOT, 'splash')
-console.log(SPLASH_DIST)
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
-
-let win: BrowserWindow | null
-
+let win: BrowserWindow | null = null;
 let splashWin: BrowserWindow | null = null;
+
+autoUpdater.logger = log;
+log.transports.file.level = 'debug';
 
 function createSplashWindow() {
   splashWin = new BrowserWindow({
@@ -52,7 +49,6 @@ function createSplashWindow() {
     height: 300,
     frame: false,
     resizable: false,
-    transparent: false,
     alwaysOnTop: true,
     center: true,
     show: false,
@@ -61,131 +57,112 @@ function createSplashWindow() {
     },
   });
 
-  splashWin.webContents.on('did-finish-load', () => {
-    splashWin?.webContents.openDevTools({ mode: 'detach' })
-    splashWin?.show()
-  })
   splashWin.loadFile(path.join(SPLASH_DIST, 'index.html'));
   splashWin.setMenuBarVisibility(false);
-}
 
-
-function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'),
-    },
-    show: false,
-  })
-  
-  console.log(path.join(__dirname, 'preload.mjs'))
-  // Test active push message to Renderer-process.
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', (new Date).toLocaleString())
-    // win?.webContents.send('main-process-message', VITE_DEV_SERVER_URL)
-  })
-  
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL)
-    console.log("VITE_DEV_SERVER_URL: ", VITE_DEV_SERVER_URL)
-    win.webContents.openDevTools({ mode: 'detach' })
-
-    
-  } else {
-    // win.loadFile('dist/index.html')
-    win.loadFile(path.join(RENDERER_DIST, 'index.html'))
-    win.webContents.openDevTools({ mode: 'detach' })
-
-    console.log("RENDERER_DIST: ", path.join(RENDERER_DIST, 'index.html'))
-  }
-  win?.setAutoHideMenuBar(true)
-}
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-    win = null
-  }
-})
-
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})
-
-
-autoUpdater.logger = log
-
-autoUpdater.on('update-available', (info) => {
-  win?.webContents.send('update_available', {
-    version: info.version,
-    releaseNotes: info.releaseNotes || '',
-    releaseName: info.releaseName || '',
-  })
-})
-
-
-autoUpdater.on('download-progress', (progressObj) => {
-  win?.webContents.send('update_download_progress', progressObj.percent)
-})
-
-autoUpdater.on('update-downloaded', () => {
-  win?.webContents.send('update_downloaded')
-})
-
-ipcMain.handle('get-app-version', () => {
-  return app.getVersion();
-});
-
-
-app.whenReady().then(() => {
-  console.log("Creating Window")
-  createSplashWindow();
-  createWindow();
-
-  log.info("App starting...");
-  autoUpdater.checkForUpdates();
-
-  const readyBarrier = new Promise(resolve => setTimeout(resolve, 2000));
-
-  ipcMain.on('app-ready', async () => {
-    await readyBarrier; // ensures at least 5s passed
-
-    await splashWin?.webContents.executeJavaScript(`
-      document.body.style.transition = 'opacity 0.5s';
-      document.body.style.opacity = '0';
-      setTimeout(() => window.close(), 5000);
-    `);
-
+  splashWin.webContents.on('did-fail-load', (_e, code, desc) => {
+    log.error(`Splash failed: ${desc} (${code})`);
     splashWin?.close();
     splashWin = null;
     win?.show();
   });
 
+  splashWin.webContents.on('did-finish-load', () => {
+    splashWin?.show();
+    if (VITE_DEV_SERVER_URL) splashWin?.webContents.openDevTools({ mode: 'detach' });
+  });
+}
 
-  ipcMain.on('restart_app', () => {
-    autoUpdater.quitAndInstall()
-  })
+function createMainWindow() {
+  win = new BrowserWindow({
+    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.mjs'),
+    },
+  });
 
-  ipcMain.on('log', (_event, ...args) => {
-    console.log('\x1b[32m%s\x1b[0m', '[Renderer Log]:', ...args)
-  })
-  
-   // Shell
-  ipcMain.handle('open-file', async (_event, filePath: string) => {
-    return await shell.openPath(filePath)
-  })
+  win.setAutoHideMenuBar(true);
 
-  ipcMain.handle('save-temp-file', async (_event, filename, buffer)=>{
-    return await saveTempFile(filename, buffer)
-  })
+  win.webContents.on('did-fail-load', (_e, code, desc) => {
+    log.error(`Main window failed: ${desc} (${code})`);
+    win?.loadFile(path.join(RENDERER_DIST, 'index.html'));
+  });
+
+  if (VITE_DEV_SERVER_URL) {
+    win.loadURL(VITE_DEV_SERVER_URL);
+    win.webContents.openDevTools({ mode: 'detach' });
+  } else {
+    win.loadFile(path.join(RENDERER_DIST, 'index.html'));
+    // win.webContents.openDevTools({ mode: 'detach' }); // Uncomment only for debug
+  }
+
+  win.webContents.on('did-finish-load', () => {
+    win?.webContents.send('main-process-message', new Date().toLocaleString());
+  });
+}
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+    win = null;
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createMainWindow();
+  }
+});
+
+// Auto-Updater Events
+autoUpdater.on('update-available', (info) => {
+  win?.webContents.send('update_available', {
+    version: info.version,
+    releaseNotes: info.releaseNotes || '',
+    releaseName: info.releaseName || '',
+  });
+});
+autoUpdater.on('download-progress', (progressObj) => {
+  win?.webContents.send('update_download_progress', progressObj.percent);
+});
+autoUpdater.on('update-downloaded', () => {
+  win?.webContents.send('update_downloaded');
+});
+
+app.whenReady().then(() => {
+  log.info("App version:", app.getVersion());
+  log.info("App path:", app.getAppPath());
+  log.info("User data path:", app.getPath('userData'));
+
+  createSplashWindow();
+  createMainWindow();
+
+  // Delay splash for 2s to show branding
+  setTimeout(() => {
+    splashWin?.close();
+    splashWin = null;
+    win?.show();
+    autoUpdater.checkForUpdates();
+  }, 2000);
+});
+
+// IPC
+ipcMain.on('restart_app', () => {
+  autoUpdater.quitAndInstall();
+});
+ipcMain.on('log', (_event, ...args) => {
+  console.log('\x1b[32m%s\x1b[0m', '[Renderer Log]:', ...args);
+});
+ipcMain.handle('get-app-version', () => app.getVersion());
+ipcMain.handle('open-file', async (_event, filePath) => await shell.openPath(filePath));
+ipcMain.handle('save-temp-file', async (_event, filename, buffer) => {
+  return await saveTempFile(filename, buffer);
+});
+
+// Add all your existing CRUD ipcMain handles here without change...
+// [Clients, Cases, Tasks, Audits, Courts, Tags, User Management]
+// ✅ No change needed here unless you want me to optimize further.
 
   // Insert audit
   ipcMain.handle('database:insert-audit', (_event, audit) => {
@@ -321,13 +298,3 @@ app.whenReady().then(() => {
   console.log(result)
   return result
 })
-})
-
-
-// dialog.showMessageBox({
-//       type: 'info',
-//       title: 'currentVersion',
-//       message: app.getVersion(),
-//       detail: 'This is the current version.',
-//       buttons: ['OK']
-//     })
