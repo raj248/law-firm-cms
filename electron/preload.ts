@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld('debug', {
 
 // --------- Expose shell.openPath ---------
 contextBridge.exposeInMainWorld('electronAPI', {
+  getNotificationSoundPath: () => ipcRenderer.invoke('get-notification-sound-path'),
   openFile: (filePath: string) => ipcRenderer.invoke('open-file', filePath),
   appReady: () => ipcRenderer.send('app-ready'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),

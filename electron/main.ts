@@ -154,6 +154,9 @@ ipcMain.on('restart_app', () => {
 ipcMain.on('log', (_event, ...args) => {
   console.log('\x1b[32m%s\x1b[0m', '[Renderer Log]:', ...args);
 });
+ipcMain.handle('get-notification-sound-path', ()=> {
+    return path.join(app.getAppPath(), 'public', 'sounds', 'new_activity.mp3')
+  })
 ipcMain.handle('get-app-version', () => app.getVersion());
 ipcMain.handle('open-file', async (_event, filePath) => await shell.openPath(filePath));
 ipcMain.handle('save-temp-file', async (_event, filename, buffer) => {

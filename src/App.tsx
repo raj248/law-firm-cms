@@ -16,10 +16,33 @@ import SettingsPage from "./components/pages/settings"
 import { useUpdateListener } from "./hooks/useUpdateListener"
 import { useUserStore } from "./stores/user-store"
 import { useSyncHook } from "./hooks/useSyncHook"
+import { useEffect } from "react"
+import { useAuditStore } from "./stores/audit-store"
+import { useCaseStore } from "./stores/case-store"
+import { useClientStore } from "./stores/client-store"
+import { useDocumentStore } from "./stores/document-store"
+import { useSettingsStore } from "./stores/settings-store"
+import { useTaskStore } from "./stores/task-store"
 
 export default function App() {
+  const fetchDocuments = useDocumentStore((s) => s.fetchDocuments)
+  const fetchClients = useClientStore((s) => s.fetchClients)
+  const fetchCases = useCaseStore((s) => s.fetchCases)
+  const fetchTasks = useTaskStore((s) => s.fetchTasks)
+  const { fetchCourts, fetchTags } = useSettingsStore()
+  const fetchAudits = useAuditStore((s) => s.fetchAudits)
   const { isCurrentUserAdmin } = useUserStore()
   const { theme } = useTheme()
+  useEffect(() => {
+    fetchAudits()
+    fetchDocuments()
+    fetchClients()
+    fetchCases()
+    fetchTasks()
+    fetchCourts()
+    fetchTags()
+    window.debug.log("App rendered", Date.now())
+  }, [])
   useUpdateListener()
   useSyncHook()
   return (

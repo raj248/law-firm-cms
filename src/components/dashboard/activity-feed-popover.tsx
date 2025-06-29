@@ -32,7 +32,7 @@ export function ActivityFeedPopover({
     window.debug.log("ActivityFeedPopover rendered", Date.now())
   }, [])
 
-  window.debug.log("audits", audits)
+  // window.debug.log("audits", audits)
   const sortedAudits = [...audits]
     .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
     .slice(-20)
