@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Client, NewClient } from '@/types'
 import { toast } from 'sonner'
 import { deleteClient, pushClients } from '@/supabase/cloud-clients'
+import { createAuditPartial } from '@/lib/audit'
 
 type ClientStore = {
   clients: Client[]
@@ -24,6 +25,11 @@ export const useClientStore = create<ClientStore>((set) => ({
       set((state) => ({ clients: [...state.clients, result.data] }))
       toast.success("Client added", { description: `${result.data.name} has been added` })
       pushClients()
+      createAuditPartial({
+        action_type: "INSERT",
+        object_type: "CLIENT",
+        object_id: result.data.id,
+      })
     } else {
       toast.error("Error", { description: result.error })
     }
@@ -40,6 +46,11 @@ export const useClientStore = create<ClientStore>((set) => ({
         description: `${field} updated successfully`
       })
       pushClients()
+      createAuditPartial({
+        action_type: "UPDATE",
+        object_type: "CLIENT",
+        object_id: id,
+      })
     } else {
       toast.error("Update failed", {
         description: `Could not update ${field}`
@@ -54,6 +65,11 @@ export const useClientStore = create<ClientStore>((set) => ({
         clients: state.clients.filter((c) => c.id !== id)
       }))
       toast.success("Client deleted", { description: "Client has been deleted" })
+      createAuditPartial({
+        action_type: "DELETE",
+        object_type: "CLIENT",
+        object_id: id,
+      })
     } else {
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })
     }

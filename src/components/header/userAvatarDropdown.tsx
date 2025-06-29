@@ -17,6 +17,7 @@ import { toast } from "sonner"
 
 export function UserAvatarDropdown() {
   const { currentUser } = useUserStore()
+  const navigate = useNavigate();
 
   if (!currentUser) return null
 
@@ -28,7 +29,6 @@ export function UserAvatarDropdown() {
       toast.success("Logged out")
     }
   }
-  const navigate = useNavigate();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

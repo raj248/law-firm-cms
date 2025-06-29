@@ -17,7 +17,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useClientStore } from "@/stores/client-store"
-import { createAuditPartial } from "@/lib/audit"
 
 const clientSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -37,11 +36,6 @@ const onAdd = (data: ClientFormData) => {
     address: data.address || "Not Available",
     note: data.note || "Not Available",
     id: id,
-  })
-  createAuditPartial({
-    action_type: "INSERT",
-    object_type: "CLIENT",
-    object_id: id,
   })
   window.debug.log("Client added:", data)
 }
