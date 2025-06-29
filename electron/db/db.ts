@@ -9,8 +9,7 @@ import { app } from 'electron';
 // Ensure Electron app is ready before calling app.getPath
 console.log('App Name:', app.getName());
 
-const dbDirectory = app.getPath('userData'); // ✅ User-safe, writable
-const dbPath = path.join(dbDirectory, 'lawfirm.db');
+const dbPath = path.join(app.getPath('userData'), 'LawFirmApp', 'database', 'lawfirm.db')
 
 console.log("Database Path:", dbPath);
 
