@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom"
-import { Debug } from "./debug"
+// import { Debug } from "./debug"
 import { GlobalSearch } from "./global-search"
 import { CloudSyncButton } from "./CloudSyncButton"
 import { ThemeToggle } from "./theme-toggle"
@@ -39,7 +39,7 @@ export function Header() {
       </div>
       <GlobalSearch />
       <div className="flex items-center gap-2">
-        <Debug />
+        {/* <Debug /> */}
         <UpdateDropdown />
         <ThemeToggle />
         <CloudSyncButton />
