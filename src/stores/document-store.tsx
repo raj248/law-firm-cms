@@ -1,5 +1,6 @@
 import { supabase } from "@/supabase/supabase";
 import { DocumentMetadata } from "@/types";
+import { playSound } from "@/utils/sound";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -23,6 +24,7 @@ export const useDocumentStore = create<DocumentStore>()(
         if (error) {
           window.debug?.log(error);
           toast.error("Failed to fetch documents");
+          playSound("error")
           return;
         }
 
@@ -85,7 +87,7 @@ export const useDocumentStore = create<DocumentStore>()(
 
           if (doc.localPath) {
             const opened = await window.electronAPI.openFile(doc.localPath);
-            if (!opened) toast.error("Can't open file");
+            if (!opened) { toast.error("Can't open file"); playSound("error") };
             updateLastAccessed(doc.name);
             return;
           }
@@ -93,6 +95,7 @@ export const useDocumentStore = create<DocumentStore>()(
           const { data, error } = await supabase.storage.from("templates").download(doc.name);
           if (error || !data) {
             toast.error("Download failed", { description: error?.message });
+            playSound("error");
             return;
           }
 
@@ -105,10 +108,12 @@ export const useDocumentStore = create<DocumentStore>()(
             updateLocalPath(doc.id, path);
           } else {
             toast.error("Can't open file");
+            playSound("error");
           }
         } catch (e) {
           console.error(e);
           toast.error("An error occurred while opening the document.");
+          playSound("error");
         }
       },
     }),

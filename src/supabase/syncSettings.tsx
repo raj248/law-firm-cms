@@ -2,6 +2,7 @@ import { supabase } from '@/supabase/supabase'
 import { toast } from 'sonner'
 import { useSettingsStore } from '@/stores/settings-store'
 import { Court, Tag } from '@/types';
+import { playSound } from '@/utils/sound';
 
 export async function pullAllSettings(): Promise<void> {
   try {
@@ -12,6 +13,7 @@ export async function pullAllSettings(): Promise<void> {
 
     if (courtsRes.error) {
       toast.error('❌ Courts Pull Failed', { description: courtsRes.error.message })
+      playSound('error')
     } else if (courtsRes.data) {
       const courts = courtsRes.data as Court[]
       for (const court of courts) window.database.insertCourt(court.name, court.id, 1)
@@ -21,6 +23,7 @@ export async function pullAllSettings(): Promise<void> {
 
     if (tagsRes.error) {
       toast.error('❌ Tags Pull Failed', { description: tagsRes.error.message })
+      playSound('error')
     } else if (tagsRes.data) {
       const tags = tagsRes.data as Tag[]
       for (const tag of tags) window.database.insertTag(tag.name, tag.id, 1)
@@ -30,6 +33,7 @@ export async function pullAllSettings(): Promise<void> {
 
   } catch (err: any) {
     toast.error('❌ Sync Settings Error', { description: err.message || "Unknown error" })
+    playSound('error')
   }
 }
 

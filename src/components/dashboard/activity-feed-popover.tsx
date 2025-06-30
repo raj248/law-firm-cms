@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 import { X } from "lucide-react"
 import { Audit } from "@/types"
-import { playNotificationSound } from "@/utils/sound"
+import { playSound } from "@/utils/sound"
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -57,7 +57,7 @@ export function ActivityFeedPopover({
     if (newActivityTrigger && latestAudit) {
       // Play sound only if this audit has not been seen
       if (lastAuditIdRef.current !== latestAudit.id) {
-        playNotificationSound()
+        playSound('notification')
         lastAuditIdRef.current = latestAudit.id
       }
 

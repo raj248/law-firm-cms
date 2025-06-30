@@ -1,6 +1,7 @@
 import { toast } from "sonner"
 import { supabase } from "./supabase"
 import { PostgrestError } from "@supabase/supabase-js"
+import { playSound } from "@/utils/sound"
 
 export async function pushCases(): Promise<void> {
   const unsyncedCases = await window.database.unsyncedCases()
@@ -30,9 +31,11 @@ export async function pushCases(): Promise<void> {
 
     if (error) {
       toast.error("Error", { description: `❌ Failed to sync ${kase.title}: ${error.message}` })
+      playSound('error')
     } else {
       window.database.updateCaseSync(kase.id)
       toast.success("Synced", { description: `✅ Synced ${kase.title}` })
+      playSound('error')
     }
   }
 

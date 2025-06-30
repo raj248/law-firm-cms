@@ -3,6 +3,7 @@ import { Client, NewClient } from '@/types'
 import { toast } from 'sonner'
 import { deleteClient, pushClients } from '@/supabase/cloud-clients'
 import { createAuditPartial } from '@/lib/audit'
+import { playSound } from '@/utils/sound'
 
 type ClientStore = {
   clients: Client[]
@@ -24,6 +25,7 @@ export const useClientStore = create<ClientStore>((set, get) => ({
 
       set((state) => ({ clients: [...state.clients, result.data] }))
       toast.success("Client added", { description: `${result.data.name} has been added` })
+      playSound('info')
       pushClients()
       await createAuditPartial({
         action_type: "INSERT",
@@ -33,6 +35,7 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       })
     } else {
       toast.error("Error", { description: result.error })
+      playSound('error')
     }
   },
   updateClient: async (id: string, field: keyof Client, value: string) => {
@@ -46,6 +49,7 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       toast.success("Client updated", {
         description: `${field} updated successfully`
       })
+      playSound('info')
       pushClients()
       const name = get().clients.find((c) => c.id === id)?.name
       await createAuditPartial({
@@ -58,6 +62,7 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       toast.error("Update failed", {
         description: `Could not update ${field}`
       })
+      playSound('error')
     }
   },
   deleteClient: async (id) => {
@@ -69,6 +74,7 @@ export const useClientStore = create<ClientStore>((set, get) => ({
         clients: state.clients.filter((c) => c.id !== id)
       }))
       toast.success("Client deleted", { description: "Client has been deleted" })
+      playSound('info')
       await createAuditPartial({
         action_type: "DELETE",
         object_type: "CLIENT",
@@ -77,6 +83,7 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       })
     } else {
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })
+      playSound('error')
     }
   }
 }))

@@ -9,6 +9,7 @@ import { pushCases } from '@/supabase/cloud-cases'
 import { handleSettingsRealtimePayload, pullAllSettings } from '@/supabase/syncSettings'
 import { pushSettings } from '@/supabase/cloud-settings'
 import { handleAuditRealtimePayload, pullAllAudits } from '@/supabase/syncAudits'
+import { playSound } from '@/utils/sound'
 
 export function useSyncHook() {
   useEffect(() => {
@@ -22,6 +23,7 @@ export function useSyncHook() {
       const {  setRealtimeActive } = useSyncStore.getState()
 
       toast.info('🔄 Syncing from Supabase...')
+      playSound('info')
       await pullAllClients()
       await pullAllCases()
       await pullAllSettings()
@@ -133,6 +135,8 @@ export function useSyncHook() {
     }
 
     const handleOffline = () => {
+      toast.warning("No Internet Connection")
+      playSound('error')
       window.debug.log('⚠️ Offline. Cleaning up realtime and saving sync time.')
       const now = new Date().toISOString()
       useSyncStore.getState().setRealtimeActive(false)

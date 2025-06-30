@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { Cog, LogOut, User } from "lucide-react"
 import { supabase } from "@/supabase/supabase"
 import { toast } from "sonner"
+import { playSound } from "@/utils/sound"
 
 export function UserAvatarDropdown() {
   const { currentUser } = useUserStore()
@@ -25,8 +26,10 @@ export function UserAvatarDropdown() {
     const { error } = await supabase.auth.signOut()
     if (error) {
       toast.error("Logout failed", { description: error.message })
+      playSound('error')
     } else {
       toast.success("Logged out")
+      playSound('info')
     }
   }
   return (
@@ -76,7 +79,7 @@ export function UserAvatarDropdown() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => toast.message("Profile coming soon!")}>
+        <DropdownMenuItem onClick={() => { toast.message("Profile coming soon!"); playSound('info') }}>
           <User className="mr-2 h-4 w-4" /> Profile
         </DropdownMenuItem>
 

@@ -3,6 +3,7 @@ import { Case } from '@/types'
 import { toast } from 'sonner'
 import { deleteCase as deleteCaseFromCloud, pushCases as pushCasesToCloud } from '@/supabase/cloud-cases'
 import { createAuditPartial } from '@/lib/audit'
+import { playSound } from '@/utils/sound'
 
 type CaseStore = {
   cases: Case[]
@@ -32,6 +33,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     if (result.success && result.data) {
       set((state) => ({ cases: [...state.cases, result.data] }))
       toast.success("Case added", { description: legalCase.title })
+      playSound('info')
       pushCasesToCloud()
       await createAuditPartial({
         action_type: "INSERT",
@@ -41,6 +43,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
       })
     } else {
       toast.error("Error", { description: result.error })
+      playSound('error')
     }
   },
 
@@ -53,6 +56,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         cases: state.cases.filter((c) => c.file_id !== id),
       }))
       toast.success("Case deleted", { description: "Case has been deleted" })
+      playSound('info')
       await createAuditPartial({
         action_type: "DELETE",
         object_type: "CASE",
@@ -62,6 +66,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     }
     else {
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })
+      playSound('error')
     }
   },
 
@@ -69,6 +74,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
     const caseToUpdate = get().cases.find(c => c.file_id === file_id)
     if (!caseToUpdate) {
       toast.error("Error", { description: "Case not found" })
+      playSound('error')
       return
     }
 
@@ -86,6 +92,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
       toast.success("Case updated", {
         description: `${field} updated successfully`
       })
+      playSound('info')
       deleteCaseFromCloud(file_id)
       pushCasesToCloud()
       await createAuditPartial({
@@ -97,6 +104,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
       if (field === 'file_id') get().fetchCases()
     } else {
       toast.error("Error", { description: result.error })
+      playSound('error')
     }
   },
 

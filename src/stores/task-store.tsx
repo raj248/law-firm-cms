@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { Task } from '@/types'
 import { toast } from 'sonner'
+import { playSound } from '@/utils/sound'
 
 type TaskStore = {
   tasks: Task[]
@@ -23,6 +24,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       set({ tasks })
     } catch (error) {
       toast.error('Failed to fetch tasks')
+      playSound('error')
       console.error(error)
     }
   },
@@ -32,8 +34,10 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       await window.database?.insertTask(task)
       set((state) => ({ tasks: [...state.tasks, task] }))
       toast.success('Task added successfully')
+      playSound('info')
     } catch (error) {
       toast.error('Failed to add task')
+      playSound('error')
       console.error(error)
     }
   },
@@ -45,8 +49,10 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         tasks: state.tasks.filter((t) => t.id !== id),
       }))
       toast.success('Task deleted')
+      playSound('info')
     } catch (error) {
       toast.error('Failed to delete task')
+      playSound('error')
       console.error(error)
     }
   },
@@ -56,6 +62,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       const currentTask = get().tasks.find((t) => t.id === id)
       if (!currentTask) {
         toast.error("Task not found")
+        playSound('error')
         return
       }
 
@@ -74,11 +81,14 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
           ),
         }))
         toast.success("Task updated")
+        playSound('info')
       } else {
         toast.error(result?.error || "Failed to update task")
+        playSound('error')
       }
     } catch (error) {
       toast.error("Failed to update task")
+      playSound('error')
       console.error(error)
     }
   },
@@ -88,6 +98,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     const currentTask = get().tasks.find((t) => t.id === id)
     if (!currentTask) {
       toast.error("Task not found")
+      playSound('error')
       return
     }
 
@@ -107,9 +118,11 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         ),
       }))
       toast.success("Task marked as completed")
+      playSound('info')
       return
     }
     toast.error("Failed to mark task as completed", { description: result.error })
+    playSound('error')
   },
 
 

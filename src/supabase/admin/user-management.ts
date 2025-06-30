@@ -1,5 +1,6 @@
 import { toast } from "sonner"
 import { supabase } from "../supabase"
+import { playSound } from "@/utils/sound"
 
 async function auth() {
   const currentUserData = await supabase.auth.getUser()
@@ -23,7 +24,7 @@ export async function loadUsers() {
     .order("created_at", { ascending: false })
 
   if (!error) return data
-  else toast.error("Failed to load users", { description: error.message })
+  else {toast.error("Failed to load users", { description: error.message });playSound('error')}
 }
 
 export async function addUser(name: string, email: string, role: string) {
@@ -31,6 +32,7 @@ export async function addUser(name: string, email: string, role: string) {
   if(!permission) return
   if(!permission.permission) {
     toast.error("Unauthorised Action", {description:'Staff Cannot Add Users'})
+    playSound('error')
     return
   }
 
@@ -40,9 +42,11 @@ export async function addUser(name: string, email: string, role: string) {
     .select()
   if (!error) {
     toast.success(`User ${name} - ${email} - ${role} added successfully`)
+    playSound('info')
     loadUsers()
   } else {
     toast.error("Error Adding User", { description: error.message })
+    playSound('error')
   }
 }
 
@@ -51,6 +55,7 @@ export async function updateRole(id: string, newRole: string) {
   if(!permission) return
   if(!permission.permission) {
     toast.error("Unauthorised Action", {description:'Staff Cannot Update Users'})
+    playSound('error')
     return
   }
 
@@ -62,9 +67,11 @@ export async function updateRole(id: string, newRole: string) {
 
   if (!error) {
     toast.success("Role updated")
+    playSound('info')
     loadUsers()
   } else {
     toast.error("Error updating role", { description: error.message })
+    playSound('error')
   }
 }
 
@@ -73,6 +80,7 @@ export async function deleteUser(id: string) {
   if(!permission) return
   if(!permission.permission) {
     toast.error("Unauthorised Action", {description:'Staff Cannot Delete Users'})
+    playSound('error')
     return
   }
 
@@ -93,6 +101,7 @@ export async function deleteUser(id: string) {
 
   if (isOnlyAdmin) {
     toast.error("Cannot remove your own admin role. At least one admin must exist.")
+    playSound('error')
     return
   }
 
@@ -101,6 +110,7 @@ export async function deleteUser(id: string) {
   // window.debug.log(result)
   if(!result.success) {
     toast.error("Error Deleting User", { description: result.error })
+    playSound('error')
     return
   }  
     const { error } = await supabase
@@ -110,8 +120,10 @@ export async function deleteUser(id: string) {
 
   if (!error) {
     toast.success("User Deleted")
+    playSound('info')
     loadUsers()
   } else {
     toast.error("Error Deleting User", { description: error.message })
+    playSound('error')
   }
 }

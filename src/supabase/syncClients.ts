@@ -2,6 +2,7 @@ import { useClientStore } from '@/stores/client-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { supabase } from '@/supabase/supabase'
 import { Client } from '@/types'
+import { playSound } from '@/utils/sound'
 import { toast } from 'sonner'
 
 export async function pullClients(lastSyncTime: string): Promise<void> {
@@ -13,6 +14,7 @@ export async function pullClients(lastSyncTime: string): Promise<void> {
 
   if (error) {
     toast.error('❌ Pull failed', {description: error.message})
+    playSound('error')
     return
   }
   // window.debug.log(data)
@@ -32,6 +34,7 @@ export async function pullAllClients() {
 
   if (error) {
     toast.error('❌ Pull failed', { description: error.message })
+    playSound('error')
     return
   }
 

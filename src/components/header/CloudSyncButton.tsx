@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/tooltip"
 import { pullAllAudits } from "@/supabase/syncAudits"
 import { pullAllSettings } from "@/supabase/syncSettings"
+import { playSound } from "@/utils/sound"
 
 export function CloudSyncButton() {
   const [syncing, setSyncing] = useState(false)
@@ -21,6 +22,7 @@ export function CloudSyncButton() {
   const handleSync = async () => {
     setSyncing(true)
     toast.message("Syncing with cloud...")
+    playSound('info')
     await pullAllClients()
     await pullAllCases()
     await pullAllSettings()

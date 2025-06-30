@@ -23,6 +23,7 @@ import { supabase } from "@/supabase/supabase"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDocumentStore } from "@/stores/document-store"
+import { playSound } from "@/utils/sound"
 
 export default function DocumentsPage() {
   const [loading, setLoading] = useState(true)
@@ -59,8 +60,10 @@ export default function DocumentsPage() {
     if (error) {
       window.debug.log(error)
       toast.error("Upload failed")
+      playSound('error')
     } else {
       toast.success("Upload successful")
+      playSound('info')
       fetchDocuments()
       setOpen(false)
     }
@@ -190,8 +193,10 @@ export default function DocumentsPage() {
                 if (error) {
                   window.debug.log(error);
                   toast.error("Delete failed");
+                  playSound('error');
                 } else {
                   toast.success("Deleted successfully");
+                  playSound('info');
                   // fetchDocuments();
                   removeDocument(confirmDelete.name);
                 }

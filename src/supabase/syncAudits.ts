@@ -4,12 +4,14 @@ import { useUserStore } from "@/stores/user-store"
 import { useAuditStore } from "@/stores/audit-store"
 import { Audit } from "@/types"
 import { useSyncStore } from '@/stores/sync-store'
+import { playSound } from '@/utils/sound'
 
 export async function pullAllAudits() {
   const { data: audits, error } = await supabase.from('audits').select('*')
 
   if (error) {
     toast.error('❌ Pull failed', { description: error.message })
+    playSound('error')
     return
   }
 
@@ -71,9 +73,11 @@ export async function pushAudits(): Promise<void> {
 
     if (error) {
       toast.error("Error", { description: `❌ Failed to sync audit (${audit.action_type} on ${audit.object_type}): ${error.message}` })
+      playSound('error')
     } else {
       window.database.updateAuditSync(audit.id)
       toast.success("Synced", { description: `✅ Synced audit (${audit.action_type} on ${audit.object_type})` })
+      playSound('info')
     }
   }
 

@@ -1,4 +1,5 @@
 import { supabase } from '@/supabase/supabase'
+import { playSound } from '@/utils/sound'
 import { PostgrestError } from '@supabase/supabase-js'
 import { toast } from 'sonner'
 
@@ -28,9 +29,11 @@ export async function pushClients(): Promise<void> {
 
     if (error) {
       toast.error("Error", {description:`❌ Failed to sync ${client.name}: ${error.message}`})
+      playSound('error')
     } else {
       window.database.updateClientSync(client.id)
       toast.success("Synced", {description: `✅ Synced ${client.name}`})
+      playSound('info')
     }
   }
 

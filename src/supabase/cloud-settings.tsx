@@ -1,5 +1,6 @@
 import { supabase } from '@/supabase/supabase'
 import { Court, Tag } from '@/types'
+import { playSound } from '@/utils/sound'
 import { toast } from 'sonner'
 
 export async function pushSettings(): Promise<void> {
@@ -25,6 +26,7 @@ export async function pushSettings(): Promise<void> {
       })
       if (error) {
         toast.error("❌ Court Sync Failed", { description: error.message })
+        playSound('error')
       } else {
         window.database.updateCourtSync(court.name)
         // toast.success("✅ Court Synced", { description: court.name })
@@ -41,6 +43,7 @@ export async function pushSettings(): Promise<void> {
       })
       if (error) {
         toast.error("❌ Tag Sync Failed", { description: error.message })
+        playSound('error')
       } else {
         window.database.updateTagSync(tag.name)
         // toast.success("✅ Tag Synced", { description: tag.name })

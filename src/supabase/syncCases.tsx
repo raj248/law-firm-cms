@@ -3,6 +3,7 @@ import { useCaseStore } from '@/stores/case-store'
 import { supabase } from '@/supabase/supabase'
 import { Case } from '@/types'
 import { toast } from 'sonner'
+import { playSound } from '@/utils/sound'
 
 
 
@@ -14,6 +15,7 @@ export async function pullCases(lastSyncTime: string): Promise<void> {
 
   if (error) {
     toast.error('❌ Pull failed', { description: error.message })
+    playSound('error')
     return
   }
 
@@ -33,6 +35,7 @@ export async function pullAllCases(): Promise<void> {
 
   if (error) {
     toast.error('❌ Pull failed', { description: error.message })
+    playSound('error')
     return
   }
 
