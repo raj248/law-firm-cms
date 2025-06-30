@@ -76,7 +76,9 @@ export default function App() {
           </Routes>
 
           {/* End main content */}
-          <DialogPortal />
+          <div className="relative flex justify-center items-start">
+            <DialogPortal />
+          </div>
         </div>
       </Router>
     </ThemeProvider>

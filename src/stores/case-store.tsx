@@ -94,6 +94,7 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
         object_id: id,
         object_name: result.updatedCase.title,
       })
+      if (field === 'file_id') get().fetchCases()
     } else {
       toast.error("Error", { description: result.error })
     }

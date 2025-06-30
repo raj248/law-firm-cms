@@ -34,11 +34,11 @@ import {
 } from "@/components/ui/table"
 import { Client } from "@/types"
 import { useClientStore } from "@/stores/client-store"
-import { ClientDetailDialog } from "../dialogs/details/client-detail-dialog"
 import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog"
 import { AddClientDialog } from "../dialogs/add/add-client-dialog"
 import { formatDistanceToNow } from "date-fns"
+import { ClientDetailDialog } from "../dialogs/details/client-detail-dialog"
 
 const COLUMN_VISIBILITY_KEY = "client-table-column-visibility"
 

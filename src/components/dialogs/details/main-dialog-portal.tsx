@@ -1,7 +1,7 @@
 import { CaseDetailDialog } from "@/components/dialogs/details/case-detail-dialog"
 import { useDialogStore } from "@/stores/dialog-store"
-import { ClientDetailDialog } from "./client-detail-dialog"
 import { TaskDetailDialog } from "@/components/dialogs/details/task-detail-dialog"
+import { ClientDetailDialog } from "./client-detail-dialog"
 
 export const DialogPortal = () => {
   const {
