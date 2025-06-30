@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider"
 import { useTheme } from "@/hooks/theme-provider"
 import { toast } from "sonner"
 import { CheckForUpdateButton } from "../checkForUpdateButton"
+import { TagsCourtsButton } from "../dialogs/TagCourtButton"
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
@@ -63,6 +64,7 @@ export default function SettingsPage() {
             <Label>Auto-Sync every 30 min</Label>
             <Switch checked={autoSync} onCheckedChange={setAutoSync} />
           </div>
+          <TagsCourtsButton />
           <Button variant="secondary" onClick={() => toast.message("Manual sync triggered")}>Sync Now</Button>
           <Button variant="destructive" onClick={() => toast.message("Local cache cleared")}>Clear Cache</Button>
         </CardContent>

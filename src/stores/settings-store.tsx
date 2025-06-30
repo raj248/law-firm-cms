@@ -1,4 +1,4 @@
-import { pushSettings } from '@/supabase/cloud-settings'
+import { deleteCourt, deleteTag, pushSettings } from '@/supabase/cloud-settings'
 import { Court, Tag } from '@/types'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -57,8 +57,26 @@ export const useSettingsStore = create<SettingsState>()(
         pushSettings()
       },
       // DELETE AND UPDATE NOT IMPLEMENTED
-      removeCourt: (court) => set((state) => ({ courts: state.courts.filter((c) => c !== court) })),
-      removeTag: (tag) => set((state) => ({ tags: state.tags.filter((t) => t !== tag) })),
+      removeCourt: async (court) => {
+        const success = await deleteCourt(court);
+        if (success) {
+          set((state) => ({
+            courts: state.courts.filter((c) => c !== court),
+          }));
+          pushSettings(); // optional: sync after deletion
+        }
+      },
+
+      removeTag: async (tag) => {
+        const success = await deleteTag(tag);
+        if (success) {
+          set((state) => ({
+            tags: state.tags.filter((t) => t !== tag),
+          }));
+          pushSettings(); // optional: sync after deletion
+        }
+      },
+
     }),
     {
       name: 'settings-store', // LocalStorage key

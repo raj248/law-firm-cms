@@ -13,6 +13,7 @@ import {
   LogIn,
   ShieldCheck,
   HelpCircle,
+  Cog,
 } from "lucide-react"
 import { UserAvatarDropdown } from "./userAvatarDropdown"
 import { UpdateDropdown } from "./updateDropdown"
@@ -28,6 +29,7 @@ export function Header() {
     "/docs": <FileText className="w-6 h-6" />,
     "/login_register": <LogIn className="w-6 h-6" />,
     "/user_management": <ShieldCheck className="w-6 h-6" />,
+    "/settings": <Cog className="w-6 h-6" />,
   }
 
   const icon = iconMap[location.pathname] ?? <HelpCircle className="w-6 h-6" />

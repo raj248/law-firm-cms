@@ -20,6 +20,8 @@ import {
   getAuditById
 } from './db/audit-repo.ts';
 import {
+  deleteCourt,
+  deleteTag,
   getAllCourts, getAllTags, insertCourt, insertTag, unsyncedCourts, unsyncedTags, updateCourtSync, updateTagSync
 } from './db/settings-repo.ts';
 import { saveTempFile } from './file-handler.ts';
@@ -260,6 +262,14 @@ ipcMain.handle('insert-court', (_event, name, id, is_synced) => {
 ipcMain.handle('insert-tag', (_event, name, id, is_synced) => {
   return insertTag(name, id, is_synced)
 })
+
+ipcMain.handle('delete-tag', (_event, tagName: string) => {
+  return deleteTag(tagName);
+});
+
+ipcMain.handle('delete-court', (_event, courtName: string) => {
+  return deleteCourt(courtName);
+});
 
 ipcMain.handle('update-court-sync', (_event, id) => {
   return updateCourtSync(id)

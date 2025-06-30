@@ -38,7 +38,7 @@ const onAdd = (data: CaseFormData) => {
     file_id: data.file_id,
     case_id: data.case_id ?? "",
     title: data.title,
-    description: data.description ?? "Not Available",
+    description: data.description ?? "",
     client_id: data.client,
     court: data.court,
     status: "Open",

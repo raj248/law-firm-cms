@@ -33,8 +33,8 @@ const onAdd = (data: ClientFormData) => {
   useClientStore.getState().addClient({
     ...data,
     email: data.email ?? '',
-    address: data.address || "Not Available",
-    note: data.note || "Not Available",
+    address: data.address ?? '',
+    note: data.note ?? '',
     id: id,
   })
   // window.debug.log("Client added:", data)

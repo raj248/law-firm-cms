@@ -89,6 +89,8 @@ contextBridge.exposeInMainWorld('database', {
 
   insertCourt:(name: string, id?: string, is_synced?: number) => ipcRenderer.invoke('insert-court', name, id, is_synced),
   insertTag:(name: string, id?: string, is_synced?: number) => ipcRenderer.invoke('insert-tag', name, id, is_synced),
+  deleteTag: (tagName: string) => ipcRenderer.invoke('delete-tag', tagName),
+  deleteCourt: (courtName: string) => ipcRenderer.invoke('delete-court', courtName),
   updateCourtSync: (id: string) => ipcRenderer.invoke('update-court-sync', id),
   updateTagSync: (id: string) => ipcRenderer.invoke('update-tag-sync', id),
 

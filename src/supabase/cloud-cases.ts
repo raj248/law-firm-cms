@@ -35,7 +35,7 @@ export async function pushCases(): Promise<void> {
     } else {
       window.database.updateCaseSync(kase.id)
       toast.success("Synced", { description: `✅ Synced ${kase.title}` })
-      playSound('error')
+      playSound('info')
     }
   }
 

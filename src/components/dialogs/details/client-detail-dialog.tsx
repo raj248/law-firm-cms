@@ -49,16 +49,6 @@ export const ClientDetailDialog = ({
 
         {/* Centered Grid */}
         <div className="space-y-3 mt-4">
-          {/* Email */}
-          <div className="grid grid-cols-[100px_1fr] items-center gap-2 border-b pb-2">
-            <span className="text-sm text-muted-foreground">Email:</span>
-            <EditableField
-              value={clientData.email}
-              onSave={(val) => handleOnSave(clientData.id, "email", val)}
-              className="text-sm"
-            />
-          </div>
-
           {/* Phone */}
           <div className="grid grid-cols-[100px_1fr] items-center gap-2 border-b pb-2">
             <span className="text-sm text-muted-foreground">Phone:</span>
@@ -69,11 +59,21 @@ export const ClientDetailDialog = ({
             />
           </div>
 
+          {/* Email */}
+          <div className="grid grid-cols-[100px_1fr] items-center gap-2 border-b pb-2">
+            <span className="text-sm text-muted-foreground">Email:</span>
+            <EditableField
+              value={clientData.email}
+              onSave={(val) => handleOnSave(clientData.id, "email", val)}
+              className="text-sm"
+            />
+          </div>
+
           {/* Address */}
           <div className="grid grid-cols-[100px_1fr] items-start gap-2 border-b pb-2">
             <span className="text-sm text-muted-foreground mt-1">Address:</span>
             <EditableField
-              value={clientData.address || "Not Available"}
+              value={clientData.address ?? ''}
               onSave={(val) => handleOnSave(clientData.id, "address", val)}
               multiline
               className="text-sm"
@@ -84,7 +84,7 @@ export const ClientDetailDialog = ({
           <div className="grid grid-cols-[100px_1fr] items-start gap-2 border-b pb-2">
             <span className="text-sm text-muted-foreground mt-1">Notes:</span>
             <EditableField
-              value={clientData.note || "Not Available"}
+              value={clientData.note ?? ''}
               onSave={(val) => handleOnSave(clientData.id, "note", val)}
               multiline
               className="text-sm"

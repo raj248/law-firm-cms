@@ -65,6 +65,8 @@ interface DB {
 
   insertCourt:(name: string, id?: string, is_synced?: number) => boolean
   insertTag:(name: string, id?: string, is_synced?: number) => boolean
+  deleteTag: (tagName: string) => Promise<boolean>
+  deleteCourt: (courtName: string) => Promise<boolean>
   updateCourtSync: (id: string) => void
   updateTagSync: (id: string) => void
 

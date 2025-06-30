@@ -53,3 +53,53 @@ export async function pushSettings(): Promise<void> {
 
   // window.debug.log(`✅ Pushed ${totalCourts} courts and ${totalTags} tags`)
 }
+
+export async function deleteTag(tagName: string) {
+  try {
+    // Delete from Supabase
+    const { error } = await supabase.from('tags').delete().eq('name', tagName);
+    if (error) {
+      toast.error("❌ Failed to delete tag", { description: error.message });
+      playSound('error');
+      return false;
+    }
+
+    // Delete locally
+    const localResult = window.database.deleteTag(tagName);
+    if (!localResult) {
+      toast.warning("⚠️ Tag deletion may not have synced locally");
+    }
+
+    toast.success("✅ Tag deleted", { description: tagName });
+    playSound('info');
+    return true;
+  } catch (err) {
+    toast.error("❌ Error deleting tag", { description: String(err) });
+    playSound('error');
+  }
+}
+
+export async function deleteCourt(courtName: string) {
+  try {
+    // Delete from Supabase
+    const { error } = await supabase.from('courts').delete().eq('name', courtName);
+    if (error) {
+      toast.error("❌ Failed to delete court", { description: error.message });
+      playSound('error');
+      return false;
+    }
+
+    // Delete locally
+    const localResult = window.database.deleteCourt(courtName);
+    if (!localResult) {
+      toast.warning("⚠️ Court deletion may not have synced locally");
+    }
+
+    toast.success("✅ Court deleted", { description: courtName });
+    playSound('info');
+    return true;
+  } catch (err) {
+    toast.error("❌ Error deleting court", { description: String(err) });
+    playSound('error');
+  }
+}
