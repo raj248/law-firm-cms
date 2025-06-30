@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Law Firm App: Please Choose an app name quickly",
   "author": "raj248",
+  "icon": "public/icon",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder --publish always",
