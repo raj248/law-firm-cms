@@ -36,6 +36,7 @@
     deleteAppDataOnUninstall: true,
     runAfterFinish: true,
     shortcutName: "LawFirmApp",
+    icon: "public/icon.png",
   },
   linux: {
     target: ["AppImage"],
