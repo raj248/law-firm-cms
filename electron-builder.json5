@@ -35,12 +35,15 @@
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: true,
     runAfterFinish: true,
+    createDesktopShortcut: true,
+    createStartMenuShortcut: true,
     shortcutName: "LawFirmApp",
     icon: "public/icon.png",
   },
   linux: {
     target: ["AppImage"],
     artifactName: "${productName}-Linux-${version}.${ext}",
-    icon: "public/icon.svg",
+    icon: "public/512x512.png",
+    category: "Utility",
   },
 }
