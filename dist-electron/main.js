@@ -17048,6 +17048,12 @@ function createMainWindow() {
   }
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+    setTimeout(() => {
+      splashWin == null ? void 0 : splashWin.close();
+      splashWin = null;
+      win == null ? void 0 : win.show();
+      main$3.autoUpdater.checkForUpdates();
+    }, 2e3);
   });
 }
 app.on("window-all-closed", () => {
@@ -17080,12 +17086,6 @@ app.whenReady().then(() => {
   log.info("User data path:", app.getPath("userData"));
   createSplashWindow();
   createMainWindow();
-  setTimeout(() => {
-    splashWin == null ? void 0 : splashWin.close();
-    splashWin = null;
-    win == null ? void 0 : win.show();
-    main$3.autoUpdater.checkForUpdates();
-  }, 3e3);
 });
 ipcMain.handle("check-update", () => main$3.autoUpdater.checkForUpdates);
 ipcMain.on("restart_app", () => {

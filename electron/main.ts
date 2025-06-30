@@ -100,6 +100,13 @@ function createMainWindow() {
 
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', new Date().toLocaleString());
+    // Delay splash for 2s to show branding
+    setTimeout(() => {
+      splashWin?.close();
+      splashWin = null;
+      win?.show();
+      autoUpdater.checkForUpdates();
+    }, 2000);
   });
 }
 
@@ -139,13 +146,6 @@ app.whenReady().then(() => {
   createSplashWindow();
   createMainWindow();
 
-  // Delay splash for 2s to show branding
-  setTimeout(() => {
-    splashWin?.close();
-    splashWin = null;
-    win?.show();
-    autoUpdater.checkForUpdates();
-  }, 3000);
 });
 
 ipcMain.handle('check-update', () => autoUpdater.checkForUpdates)
