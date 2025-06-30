@@ -4,6 +4,7 @@
   appId: "com.solicitor.sdr.lawfirmapp",
   asar: true,
   productName: "LawFirmApp",
+  icon: "build/icon",
   directories: {
     output: "release/${version}",
   },
@@ -28,6 +29,7 @@
       },
     ],
     artifactName: "${productName}-Windows-${version}-Setup.${ext}",
+    icon: "public/icon.png",
   },
   nsis: {
     oneClick: false,
@@ -38,12 +40,10 @@
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
     shortcutName: "LawFirmApp",
-    icon: "public/icon.png",
   },
   linux: {
     target: ["AppImage"],
     artifactName: "${productName}-Linux-${version}.${ext}",
-    icon: "public/512x512.png",
     category: "Utility",
   },
 }
