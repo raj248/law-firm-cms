@@ -1,3 +1,11 @@
+export type NewClient = {
+  id: string         // optional, generated
+  name: string
+  phone: string
+  email: string
+  address?: string
+  note?: string
+}
 
 export type newAudit = {
   action_type: string
@@ -27,15 +35,6 @@ export type User = {
   user_id: string
 }
 
-export type NewClient = {
-  id: string         // optional, generated
-  name: string
-  phone: string
-  email: string
-  address?: string
-  note?: string
-}
-
 export type Client = {
   id: string
   name: string
@@ -62,6 +61,18 @@ export type Case = {
   is_synced: number // 0 = not synced, 1 = synced
 }
 
+export type Court = {
+  id: string
+  name: string
+  created_at: string
+}
+
+export type Tag = {
+  id: string
+  name: string
+  created_at: string
+}
+
 export type Task = {
   id: string
   title: string
@@ -83,18 +94,6 @@ export type DocumentMetadata = {
   lastAccessed: string
   size: number
   mimetype: string
-}
-
-export type Court = {
-  id: string
-  name: string
-  created_at: string
-}
-
-export type Tag = {
-  id: string
-  name: string
-  created_at: string
 }
 
 export const statusOptions = ["Open", "Pending", "Closed"] as const;

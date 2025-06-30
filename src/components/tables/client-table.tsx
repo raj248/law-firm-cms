@@ -219,6 +219,11 @@ export function ClientTable() {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 25,
+      },
+    },
   })
 
   React.useEffect(() => {

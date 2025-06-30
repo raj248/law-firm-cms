@@ -1,11 +1,10 @@
-// components/dashboard/RecentClientsCases.tsx
 "use client"
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card"
 import { Client, Case } from "@/types"
 import { format } from "date-fns"
-
+import { useDialogStore } from "@/stores/dialog-store"
 
 interface RecentClientsCasesProps {
   recentClients: Client[]
@@ -13,6 +12,9 @@ interface RecentClientsCasesProps {
 }
 
 export function RecentClientsCases({ recentClients, recentCases }: RecentClientsCasesProps) {
+  const openClientDialog = useDialogStore((s) => s.openClientDialog)
+  const openCaseDialog = useDialogStore((s) => s.openCaseDialog)
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Clients */}
@@ -26,7 +28,18 @@ export function RecentClientsCases({ recentClients, recentCases }: RecentClients
               {recentClients.map((client) => (
                 <HoverCard key={client.id} openDelay={100} closeDelay={50}>
                   <HoverCardTrigger asChild>
-                    <li className="flex justify-between cursor-pointer hover:text-primary">
+                    <li
+                      className="flex justify-between cursor-pointer hover:text-primary"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => openClientDialog(client.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          openClientDialog(client.id)
+                        }
+                      }}
+                    >
                       <span>{client.name}</span>
                       <span className="text-muted-foreground text-xs">
                         {format(new Date(client.updated_at ?? client.created_at), "PPP")}
@@ -60,7 +73,18 @@ export function RecentClientsCases({ recentClients, recentCases }: RecentClients
               {recentCases.map((c) => (
                 <HoverCard key={c.file_id} openDelay={100} closeDelay={50}>
                   <HoverCardTrigger asChild>
-                    <li className="flex justify-between cursor-pointer hover:text-primary">
+                    <li
+                      className="flex justify-between cursor-pointer hover:text-primary"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => openCaseDialog(c.file_id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          openCaseDialog(c.file_id)
+                        }
+                      }}
+                    >
                       <span>{c.title}</span>
                       <span className="text-muted-foreground text-xs">
                         {format(new Date(c.updated_at ?? c.created_at), "PPP")}

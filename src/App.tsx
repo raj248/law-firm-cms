@@ -23,6 +23,7 @@ import { useClientStore } from "./stores/client-store"
 import { useDocumentStore } from "./stores/document-store"
 import { useSettingsStore } from "./stores/settings-store"
 import { useTaskStore } from "./stores/task-store"
+import SearchPage from "./components/pages/search"
 
 export default function App() {
   const fetchDocuments = useDocumentStore((s) => s.fetchDocuments)
@@ -66,6 +67,7 @@ export default function App() {
               }
             >
               <Route path="/" element={<Dashboard />} />
+              <Route path="/search" element={<SearchPage />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/cases" element={<Cases />} />
               <Route path="/task" element={<TaskPage />} />

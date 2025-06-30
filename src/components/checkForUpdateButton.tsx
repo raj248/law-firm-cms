@@ -9,8 +9,6 @@ export function CheckForUpdateButton() {
     setChecking(true)
     try {
       window.electronUpdater.checkForUpdate()
-      // enforce 5 sec timeout even if check completes instantly
-      await new Promise((resolve) => setTimeout(resolve, 5000))
     } catch (error) {
       console.error("Error checking for update:", error)
     } finally {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { format } from "date-fns"
+import { format, formatDistanceToNow } from "date-fns"
 import { X } from "lucide-react"
 import { Audit } from "@/types"
 import { playSound } from "@/utils/sound"
@@ -81,9 +81,14 @@ export function ActivityFeedPopover({
 
   useEffect(() => {
     if (expanded && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        // behavior: "smooth"
+      });
     }
-  }, [expanded])
+  }, [expanded, sortedAudits.length]);
+
+
 
   if (!visible || !latestAudit) return null
 
@@ -99,7 +104,7 @@ export function ActivityFeedPopover({
     <div
       className={cn(
         "fixed right-4 top-1/2 -translate-y-1/2 z-50 bg-background border rounded-lg shadow-xl transition-all duration-300 overflow-hidden",
-        expanded ? "w-[300px] sm:w-[350px] max-h-[400px]" : "w-[250px] max-h-[70px]"
+        expanded ? "w-[400px] sm:w-[450px] max-h-[400px]" : "w-[350px] max-h-[90px]"
       )}
       onMouseEnter={() => {
         setIsHovering(true)
@@ -138,7 +143,7 @@ export function ActivityFeedPopover({
                   </p>
                   <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
                     <span>{audit.user_name || "Unknown User"}</span>
-                    <span>{format(new Date(audit.created_at), "PPP p")}</span>
+                    <span>{formatDistanceToNow(new Date(audit.created_at), { addSuffix: true })}</span>
                   </div>
                 </div>
               ))}
