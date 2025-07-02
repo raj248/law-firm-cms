@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom"
 import { Toaster } from "@/components/ui/sonner"
 import { Header } from "../header/header"
 import { useTheme } from "@/hooks/theme-provider"
-import { ActivityFeedPopover } from "../dashboard/activity-feed-popover"
+import { ActivityFeedDialog } from "../dashboard/activity-feed-dialog"
 import { useEffect, useState } from "react"
 import { useSyncStore } from "@/stores/sync-store"
 import { useAuditStore } from "@/stores/audit-store"
@@ -39,7 +39,7 @@ export default function MainLayout() {
           theme={theme}
           visibleToasts={8} />
       </main>
-      <ActivityFeedPopover
+      <ActivityFeedDialog
         audits={audits}
         newActivityTrigger={newActivityTrigger}
         onDismiss={() => setNewActivityTrigger(false)}

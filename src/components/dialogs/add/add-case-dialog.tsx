@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
+import { useState } from "react"
 
 const caseSchema = z.object({
   file_id: z.string().min(1, "File ID is required"),
@@ -50,6 +51,7 @@ const onAdd = (data: CaseFormData) => {
 }
 
 export function AddCaseDialog({ id = "" }: { id?: string }) {
+  const [open, setOpen] = useState(false)
   const clients = useClientStore((state) => state.clients)
   const client = clients.find((c) => c.id === id)
 
@@ -67,10 +69,11 @@ export function AddCaseDialog({ id = "" }: { id?: string }) {
   const onSubmit = (data: CaseFormData) => {
     onAdd(data)
     form.reset()
+    setOpen(false)
   }
 
   return (
-    <Dialog onOpenChange={(open) => { if (!open) form.reset() }}>
+    <Dialog open={open} onOpenChange={(open) => { if (!open) form.reset(); setOpen(open) }}>
       <DialogTrigger asChild>
         <Button size="sm">+ New Case</Button>
       </DialogTrigger>

@@ -17,6 +17,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useClientStore } from "@/stores/client-store"
+import { useDialogStore } from "@/stores/dialog-store"
+import { useState } from "react"
 
 const clientSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -41,6 +43,7 @@ const onAdd = (data: ClientFormData) => {
 }
 
 export function AddClientDialog() {
+  const [open, setOpen] = useState(false)
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
@@ -55,11 +58,13 @@ export function AddClientDialog() {
   const onSubmit = (data: ClientFormData) => {
     onAdd(data)
     form.reset()
+    setOpen(false)
   }
 
   return (
-    <Dialog onOpenChange={(open) => {
-      if (!open) form.reset()
+    <Dialog open={open} onOpenChange={(state) => {
+      if (!state) form.reset()
+      setOpen(state)
     }}>
       <DialogTrigger asChild>
         <Button size="sm">+ New Client</Button>

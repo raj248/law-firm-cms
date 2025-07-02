@@ -17,6 +17,7 @@ import { UserAvatarDropdown } from "./userAvatarDropdown"
 import { UpdateDropdown } from "./updateDropdown"
 import { GlobalSearch } from "./global-search"
 import { ShowAuditHistoryButton } from "./show-audits-history-button"
+// import { Debug } from "./debug"
 
 export function Header() {
   const location = useLocation()
@@ -45,6 +46,7 @@ export function Header() {
       {location.pathname !== "/search" && <GlobalSearch />}
 
       <div className="flex items-center gap-2">
+        {/* <Debug /> */}
         <ShowAuditHistoryButton />
         <UpdateDropdown />
         <ThemeToggle />
