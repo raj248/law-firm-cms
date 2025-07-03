@@ -9,6 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card"
 import {
   Tabs,
@@ -23,9 +24,15 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 import { Badge } from "../ui/badge"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
+import { useClientStore } from "@/stores/client-store"
+import { useCaseStore } from "@/stores/case-store"
 
 export default function TaskPage() {
   const { tasks, fetchTasks, deleteTask, markTaskCompleted } = useTaskStore()
+  const { getCaseById } = useCaseStore()
+  const { getClientById } = useClientStore()
+
   const [statusFilter, setStatusFilter] = useState<string>("All")
 
   useEffect(() => {
@@ -88,19 +95,26 @@ export default function TaskPage() {
             {getFilteredTasks(priority).length ? (
               <div
                 className="
-                  grid gap-3 
-                  grid-cols-[repeat(auto-fit,minmax(220px,1fr))]
+                  flex flex-wrap gap-3
                 "
               >
                 {getFilteredTasks(priority).map((task) => (
                   <Card
                     key={task.id}
-                    className="hover:shadow-sm transition-shadow relative"
+                    className="hover:shadow-sm transition-shadow relative w-fit min-w-[220px] max-w-sm"
                   >
-                    <CardHeader >
-                      <CardTitle className="text-sm">{task.title}</CardTitle>
+                    <CardHeader className="pb-1">
+                      <CardTitle className="text-base font-semibold text-foreground">
+                        {task.title}
+                      </CardTitle>
+                      {task.note && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-4">
+                          {task.note}
+                        </p>
+                      )}
                     </CardHeader>
                     <CardContent className="text-xs text-muted-foreground space-y-1">
+                      {/* Status & Priority Badges */}
                       <div className="flex flex-wrap gap-1">
                         <Badge variant="outline" className="text-[10px] capitalize">
                           {task.status}
@@ -110,12 +124,103 @@ export default function TaskPage() {
                         </Badge>
                       </div>
 
+                      {/* Due Date */}
                       {task.dueDate && (
-                        <p>{format(new Date(task.dueDate), "PPP")}</p>
+                        <p>
+                          <span className="font-medium text-foreground">Due:</span>{" "}
+                          {format(new Date(task.dueDate), "PPP")}
+                        </p>
                       )}
-                      {task.note && <p>{task.note}</p>}
 
-                      <div className="flex gap-2 pt-2">
+                      {/* Hover Cards for Case & Client */}
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {task.caseId && (
+                          <HoverCard openDelay={100} closeDelay={50}>
+                            <HoverCardTrigger asChild>
+                              {(() => {
+                                const caseData = getCaseById(task.caseId!)
+                                return (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-6 px-2 text-[10px]"
+                                  >
+                                    Case: {caseData ? caseData.title : `${task.caseId.slice(0, 6)}...`}
+                                  </Button>
+                                )
+                              })()}
+                            </HoverCardTrigger>
+
+                            <HoverCardContent className="text-xs space-y-1 max-w-xs">
+                              {(() => {
+                                const caseData = getCaseById(task.caseId!)
+                                return caseData ? (
+                                  <>
+                                    <p><span className="font-medium">Title:</span> {caseData.title}</p>
+                                    <p><span className="font-medium">File ID:</span> {caseData.file_id}</p>
+                                    <p><span className="font-medium">Court:</span> {caseData.court}</p>
+                                    <p><span className="font-medium">Status:</span> {caseData.status}</p>
+                                    {Array.isArray(caseData.tags) && caseData.tags.length > 0 && (
+                                      <p><span className="font-medium">Tags:</span> {caseData.tags.join(", ")}</p>
+                                    )}
+                                  </>
+                                ) : (
+                                  <p className="text-muted-foreground">Case data not found.</p>
+                                )
+                              })()}
+                            </HoverCardContent>
+                          </HoverCard>
+
+                        )}
+
+                        {task.client_id && (
+                          <HoverCard openDelay={100} closeDelay={50}>
+                            <HoverCardTrigger asChild>
+                              {(() => {
+                                const clientData = getClientById(task.client_id!)
+                                return (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-6 px-2 text-[10px]"
+                                  >
+                                    Client: {clientData ? clientData.name : `${task.client_id.slice(0, 6)}...`}
+                                  </Button>
+                                )
+                              })()}
+                            </HoverCardTrigger>
+
+                            <HoverCardContent className="text-xs space-y-1 max-w-xs">
+                              {(() => {
+                                const clientData = getClientById(task.client_id!)
+                                return clientData ? (
+                                  <>
+                                    <p><span className="font-medium">Name:</span> {clientData.name}</p>
+                                    <p><span className="font-medium">Phone:</span> {clientData.phone}</p>
+                                    {clientData.email && (
+                                      <p><span className="font-medium">Email:</span> {clientData.email}</p>
+                                    )}
+                                    {clientData.address && (
+                                      <p><span className="font-medium">Address:</span> {clientData.address}</p>
+                                    )}
+                                    {clientData.note && (
+                                      <p><span className="font-medium">Note:</span> {clientData.note}</p>
+                                    )}
+                                  </>
+                                ) : (
+                                  <p className="text-muted-foreground">Client data not found.</p>
+                                )
+                              })()}
+                            </HoverCardContent>
+                          </HoverCard>
+
+                        )}
+                      </div>
+                    </CardContent>
+
+
+                    <CardFooter className="flex justify-between items-center pt-1">
+                      <div className="flex gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -133,8 +238,12 @@ export default function TaskPage() {
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
-                    </CardContent>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(task.created_at), "PPP")}
+                      </p>
+                    </CardFooter>
                   </Card>
+
                 ))}
               </div>
             ) : (

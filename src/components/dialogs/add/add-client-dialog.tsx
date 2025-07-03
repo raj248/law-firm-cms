@@ -17,7 +17,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useClientStore } from "@/stores/client-store"
-import { useDialogStore } from "@/stores/dialog-store"
 import { useState } from "react"
 
 const clientSchema = z.object({

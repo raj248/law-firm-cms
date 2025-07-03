@@ -11,6 +11,7 @@ type ClientStore = {
   addClient: (client: NewClient) => Promise<void>
   deleteClient: (id: string) => Promise<void>
   updateClient: (id: string, field: keyof Client, value: string) => Promise<void>
+  getClientById: (id: string) => Client | undefined
 }
 
 export const useClientStore = create<ClientStore>((set, get) => ({
@@ -85,5 +86,6 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       toast.error("Error", { description: resCloud.error?.message || resLocal.error })
       playSound('error')
     }
-  }
+  },
+  getClientById: (id) => get().clients.find((c) => c.id === id),
 }))
