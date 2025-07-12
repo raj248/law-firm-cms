@@ -1,13 +1,10 @@
-// app/settings/page.tsx
-
 "use client"
 
-import { useState } from "react"
+// import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
+// import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
 import { useTheme } from "@/hooks/theme-provider"
 import { toast } from "sonner"
 import { CheckForUpdateButton } from "../checkForUpdateButton"
@@ -15,12 +12,9 @@ import { TagsCourtsButton } from "../dialogs/TagCourtButton"
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
-  const [fontSize, setFontSize] = useState(16)
-  const [autoSync, setAutoSync] = useState(false)
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
-  const [debugEnabled, setDebugEnabled] = useState(false)
-  const [autoDownloadUpdates, setAutoDownloadUpdates] = useState(true)
-  const [notifyBeforeRestart, setNotifyBeforeRestart] = useState(true)
+  // const [debugEnabled, setDebugEnabled] = useState(false)
+  // const [autoDownloadUpdates, setAutoDownloadUpdates] = useState(true)
+  // const [notifyBeforeRestart, setNotifyBeforeRestart] = useState(true)
 
   return (
     <div className="max-w-2xl mx-auto p-4 space-y-6">
@@ -41,16 +35,6 @@ export default function SettingsPage() {
               {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
             </Button>
           </div>
-          <div>
-            <Label className="mb-1 block">Font Size: {fontSize}px</Label>
-            <Slider
-              min={12}
-              max={24}
-              step={1}
-              value={[fontSize]}
-              onValueChange={(val) => setFontSize(val[0])}
-            />
-          </div>
         </CardContent>
       </Card>
 
@@ -59,19 +43,19 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Data & Sync</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+        <CardContent className="space-y-4 flex flex-col ">
+          {/* <div className="flex items-center justify-between">
             <Label>Auto-Sync every 30 min</Label>
             <Switch checked={autoSync} onCheckedChange={setAutoSync} />
-          </div>
+          </div> */}
           <TagsCourtsButton />
-          <Button variant="secondary" onClick={() => toast.message("Manual sync triggered")}>Sync Now</Button>
-          <Button variant="destructive" onClick={() => toast.message("Local cache cleared")}>Clear Cache</Button>
+          {/* <Button variant="secondary" onClick={() => toast.message("Manual sync triggered")}>Sync Now</Button> */}
+          {/* <Button variant="destructive" onClick={() => toast.message("Local cache cleared")}>Clear Cache</Button> */}
         </CardContent>
       </Card>
 
       {/* Notifications */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
         </CardHeader>
@@ -81,7 +65,7 @@ export default function SettingsPage() {
             <Switch checked={notificationsEnabled} onCheckedChange={setNotificationsEnabled} />
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Update Preferences */}
       <Card>
@@ -89,20 +73,20 @@ export default function SettingsPage() {
           <CardTitle>Update Preferences</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <CheckForUpdateButton />
+          {/* <div className="flex items-center justify-between">
             <Label>Auto-Download Updates</Label>
             <Switch checked={autoDownloadUpdates} onCheckedChange={setAutoDownloadUpdates} />
           </div>
-          <CheckForUpdateButton />
           <div className="flex items-center justify-between">
             <Label>Notify Before Restart</Label>
             <Switch checked={notifyBeforeRestart} onCheckedChange={setNotifyBeforeRestart} />
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 
       {/* Developer / Debug */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Developer</CardTitle>
         </CardHeader>
@@ -114,7 +98,7 @@ export default function SettingsPage() {
           <Button onClick={() => toast.message("Logs exported")}>Export Logs</Button>
           <Button onClick={() => toast.success("Test notification")}>Test Notification</Button>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Account */}
       <Card>

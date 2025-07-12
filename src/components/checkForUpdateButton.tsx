@@ -20,7 +20,7 @@ export function CheckForUpdateButton() {
     <Button
       onClick={handleCheckUpdate}
       disabled={checking}
-      variant="outline"
+      variant="default"
       className="gap-2"
     >
       {checking ? (

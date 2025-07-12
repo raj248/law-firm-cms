@@ -20,7 +20,7 @@ export function RecentDocumentsPanel({ documents, onView }: Props) {
   return (
     <div>
       <h3 className="text-base font-semibold mb-2">Recent Documents</h3>
-      <div className="flex gap-3 overflow-x-auto pb-1 hide-scrollbar p-3">
+      <div className="flex gap-3 overflow-x-auto pb-1 hide-scrollbar ">
         {recentDocuments.length ? (
           recentDocuments.map(doc => (
             <button
