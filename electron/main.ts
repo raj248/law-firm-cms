@@ -29,6 +29,8 @@ import { deleteUser } from './supabaseAdmin.ts';
 
 dotenv.config();
 
+app.commandLine.appendSwitch('disable-gpu');
+app.disableHardwareAcceleration();
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +58,7 @@ function createSplashWindow() {
     center: true,
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'),
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -81,7 +83,7 @@ function createMainWindow() {
     icon: path.join(process.env.VITE_PUBLIC, 'icon.svg'),
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'),
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
