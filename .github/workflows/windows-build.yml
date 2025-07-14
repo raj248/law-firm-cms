@@ -24,7 +24,7 @@ jobs:
         run: npm install
 
       - name: Build and Publish Electron App
-        run: npx electron-builder --win --x64 --publish always
+        run: npx electron-builder --win --x64 --publish always --config.publish.channel=stable
 
       - name: Upload Windows Build Artifact
         uses: actions/upload-artifact@v4
