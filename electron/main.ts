@@ -31,6 +31,7 @@ dotenv.config();
 
 app.commandLine.appendSwitch('disable-gpu');
 app.disableHardwareAcceleration();
+
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,6 +110,7 @@ function createMainWindow() {
       splashWin?.close();
       splashWin = null;
       win?.show();
+      autoUpdater.channel = "beta"; // "beta", "stable" etc.
       autoUpdater.checkForUpdates();
     }, 2000);
   });

@@ -23,12 +23,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build and Publish Electron App
-        run: npx electron-builder --win --x64 --publish always
+      - name: Build and Publish Electron App (ia32)
+        run: npx electron-builder --win --ia32 --publish always
 
       - name: Upload Windows Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: law-firm-windows-build
+          name: law-firm-windows-ia32-build
           path: |
             release/**/*.exe

@@ -14,22 +14,23 @@
       owner: "raj248",
       repo: "law-firm-cms",
       releaseType: "release",
+      channel: "beta", // <-- replace with "beta", "stable"
     },
   ],
+
   files: ["dist", "dist-electron", "splash", "public"],
   mac: {
     target: ["dmg"],
-    artifactName: "${productName}-Mac-${version}-Installer.${ext}",
+    artifactName: "${productName}-Mac-${version}-${arch}-Installer.${ext}",
   },
   win: {
     target: [
       {
         target: "nsis",
-        arch: ["ia32", "x64"]
-
+        arch: ["ia32", "x64"],
       },
     ],
-    artifactName: "${productName}-Windows-${version}-Setup.${ext}",
+    artifactName: "${productName}-Windows-${version}-${arch}-Setup.${ext}",
     icon: "public/icon.png",
   },
   nsis: {
@@ -44,7 +45,7 @@
   },
   linux: {
     target: ["AppImage"],
-    artifactName: "${productName}-Linux-${version}.${ext}",
+    artifactName: "${productName}-Linux-${version}-${arch}.${ext}",
     category: "Utility",
   },
 }
