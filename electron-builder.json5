@@ -27,7 +27,7 @@
     target: [
       {
         target: "nsis",
-        arch: ["ia32", "x64"],
+        arch: ["ia32"],
       },
     ],
     artifactName: "${productName}-Windows-${version}-${arch}-Setup.${ext}",
