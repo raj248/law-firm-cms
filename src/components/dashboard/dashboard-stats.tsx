@@ -43,7 +43,7 @@ export function DashboardStats({ clientsCount, activeCasesCount, upcomingTasksCo
   ]
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 bg-red-500">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       {stats.map((stat, i) => (
         <Link to={stat.path} key={i} className="hover:no-underline">
           <Card className="hover:shadow-md hover:ring-1 hover:ring-primary transition cursor-pointer">

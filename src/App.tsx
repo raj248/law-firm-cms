@@ -49,7 +49,7 @@ export default function App() {
   return (
     <ThemeProvider defaultTheme={theme} storageKey="vite-ui-theme">
       <Router>
-        <div className="w-screen h-screen flex flex-row ">
+        <div className="w-screen h-screen flex flex-row bg-background text-foreground">
           <Sidebar />
           {/* <UpdateDialog /> */}
 

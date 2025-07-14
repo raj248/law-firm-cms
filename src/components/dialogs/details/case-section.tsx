@@ -23,14 +23,14 @@ export const CaseSection = ({ id }: Props) => {
         className="
           hidden md:block
           absolute top-1/2 left-full -translate-y-1/2 ml-6
-          bg-background/80 backdrop-blur-sm
+          bg-background backdrop-blur-sm
           shadow-lg rounded-xl border
           max-w-sm w-[22rem] p-4
           max-h-[80vh] overflow-y-auto scrollbar-custom
           z-40
         "
       >
-        <div className="flex justify-between items-center mb-2 sticky top-0 bg-background/80 backdrop-blur-sm z-10 pb-2">
+        <div className="flex justify-between items-center mb-2 sticky top-0 bg-background backdrop-blur-sm z-10 pb-2">
           <h3 className="text-lg font-semibold">Cases</h3>
           <AddCaseDialog id={id} />
         </div>

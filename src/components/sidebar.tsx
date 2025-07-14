@@ -31,8 +31,8 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="relative h-1/2 translate-y-1/2 z-10" dir="rtl">
-      <div className="group absolute left-0 top-0 h-full w-14 hover:w-36 transition-all duration-300 bg-[var(--color-sidebar)] rounded-r-lg border-2 flex flex-col py-4 overflow-hidden z-10">
+    <div className="relative h-1/2 translate-y-1/2 z-10 bg-background text-foreground" dir="rtl">
+      <div className="group absolute left-0 top-0 h-full w-14 hover:w-36 transition-all duration-300 bg-background rounded-r-lg border-2 flex flex-col py-4 overflow-hidden z-10">
         <NavigationMenu orientation="vertical">
           <NavigationMenuList className="flex flex-col items-start ml-4 space-y-2">
             {navItems.map((item) => (

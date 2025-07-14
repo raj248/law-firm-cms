@@ -1,4 +1,4 @@
-import tailwindcss from "@tailwindcss/vite"
+// import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from 'vite'
 import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
@@ -9,7 +9,7 @@ export default defineConfig({
   assetsInclude: ['**/*.mp3'],
   plugins: [
     react(),
-    tailwindcss(),
+    // tailwindcss(),
     visualizer({
       filename: './dist/bundle-stats.html',
       open: false,

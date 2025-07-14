@@ -24,7 +24,7 @@ export default function MainLayout() {
   const { theme } = useTheme()
 
   return (
-    <div className="flex flex-col h-full w-full ml-14 overflow-hidden hide-scrollbar bg-[var(--color-background)] text-[var(--card-foreground)]">
+    <div className="flex flex-col h-full w-full ml-14 overflow-hidden hide-scrollbar bg-background text-foreground">
 
       {/* Header */}
       <Header />

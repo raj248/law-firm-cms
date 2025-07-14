@@ -38,7 +38,7 @@ export default function Dashboard() {
   const recentCases = sortByDateField(cases, "updated_at").slice(0, 5)
 
   return (
-    <div className="space-y-6 p-4 max-w-5xl mx-auto">
+    <div className="space-y-6 p-4 max-w-5xl mx-auto hide-scrollbar">
       <div className="text-center space-y-1">
         <h2 className="text-2xl font-bold">Welcome Back 👋</h2>
         <p className="text-muted-foreground">Here’s an overview of your law firm.</p>
