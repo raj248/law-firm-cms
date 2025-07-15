@@ -107,7 +107,6 @@ function createMainWindow() {
       splashWin?.close();
       splashWin = null;
       win?.show();
-      autoUpdater.channel = "stable"; // "beta", "stable"
       autoUpdater.checkForUpdates();
     }, 2000);
   });
