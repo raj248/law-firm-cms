@@ -1,11 +1,12 @@
 {
   "name": "law-firm-app",
-  "version": "3.3.0",
+  "version": "3.3.0-beta",
   "description": "Law Firm App: Please Choose an app name quickly",
   "author": "raj248",
   "icon": "public/icon",
   "scripts": {
     "dev": "vite",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
     "build": "tsc && vite build && electron-builder --publish always",
     "build32": "tsc && vite build && electron-builder  --win --ia32",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -80,6 +81,7 @@
     "autoprefixer": "^10.4.21",
     "electron": "^22.3.27",
     "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",

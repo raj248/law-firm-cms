@@ -17073,6 +17073,7 @@ function createMainWindow() {
       splashWin == null ? void 0 : splashWin.close();
       splashWin = null;
       win == null ? void 0 : win.show();
+      main$3.autoUpdater.channel = "beta";
       main$3.autoUpdater.checkForUpdates();
     }, 2e3);
   });
